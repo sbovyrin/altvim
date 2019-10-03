@@ -12,7 +12,7 @@ This is plugin for vim editor
 
 ## Roadmap
 
-- [ ] Make a plugin structure
+- [x] Make a plugin structure
 - [ ] Create script of installing coc.nvim deps and silver-search and add some stuff to .bashrc/.zshrc...
 - [ ] Create custom colorscheme
 - [ ] Try https://github.com/terryma/vim-multiple-cursors
