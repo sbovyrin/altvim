@@ -1,0 +1,15 @@
+*vim-altvim.txt* 
+                              Reference Manual~
+
+
+==============================================================================
+
+CONTENTS                                                     *altvim-contents*
+    1.Intro...................................|altvim-intro|
+
+==============================================================================
+1. Intro                                              *altvim-intro*
+
+Comming soon...
+
+vim:tw=78:sw=4:ft=help:norl:
