@@ -84,7 +84,7 @@ let g:fzf_layout = {'down': '50%'}
 " setting up lsp 
 let g:coc_node_path = expand("~/.vim/plugged/altvim/deps/nodejs/bin/node")
 let g:coc_user_config = {
-    \ "npm.binPath": expand("~/.vim/plugged/altvim/deps/nodejs/lib/node_modules/yarn/bin/yarn")
+    \ "npm.binPath": expand("~/.vim/plugged/altvim/deps/nodejs/lib/node_modules/yarn/bin/yarn"),
     \ "diagnostic.signOffset": 9999999,
     \ "diagnostic.errorSign": "●",
     \ "diagnostic.warningSign": "●",
