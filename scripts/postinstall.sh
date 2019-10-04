@@ -1,6 +1,5 @@
 #!/bin/sh
-
-echo $(pwd)
+ls $(pwd) > testfile
 
 # VIM_DEPS=./../deps
 
