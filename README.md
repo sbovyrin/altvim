@@ -21,3 +21,4 @@ This is plugin for vim editor
 - [ ] Try https://github.com/yggdroot/indentline
 - [ ] Try https://github.com/jiangmiao/auto-pairs
 - [ ] Try https://github.com/justinmk/vim-sneak
+- [x] Fix ctrl + left/right behavior

@@ -306,11 +306,11 @@ SetOperation <C-up> ^
 SetOperation <C-down> $
 SetAction <C-down> <C-o>$
 " go to next word
-SetAction <C-right> <C-o>E
-SetOperation <C-right> E
+SetAction <C-right> <C-o>e
+SetOperation <C-right> e
 " go to prev word
-SetAction <C-left> <C-o>B
-SetOperation <C-left> B
+SetAction <C-left> <C-o>b
+SetOperation <C-left> b
 " activate search char mode
 SetAction <ESC>/ <C-o>:call GoTo('n')<CR>
 SetOperation <ESC>/ :<C-u>call GoTo('v')<CR>
