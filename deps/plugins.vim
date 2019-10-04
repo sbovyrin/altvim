@@ -14,7 +14,6 @@ Plug 'sainnhe/edge'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 " language server protocol  
-let $PATH=$PATH . ':' . expand('./deps/nodejs/bin')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " language syntax  
 Plug 'sheerun/vim-polyglot'

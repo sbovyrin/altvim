@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo -e "Running altvim post-install...\n"
+
 VIM_DEPS=./deps
 
 which curl 1>/dev/null 2>&1 \
@@ -17,4 +19,6 @@ ls $VIM_DEPS/nodejs 1>/dev/null 2>&1 \
         && $VIM_DEPS/nodejs/bin/npm i --prefix $VIM_DEPS/nodejs/lib/node_modules/yarn yarn \
         && mv $VIM_DEPS/nodejs/lib/node_modules/yarn/node_modules/yarn/* $VIM_DEPS/nodejs/lib/node_modules/yarn \
         && rm -rf $VIM_DEPS/nodejs/lib/node_modules/yarn/{node_modules,package-lock.json} \
-        && ln -s $VIM_DEPS/nodejs/lib/node_modules/yarn/bin/yarn $VIM_DEPS/nodejs/bin/yarn)  
+        && ln -s $VIM_DEPS/nodejs/lib/node_modules/yarn/bin/yarn $VIM_DEPS/nodejs/bin/yarn)
+
+which clear 1>/dev/null 2>&1 && clear

@@ -82,8 +82,8 @@ endif
 " setting up fzf
 let g:fzf_layout = {'down': '50%'}
 
-" setting up lsp
-let g:coc_node_path = expand("~/.vim/deps/nodejs/bin/node")
+" setting up lsp 
+let g:coc_node_path = expand("~/.vim/plugged/altvim/deps/nodejs/bin/node")
 let g:coc_user_config = {
     \ "diagnostic.signOffset": 9999999,
     \ "diagnostic.errorSign": "●",
