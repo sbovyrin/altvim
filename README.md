@@ -20,8 +20,8 @@ This is plugin for vim editor
 - [x] Make a plugin structure
 - [x] Create script of installing coc.nvim deps and silver-search and add some stuff to .bashrc/.zshrc...
 - [ ] Figure out why node is not defined for coc plugin
-- [ ] Check how the plugin works with other plugin systems
 - [ ] Prevent error messages after installing the plugin
+- [ ] Check how the plugin works with other plugin systems
 - [ ] Create custom colorscheme
 - [ ] Try https://github.com/terryma/vim-multiple-cursors
 - [ ] Try https://github.com/tpope/vim-surround

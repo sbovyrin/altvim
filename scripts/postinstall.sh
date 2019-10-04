@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "Running altvim post-install...\n"
+echo "Running altvim post-install...\n"
 
 VIM_DEPS=./deps
 
