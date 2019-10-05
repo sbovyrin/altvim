@@ -50,7 +50,7 @@ let loaded_netrw = 0
 
 " when vim startup auto install altvim plugins if its were not installed
 if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
-    PlugInstall --sync | source ~/.vimrc
+    PlugInstall --sync | bdelete | source ~/.vimrc
 endif
 
 " add nodejs bin to $PATH if needed
