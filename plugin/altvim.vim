@@ -48,10 +48,6 @@ let mapleader="\\"
 " disable netrw directory listing on startup
 let loaded_netrw = 0
 
-" [altvim variables]
-" =*=*=*=*=*=*=*=*=
-let g:altvim_plugins = 'source ' . g:plugs['altvim'].dir . 'deps/plugins.vim'
-
 " when vim startup auto install altvim plugins if its were not installed
 if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
     PlugInstall
