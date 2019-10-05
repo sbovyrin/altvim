@@ -48,6 +48,10 @@ let mapleader="\\"
 " disable netrw directory listing on startup
 let loaded_netrw = 0
 
+if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
+    PlugInstall
+endif
+
 " [Plugins settings]
 " =*=*=*=*=*=*=*=*=
 
@@ -73,9 +77,10 @@ let g:lightline = {
 let g:fzf_layout = {'down': '50%'}
 
 " setting up lsp 
-let g:coc_node_path = expand("~/.vim/plugged/altvim/deps/nodejs/bin/node")
+" let g:coc_node_path = expand("~/.vim/plugged/altvim/deps/nodejs/bin/node")
+let g:coc_node_path = g:plugs["altvim"].dir . 'deps/nodejs/bin/node'
 let g:coc_user_config = {
-    \ "npm.binPath": expand("~/.vim/plugged/altvim/deps/nodejs/lib/node_modules/yarn/bin/yarn"),
+    \ "npm.binPath": g:plugs["altvim"].dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
     \ "diagnostic.signOffset": 9999999,
     \ "diagnostic.errorSign": "●",
     \ "diagnostic.warningSign": "●",
@@ -87,7 +92,7 @@ let g:coc_user_config = {
     \ "suggest.timeout": 400,
     \ "suggest.snippetIndicator": "►",
     \ "suggest.maxCompleteItemCount": 15,
-    \ "snippets.userSnippetsDirectory": expand("~/.vim/snippets"),
+    \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
     \ "snippets.extends": {
     \   "javascriptreact": ["javascript"],
     \ }
