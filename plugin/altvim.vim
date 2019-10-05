@@ -48,10 +48,16 @@ let mapleader="\\"
 " disable netrw directory listing on startup
 let loaded_netrw = 0
 
+" [altvim variables]
+" =*=*=*=*=*=*=*=*=
+let g:altvim_plugins = 'source ' . g:plugs['altvim'].dir . 'deps/plugins.vim'
+
+" when vim startup auto install altvim plugins if its were not installed
 if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
     PlugInstall
 endif
 
+" add nodejs bin to $PATH if needed
 if stridx($PATH, 'node') < 0
     let $PATH=$PATH . ':' . g:plugs['altvim'].dir . 'deps/nodejs/bin'
 endif
@@ -81,7 +87,6 @@ let g:lightline = {
 let g:fzf_layout = {'down': '50%'}
 
 " setting up lsp 
-" let g:coc_node_path = expand("~/.vim/plugged/altvim/deps/nodejs/bin/node")
 let g:coc_node_path = g:plugs["altvim"].dir . 'deps/nodejs/bin/node'
 let g:coc_user_config = {
     \ "npm.binPath": g:plugs["altvim"].dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
@@ -204,7 +209,7 @@ command! -nargs=1 ReplaceFound call s:replace_found(<f-args>)
 " Show file search after start on directory
 autocmd VimEnter * nested if argc() == 1 && isdirectory(argv()[0]) |
             \   sleep 100m |
-            \   exe "FZF! --reverse --multi" |
+            \   exe "call fzf#run({'sink': 'e', 'options': '--height 99% --reverse --multi'})" |
             \ endif 
 
 " language specific tab
