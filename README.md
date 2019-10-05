@@ -23,6 +23,8 @@ This is plugin for vim editor
 - [x] Figure out why node is not defined for coc plugin
 - [x] Prevent error messages after installing the plugin
 - [x] Fix ctrl + left/right behavior
+- [ ] Allow user define custom .vimrc location
+- [ ] Allow user define custom snippetd location
 - [ ] Create `isActivePlugin` function to check whether a plugin is loaded and active
 - [ ] Check how the plugin works with other plugin systems
 - [ ] Create custom colorscheme
