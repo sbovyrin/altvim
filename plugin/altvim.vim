@@ -52,6 +52,10 @@ if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
     PlugInstall
 endif
 
+if stridx($PATH, 'node') < 0
+    let $PATH=$PATH . ':' . g:plugs['altvim'].dir . 'deps/nodejs/bin'
+endif
+
 " [Plugins settings]
 " =*=*=*=*=*=*=*=*=
 

@@ -9,6 +9,7 @@ This is plugin for vim editor
 
 ## Features
 
+
 ## Installing
 
 - install https://github.com/ggreer/the_silver_searcher for better searching
@@ -19,8 +20,10 @@ This is plugin for vim editor
 
 - [x] Make a plugin structure
 - [x] Create script of installing coc.nvim deps and silver-search and add some stuff to .bashrc/.zshrc...
-- [ ] Figure out why node is not defined for coc plugin
-- [ ] Prevent error messages after installing the plugin
+- [x] Figure out why node is not defined for coc plugin
+- [x] Prevent error messages after installing the plugin
+- [x] Fix ctrl + left/right behavior
+- [ ] Create `isActivePlugin` function to check whether a plugin is loaded and active
 - [ ] Check how the plugin works with other plugin systems
 - [ ] Create custom colorscheme
 - [ ] Try https://github.com/terryma/vim-multiple-cursors
@@ -29,4 +32,3 @@ This is plugin for vim editor
 - [ ] Try https://github.com/yggdroot/indentline
 - [ ] Try https://github.com/jiangmiao/auto-pairs
 - [ ] Try https://github.com/justinmk/vim-sneak
-- [x] Fix ctrl + left/right behavior
