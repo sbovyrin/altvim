@@ -48,9 +48,13 @@ let mapleader="\\"
 " disable netrw directory listing on startup
 let loaded_netrw = 0
 
+
+" [altvim variables]
+" =*=*=*=*=*=*=*=*=
+
 " when vim startup auto install altvim plugins if its were not installed
 if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
-    nohl | PlugInstall --sync | bdelete | source ~/.vimrc
+    nohl | PlugInstall --sync | bdelete | source $MYVIMRC
 endif
 
 " add nodejs bin to $PATH if needed
