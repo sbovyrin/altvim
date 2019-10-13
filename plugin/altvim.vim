@@ -67,8 +67,8 @@ endif
 
 " setting up emmet
 let g:user_emmet_install_global=0
-autocmd FileType html,css,php,js,jsx EmmetInstall
 let g:user_emmet_leader_key=','
+autocmd FileType html,css,php,js,jsx EmmetInstall
 
 " customize status bar
 let g:lightline = {
@@ -106,11 +106,6 @@ let g:coc_user_config = {
     \   "javascriptreact": ["javascript"],
     \ }
 \ }
-    
-" set language based settings
-let g:php_var_selector_is_identifier=1
-let g:vim_markdown_conceal_code_blocks = 0
-
 
 " [Utils]
 " =*=*=*=
@@ -159,7 +154,7 @@ endfunction
 "   - 12    go to 12 line
 "   - d     go to char 'd' in current line
 " Note:
-"   - [!] work in visual mode too
+"   - [!] also works in visual mode
 function! GoTo(mode)
     let l:searchPattern = input("")
     let l:number = get(split(l:searchPattern, '\D'), 0)
