@@ -107,6 +107,12 @@ let g:coc_user_config = {
     \ }
 \ }
 
+" auto-pairs
+autocmd FileType * let b:AutoPairs = AutoPairsDefine({'<': '>'})
+let g:AutoPairsFlyMode = 1
+let g:AutoPairsMultilineClose = 0
+
+
 " [Utils]
 " =*=*=*=
 

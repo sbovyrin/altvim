@@ -1,7 +1,7 @@
 " surround smth in smth, i.e. test to (test)
 Plug 'tpope/vim-surround'
 " auto-pairs  
-"Plug 'jiangmiao/auto-pairs'
+Plug 'jiangmiao/auto-pairs'
 " comments  
 Plug 'tpope/vim-commentary'
 " indent-line  
