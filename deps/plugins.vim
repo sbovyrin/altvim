@@ -5,7 +5,7 @@ Plug 'jiangmiao/auto-pairs'
 " comments  
 Plug 'tpope/vim-commentary'
 " indent-line  
-" Plug 'Yggdroot/indentLine'
+Plug 'yggdroot/indentline'
 " status line  
 Plug 'itchyny/lightline.vim'
 " search everything interface  
@@ -21,5 +21,3 @@ Plug 'mattn/emmet-vim'
 Plug 'tpope/vim-fugitive'
 " show on the left panel code line status (added | modified | removed)
 Plug 'mhinz/vim-signify'
-" improved git log
-"Plug 'junegunn/gv.vim'

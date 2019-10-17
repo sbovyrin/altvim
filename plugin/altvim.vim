@@ -112,6 +112,9 @@ autocmd FileType * let b:AutoPairs = AutoPairsDefine({'<': '>'})
 let g:AutoPairsFlyMode = 1
 let g:AutoPairsMultilineClose = 0
 
+" indent-line
+let g:indentLine_setColors = 0
+
 
 " [Utils]
 " =*=*=*=
