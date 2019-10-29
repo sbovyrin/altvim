@@ -66,54 +66,83 @@ endif
 " =*=*=*=*=*=*=*=*=
 
 " setting up emmet
-let g:user_emmet_install_global=0
-let g:user_emmet_leader_key=','
-autocmd FileType html,css,php,js,jsx EmmetInstall
+if !exists("g:user_emmet_install_global")
+    let g:user_emmet_install_global = 0
+    autocmd FileType html,css,php,js,jsx EmmetInstall
+endif
+if !exists("g:user_emmet_leader_key")
+    let g:user_emmet_leader_key = ','
+endif
 
 " customize status bar
-let g:lightline = {
-            \ 'active': {
-            \   'left': [ [], ['modified', 'filename', 'readonly'] ],
-            \   'right': [ ['lspstatus'], ['fileencoding', 'filetype', 'lineinfo'] ]
-            \ },
-            \ 'component' : {
-            \   'filename': '%F'
-            \ },
-            \ 'component_expand': {
-            \   'lspstatus': 'coc#status'
-            \ }}
+if !exists("g:lightline")
+    let g:lightline = {
+                \ 'active': {
+                \   'left': [ [], ['modified', 'filename', 'readonly'] ],
+                \   'right': [ ['lspstatus'], ['fileencoding', 'filetype', 'lineinfo'] ]
+                \ },
+                \ 'component' : {
+                \   'filename': '%F'
+                \ },
+                \ 'component_expand': {
+                \   'lspstatus': 'coc#status'
+                \ }}
+endif
 
 " setting up fzf
-let g:fzf_layout = {'down': '50%'}
+if !exists("g:fzf_layout")
+    let g:fzf_layout = {'down': '50%'}
+endif
 
 " setting up lsp 
-let g:coc_node_path = g:plugs["altvim"].dir . 'deps/nodejs/bin/node'
-let g:coc_user_config = {
-    \ "npm.binPath": g:plugs["altvim"].dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
-    \ "diagnostic.signOffset": 9999999,
-    \ "diagnostic.errorSign": "●",
-    \ "diagnostic.warningSign": "●",
-    \ "diagnostic.infoSign": "●",
-    \ "diagnostic.hintSign": "●",
-    \ "diagnostic.refreshAfterSave": v:true,
-    \ "suggest.noselect": v:false,
-    \ "suggest.minTriggerInputLength": 2,
-    \ "suggest.timeout": 400,
-    \ "suggest.snippetIndicator": "►",
-    \ "suggest.maxCompleteItemCount": 15,
-    \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
-    \ "snippets.extends": {
-    \   "javascriptreact": ["javascript"],
+if !exists("g:coc_node_path")
+    let g:coc_node_path = g:plugs["altvim"].dir . 'deps/nodejs/bin/node'
+endif
+if !exists("g:coc_user_config")
+    let g:coc_user_config = {
+        \ "npm.binPath": g:plugs["altvim"].dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
+        \ "diagnostic.signOffset": 9999999,
+        \ "diagnostic.errorSign": "●",
+        \ "diagnostic.warningSign": "●",
+        \ "diagnostic.infoSign": "●",
+        \ "diagnostic.hintSign": "●",
+        \ "diagnostic.refreshAfterSave": v:true,
+        \ "suggest.noselect": v:false,
+        \ "suggest.minTriggerInputLength": 2,
+        \ "suggest.timeout": 400,
+        \ "suggest.snippetIndicator": "►",
+        \ "suggest.maxCompleteItemCount": 15,
+        \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
+        \ "snippets.extends": {
+        \   "javascriptreact": ["javascript"],
+        \ }
     \ }
-\ }
+endif
+
+" snippets directory
+if !exists("g:altvim_snippets")
+    let g:altvim_snippets = '~/.vim/snippets'
+endif
 
 " auto-pairs
-autocmd FileType * let b:AutoPairs = AutoPairsDefine({'<': '>'})
-let g:AutoPairsFlyMode = 1
-let g:AutoPairsMultilineClose = 0
+if !exists("g:AutoPairsFlyMode")
+    let g:AutoPairsFlyMode = 0
+endif
+if !exists("g:AutoPairsMultilineClose")
+    let g:AutoPairsMultilineClose = 0
+endif
+if !exists("b:AutoPairs")
+    autocmd FileType * let b:AutoPairs = AutoPairsDefine({'<': '>'})
+endif
+
+function! altvim#isActivePlugin(pluginName) abort
+    return has_key(g:plugs, a:pluginName) && isdirectory(g:plugs[a:pluginName].dir)
+endfunction
 
 " indent-line
-let g:indentLine_setColors = 0
+if !exists("g:indentLine_setColors")
+    let g:indentLine_setColors = 0
+endif
 
 
 " [Utils]
