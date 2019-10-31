@@ -45,10 +45,6 @@ set omnifunc=syntaxcomplete#Complete completeopt=longest,menuone,menu
 
 let mapleader="\\"
 
-" disable netrw directory listing on startup
-let loaded_netrw = 0
-
-
 " [altvim variables]
 " =*=*=*=*=*=*=*=*=
 
@@ -145,100 +141,11 @@ if !exists("g:indentLine_setColors")
 endif
 
 
-" [Utils]
-" =*=*=*=
-
-function! Format()
-    if (line("'>") - line("'<") + 1) > 1
-        normal! gv=
-    else
-        normal! gv=gvgq
-    endif
-endfunction
-
-function! s:replace_found(...)
-    exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
-endfunction
-
-function! s:get_selection()
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
-    endif
-    let lines[-1] = lines[-1][: column_end - 2]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, "\n")
-endfunction
-
-" Nowhere using
-" function! s:getchar(...)
-"     let l:chars = a:0 > 0 ? a:1 : {}
-"     let l:char = nr2char(getchar())
-"     if l:char =~ '\a'
-"         let l:chars.operation = l:char
-"         return l:chars
-"     endif
-"     let l:chars.count =  has_key(l:chars, 'count') 
-"                 \ ? get(l:chars, 'count') .  l:char
-"                 \ : l:char
-"     return s:getchar(l:chars)
-" endfunction
-
-" Go to a specific char in a line or a specific line
-" Usage:
-"   - 12d   go to char 'd' in 12 line
-"   - 12    go to 12 line
-"   - d     go to char 'd' in current line
-" Note:
-"   - [!] also works in visual mode
-function! GoTo(mode)
-    let l:searchPattern = input("")
-    let l:number = get(split(l:searchPattern, '\D'), 0)
-    let l:char = get(split(l:searchPattern, '\d'), 0)
-
-    let l:cmd = ''
-
-    if l:number == 0 && l:char != ''
-        let l:cmd = 'f' . l:char
-    elseif l:number != 0 && l:char != ''
-        let l:cmd = l:number . 'Gf' . l:char
-    elseif l:number != 0 && l:char == ''
-        let l:cmd = l:number . 'G'
-    endif
-    let l:cmd = a:mode == 'v' ? 'gv' . l:cmd : l:cmd
-    exe 'normal! ' . l:cmd
-endfunction
-
-function! SelectWord()
-    let l:currSymbol = getline('.')[col('.') - 1]
-    let l:prevSymbol = getline('.')[col('.') - 2]
-
-    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
-
-    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
-endfunction
-
-function! SelectLine(type, mode)
-    if a:type == 'nextline'
-        exe 'normal! ' . (a:mode == 'V' ? 'gv' . v:count1 . 'j' : 'V')
-    elseif a:type == 'prevline'
-        exe 'normal! ' . (a:mode == 'V' ? 'gv' . v:count1 . 'k' : 'V')
-    endif
-endfunction
-
-command! -nargs=* SetAction inoremap <args>
-command! -nargs=* SetOperation vnoremap <silent> <args>
-command! -nargs=0 OpenInBrowser !google-chrome %
-command! -nargs=0 SearchSelectionInFile execute ":BLines '" . s:get_selection()
-command! -nargs=0 SearchSelectionInRoot execute ":Ag '" . s:get_selection()
-command! -nargs=1 ReplaceFound call s:replace_found(<f-args>)
-
-
 " [StartUp]
 " =*=*=*=*=
 
+" disable netrw directory listing on startup
+let loaded_netrw = 0
 " Show file search after start on directory
 autocmd VimEnter * nested if argc() == 1 && isdirectory(argv()[0]) |
             \   sleep 100m |
@@ -288,7 +195,7 @@ SetAction <C-r> <C-o>:ReplaceFound
 SetAction <ESC><CR> <C-o>.
 
 " base format
-SetOperation <ESC>b :<C-u>call Format()<CR>
+SetOperation <ESC>b :<C-u>call altvim#format()<CR>
 " indent to the right
 SetOperation <Tab> >gv
 " indent to the left
@@ -310,8 +217,8 @@ SetOperation <C-right> e
 SetAction <C-left> <C-o>b
 SetOperation <C-left> b
 " activate search char mode
-SetAction <ESC>/ <C-o>:call GoTo('n')<CR>
-SetOperation <ESC>/ :<C-u>call GoTo('v')<CR>
+SetAction <ESC>/ <C-o>:call altvim#go_to('n')<CR>
+SetOperation <ESC>/ :<C-u>call altvim#go_to('v')<CR>
 " go to next found char
 SetAction <M-right> <C-o>;
 SetOperation <M-right> ;
@@ -334,13 +241,13 @@ SetAction <ESC>s <C-o>gv
 " select all lines
 SetAction <C-a> <C-o>gg<C-o>VGg
 " select a word
-SetAction <C-w> <C-o>:call SelectWord()<CR> 
+SetAction <C-w> <C-o>:call altvim#select_word()<CR> 
 " select line above
-SetAction <S-up> <C-o>:call SelectLine('prevline', 'n')<CR>
-SetOperation <S-up> :<C-u>call SelectLine('prevline', 'v')<CR>
+SetAction <S-up> <C-o>:call altvim#select_line('prevline', 'n')<CR>
+SetOperation <S-up> :<C-u>call altvim#select_line('prevline', 'v')<CR>
 " select line below
-SetAction <S-down> <C-o>:call SelectLine('nextline', 'n')<CR>
-SetOperation <S-down> :<C-u>call SelectLine('nextline', 'v')<CR>
+SetAction <S-down> <C-o>:call altvim#select_line('nextline', 'n')<CR>
+SetOperation <S-down> :<C-u>call altvim#select_line('nextline', 'v')<CR>
 " select a char
 SetAction <S-right> <C-o>v
 SetOperation <S-right> <right>
