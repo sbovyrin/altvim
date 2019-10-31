@@ -1,6 +1,6 @@
 # altvim
 
-**v0.1.0**
+**v0.2.0**
 
 This is plugin for vim editor
 
