@@ -26,43 +26,41 @@ function! altvim#get_selection()
     return join(lines, "\n")
 endfunction
 
-" Nowhere using
-" function! s:getchar(...)
-"     let l:chars = a:0 > 0 ? a:1 : {}
-"     let l:char = nr2char(getchar())
-"     if l:char =~ '\a'
-"         let l:chars.operation = l:char
-"         return l:chars
-"     endif
-"     let l:chars.count =  has_key(l:chars, 'count') 
-"                 \ ? get(l:chars, 'count') .  l:char
-"                 \ : l:char
-"     return s:getchar(l:chars)
-" endfunction
-
-" Go to a specific char in a line or a specific line
+" Jump to start of specific char
+" Params:
+"   - opts: {'mode': 'next'|'prev', 'isEnabledSelection': true|false}
 " Usage:
-"   - 12d   go to char 'd' in 12 line
-"   - 12    go to 12 line
-"   - d     go to char 'd' in current line
+"   - type "an" to jump first found "an" chars sequence in current file
+"   - search next result if passed 'next' as first param
+"   - search previous result if passed 'prev' as first param
 " Note:
-"   - [!] also works in visual mode
-function! altvim#go_to(mode)
-    let l:searchPattern = input("")
-    let l:number = get(split(l:searchPattern, '\D'), 0)
-    let l:char = get(split(l:searchPattern, '\d'), 0)
+"   - [!] case-insensitive
+"   - [!] also works in visual mode until first found
+function! altvim#jump_to(opts)
+    let l:mode = get(a:opts, 'mode', 'base')
+    let l:isEnabledSelection = get(a:opts, 'isEnabledSelection', v:false)
 
-    let l:cmd = ''
+    if l:mode == 'base' | let b:altvimJumpToChar = nr2char(getchar()) . nr2char(getchar()) | endif
 
-    if l:number == 0 && l:char != ''
-        let l:cmd = 'f' . l:char
-    elseif l:number != 0 && l:char != ''
-        let l:cmd = l:number . 'Gf' . l:char
-    elseif l:number != 0 && l:char == ''
-        let l:cmd = l:number . 'G'
+    if l:mode == 'prev'
+        let l:searchFlag = 'b'
+    else
+        let l:searchFlag = ''
     endif
-    let l:cmd = a:mode == 'v' ? 'gv' . l:cmd : l:cmd
-    exe 'normal! ' . l:cmd
+    
+    let [l:lineNumber, l:pos] = searchpos(get(b:, 'altvimJumpToChar', ''), l:searchFlag)
+        
+    if l:isEnabledSelection
+        if l:mode == 'prev'
+            let l:selectionDirection = "'<"
+            let l:pos = l:pos + 1
+        else
+            let l:selectionDirection = "'>"
+            let l:pos = l:pos - 1
+        endif
+        call setpos(l:selectionDirection, [0, l:lineNumber, l:pos, 0])
+        normal! gv
+    endif
 endfunction
 
 function! altvim#select_word()

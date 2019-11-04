@@ -217,14 +217,14 @@ SetOperation <C-right> e
 SetAction <C-left> <C-o>b
 SetOperation <C-left> b
 " activate search char mode
-SetAction <ESC>/ <C-o>:call altvim#go_to('n')<CR>
-SetOperation <ESC>/ :<C-u>call altvim#go_to('v')<CR>
+SetAction <ESC>/ <C-o>:call altvim#jump_to({})<CR>
+SetOperation <ESC>/ :<C-u>call altvim#jump_to({"isEnabledSelection": v:true})<CR>
 " go to next found char
-SetAction <M-right> <C-o>;
-SetOperation <M-right> ;
+SetAction <M-right> <C-o>:call altvim#jump_to({"mode": "next"})<CR>
+SetOperation <M-right> :<C-u>call altvim#jump_to({"mode": "next", "isEnabledSelection": v:true})<CR>
 " go to prev found char
-SetAction <M-left> <C-o>,
-SetOperation <M-left> ,
+SetAction <M-left> <C-o>:call altvim#jump_to({"mode": "prev"})<CR>
+SetOperation <M-left> :<C-u>call altvim#jump_to({"mode": "prev", "isEnabledSelection": v:true})<CR>
 " go to next paired braces
 SetAction <ESC>% <C-o>%
 SetOperation <ESC>% %
