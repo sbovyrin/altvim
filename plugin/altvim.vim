@@ -175,11 +175,11 @@ SetAction <C-z> <C-o>u
 " redo
 SetAction <ESC>z <C-o><C-r>
 " paste
-SetAction <C-v> <C-o>p
+SetAction <C-v> <C-o>:call altvim#paste()
 " copy
-SetOperation <C-c> y
+SetOperation <C-c> :<C-u>call altvim#copy()
 " cut
-SetOperation <C-x> d
+SetOperation <C-x> :<C-u>call altvim#cut()
 " clone
 SetOperation <C-l> "dyk"dp
 " delete

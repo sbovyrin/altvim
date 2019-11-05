@@ -26,6 +26,20 @@ function! altvim#get_selection()
     return join(lines, "\n")
 endfunction
 
+function! altvim#copy()
+    normal! gvy
+    let @+ = substitute(@+, '\n\+$', '', '')
+    let @+ = substitute(@+, '^\s*', '', '')
+endfunction
+
+function! altvim#paste()
+    normal! p
+endfunction
+
+function! altvim#cut()
+    normal! gvd
+endfunction
+
 " Jump to start of specific char
 " Params:
 "   - opts: {'mode': 'next'|'prev', 'isEnabledSelection': true|false}
