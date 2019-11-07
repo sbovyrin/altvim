@@ -94,6 +94,9 @@ function! altvim#select_line(type, mode)
     endif
 endfunction
 
+function! altvim#get_known_filetypes()
+    return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
+endfunction
 
 command! -nargs=* SetAction inoremap <args>
 command! -nargs=* SetOperation vnoremap <silent> <args>
