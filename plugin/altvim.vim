@@ -49,7 +49,7 @@ let mapleader="\\"
 " =*=*=*=*=*=*=*=*=
 
 " when vim startup auto install altvim plugins if its were not installed
-if has_key(g:plugs, "fzf") && !isdirectory(g:plugs["fzf"].dir)
+if len(g:plugs) != len(filter(keys(g:plugs), "isdirectory(g:plugs[v:val].dir)"))
     nohl | PlugInstall --sync | bdelete | source $MYVIMRC
 endif
 
