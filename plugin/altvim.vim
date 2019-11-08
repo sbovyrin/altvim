@@ -48,14 +48,30 @@ let mapleader="\\"
 " [altvim variables]
 " =*=*=*=*=*=*=*=*=
 
+if exists("g:plugs")
+    let g:altvim#plugin_dir = g:plugs['altvim'].dir
+    let g:altvim#defined_plugins = keys(g:plugs)
+    let g:altvim#installed_plugins = filter(keys(g:plugs), 'isdirectory(g:plugs[v:val].dir)')
+    function! altvim#install_plugins() abort
+        PlugInstall --sync
+    endfunction
+elseif exists("g:vundle#bundle_dir")
+    let g:altvim#plugin_dir = g:vundle#bundle_dir . '/altvim/'
+    let g:altvim#defined_plugins = map(copy(g:vundle#bundles), 'v:val.name')
+    let g:altvim#installed_plugins = filter(copy(g:vundle#bundles), 'isdirectory(v:val.rtpath)')
+    function! altvim#install_plugins() abort
+        PluginInstall
+    endfunction
+endif
+
 " when vim startup auto install altvim plugins if its were not installed
-if len(g:plugs) != len(filter(keys(g:plugs), "isdirectory(g:plugs[v:val].dir)"))
-    nohl | PlugInstall --sync | bdelete | source $MYVIMRC
+if len(g:altvim#defined_plugins) != len(g:altvim#installed_plugins)
+    nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
 endif
 
 " add nodejs bin to $PATH if needed
 if stridx($PATH, 'node') < 0
-    let $PATH=$PATH . ':' . g:plugs['altvim'].dir . 'deps/nodejs/bin'
+    let $PATH=$PATH . ':' . g:altvim#plugin_dir . 'deps/nodejs/bin'
 endif
 
 " [Plugins settings]
@@ -92,11 +108,11 @@ endif
 
 " setting up lsp 
 if !exists("g:coc_node_path")
-    let g:coc_node_path = g:plugs["altvim"].dir . 'deps/nodejs/bin/node'
+    let g:coc_node_path = g:altvim#plugin_dir . 'deps/nodejs/bin/node'
 endif
 if !exists("g:coc_user_config")
     let g:coc_user_config = {
-        \ "npm.binPath": g:plugs["altvim"].dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
+        \ "npm.binPath": g:altvim#plugin_dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
         \ "diagnostic.signOffset": 9999999,
         \ "diagnostic.errorSign": "●",
         \ "diagnostic.warningSign": "●",
