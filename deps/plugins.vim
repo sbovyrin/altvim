@@ -23,29 +23,3 @@ if exists("g:plugs")
     " show on the left panel code line status (added | modified | removed)
     Plug 'mhinz/vim-signify'
 endif
-
-if exists("g:vundle#bundle_dir")
-    " surround smth in smth, i.e. test to (test)
-    Plugin 'tpope/vim-surround'
-    " auto-pairs  
-    Plugin 'jiangmiao/auto-pairs'
-    " comments  
-    Plugin 'tpope/vim-commentary'
-    " indent-line  
-    Plugin 'yggdroot/indentline'
-    " status line  
-    Plugin 'itchyny/lightline.vim'
-    " search everything interface  
-    Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plugin 'junegunn/fzf.vim'
-    " language server protocol  
-    Plugin 'neoclide/coc.nvim', {'branch': 'release'}
-    " language syntax  
-    Plugin 'sheerun/vim-polyglot'
-    " emmet  
-    Plugin 'mattn/emmet-vim'
-    " git  
-    Plugin 'tpope/vim-fugitive'
-    " show on the left panel code line status (added | modified | removed)
-    Plugin 'mhinz/vim-signify'
-endif

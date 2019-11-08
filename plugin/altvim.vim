@@ -55,13 +55,6 @@ if exists("g:plugs")
     function! altvim#install_plugins() abort
         PlugInstall --sync
     endfunction
-elseif exists("g:vundle#bundle_dir")
-    let g:altvim#plugin_dir = g:vundle#bundle_dir . '/altvim/'
-    let g:altvim#defined_plugins = map(copy(g:vundle#bundles), 'v:val.name')
-    let g:altvim#installed_plugins = filter(copy(g:vundle#bundles), 'isdirectory(v:val.rtpath)')
-    function! altvim#install_plugins() abort
-        PluginInstall
-    endfunction
 endif
 
 " when vim startup auto install altvim plugins if its were not installed
