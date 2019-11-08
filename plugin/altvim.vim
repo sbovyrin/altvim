@@ -41,7 +41,7 @@ set wildmenu wildmode=longest:full,full
 set diffopt=filler diffopt+=iwhite
 
 " autocomplete
-"set omnifunc=syntaxcomplete#Complete completeopt=longest,menuone,menu
+set omnifunc=syntaxcomplete#Complete completeopt=longest,menuone,menu
 
 let mapleader="\\"
 
