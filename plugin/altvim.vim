@@ -141,6 +141,9 @@ endif
 if !exists("g:indentLine_setColors")
     let g:indentLine_setColors = 0
 endif
+if !exists("g:indentLine_setConceal")
+    let g:indentLine_setConceal = 0
+endif
 
 " [Utils]
 " =*=*=*=
