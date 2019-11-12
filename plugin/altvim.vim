@@ -129,14 +129,6 @@ if !exists("g:altvim_snippets")
     let g:altvim_snippets = '~/.vim/snippets'
 endif
 
-" auto-pairs
-if !exists("g:AutoPairsFlyMode")
-    let g:AutoPairsFlyMode = 0
-endif
-if !exists("g:AutoPairsMultilineClose")
-    let g:AutoPairsMultilineClose = 0
-endif
-
 " indent-line
 if !exists("g:indentLine_setColors")
     let g:indentLine_setColors = 0
@@ -282,6 +274,7 @@ SetAction <ESC>? <C-o>:
 
 " undo
 SetAction <C-z> <C-o>u
+SetOperation <C-z> :<C-u>normal! u<CR>
 " redo
 SetAction <ESC>z <C-o><C-r>
 " paste
@@ -294,6 +287,7 @@ SetOperation <C-x> :<C-u>call altvim#cut()<CR>
 SetOperation <C-l> "dyk"dp
 " delete
 SetOperation <C-d> "_d
+SetOperation <BS> "_d
 " replace
 SetOperation <Space> "_c
 " join
