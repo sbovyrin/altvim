@@ -177,6 +177,52 @@ function! altvim#cut()
     normal! gvd
 endfunction
 
+" Select a line/char
+"
+" Params:
+"   - opts: {'type': 'line|char|nextline|nextchar|prevline|prevchar', 'isSelected': 1|0}
+" Note:
+" - input a number N to select N line/s. Default value N = 1
+function! altvim#select(opts)
+    let l:type = get(a:opts, 'type')
+    let l:isSelected = get(a:opts, 'isSelected')
+    let l:isFirstSelection = line("'>") - line("'<")
+    let l:cmd = ''
+    let l:direction = ''
+    
+    if l:type == 'line' && l:isSelected == 0
+        let l:cmd = '^v$'
+    elseif l:type == 'char' && l:isSelected == 0
+        let l:cmd = 'v'
+    elseif l:isSelected == 1
+
+        if !l:isFirstSelection && l:type =~ 'line'
+            let l:cmd = (l:type =~ 'next' ? '^v$' : '$v^')
+        else
+            let l:cmd = 'gv'
+        endif
+
+        if l:type == 'nextchar'
+            let l:direction = 'l'
+        elseif l:type == 'prevchar'
+            let l:direction = 'h'
+        elseif l:type == 'nextline'
+            let l:direction = 'j'
+        elseif l:type == 'prevline'
+            let l:direction = 'k'
+        endif
+
+        if l:direction == '' | return | endif
+
+        let l:cmd = l:cmd . v:count1 . l:direction
+    endif
+    
+    if l:cmd == '' | return | endif
+    
+    exe 'normal! ' . l:cmd
+endfunction
+
+
 " Jump to start of specific char
 " Params:
 "   - opts: {'mode': 'next'|'prev', 'isEnabledSelection': true|false}
@@ -223,14 +269,6 @@ function! altvim#select_word()
     exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
 endfunction
 
-function! altvim#select_line(type, mode)
-    if a:type == 'nextline'
-        exe 'normal! ' . (a:mode == 'V' ? 'gv' . v:count1 . 'j' : 'V')
-    elseif a:type == 'prevline'
-        exe 'normal! ' . (a:mode == 'V' ? 'gv' . v:count1 . 'k' : 'V')
-    endif
-endfunction
-
 function! altvim#get_known_filetypes() abort
     return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
 endfunction
@@ -265,13 +303,22 @@ autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 " =*=*=*=*=*=*=
 " - Operation work only when something is selected
 
+""""""""
+" Editor
+""""""""
 " save
 SetAction <C-s> <C-o>:w<CR>
 " quit
 SetAction <C-q> <C-o>:q!<CR>
 " command prompt
 SetAction <ESC>? <C-o>:
+" close current buffer
+SetAction <C-w> <C-o>:bdelete<CR>
+SetOperation <C-w> :<C-u>bdelete<CR>
 
+""""""""""""""""
+" Work with text
+""""""""""""""""
 " undo
 SetAction <C-z> <C-o>u
 SetOperation <C-z> :<C-u>normal! u<CR>
@@ -345,18 +392,19 @@ SetAction <ESC>s <C-o>gv
 " select all lines
 SetAction <C-a> <C-o>gg<C-o>VGg
 " select a word
-SetAction <C-w> <C-o>:call altvim#select_word()<CR> 
+SetAction <C-m> <C-o>:call altvim#select_word()<CR> 
 " select line above
-SetAction <S-up> <C-o>:call altvim#select_line('prevline', 'n')<CR>
-SetOperation <S-up> :<C-u>call altvim#select_line('prevline', 'v')<CR>
+SetAction <S-up> <C-o>:call altvim#select({'type': 'line'})<CR>
+SetOperation <S-up> :<C-u>call altvim#select({'type': 'prevline', 'isSelected': 1})<CR>
 " select line below
-SetAction <S-down> <C-o>:call altvim#select_line('nextline', 'n')<CR>
-SetOperation <S-down> :<C-u>call altvim#select_line('nextline', 'v')<CR>
-" select a char
-SetAction <S-right> <C-o>v
-SetOperation <S-right> <right>
-SetAction <S-left> <C-o>v
-SetOperation <S-left> <left>
+SetAction <S-down> <C-o>:call altvim#select({'type': 'line'})<CR>
+SetOperation <S-down> :<C-u>call altvim#select({'type': 'nextline', 'isSelected': 1})<CR>
+" select a prev char
+SetAction <S-right> <C-o>:call altvim#select({'type': 'char'})<CR>
+SetOperation <S-right> :<C-u>call altvim#select({'type': 'nextchar', 'isSelected': 1})<CR>
+" select a next char
+SetAction <S-left> <C-o>:call altvim#select({'type': 'char'})<CR>
+SetOperation <S-left> :<C-u>call altvim#select({'type': 'prevchar', 'isSelected': 1})<CR>
 " select content within parentheses
 SetOperation ( i(
 " ))( select content with parentheses
