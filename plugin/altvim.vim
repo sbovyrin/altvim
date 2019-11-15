@@ -41,7 +41,7 @@ set wildmenu wildmode=longest:full,full
 set diffopt=filler diffopt+=iwhite
 
 " autocomplete
-set omnifunc=syntaxcomplete#Complete completeopt=longest,menuone,menu
+set omnifunc=syntaxcomplete#Complete
 
 let mapleader="\\"
 
@@ -112,9 +112,8 @@ if !exists("g:coc_user_config")
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
         \ "diagnostic.refreshAfterSave": v:true,
-        \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
-        \ "suggest.timeout": 400,
+        \ "suggest.timeout": 3000,
         \ "suggest.snippetIndicator": "►",
         \ "suggest.maxCompleteItemCount": 15,
         \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
@@ -147,10 +146,6 @@ function! altvim#format()
     endif
 endfunction
 
-function! altvim#replace_found(...) abort
-    exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
-endfunction
-
 function! altvim#get_selection()
     let [line_start, column_start] = getpos("'<")[1:2]
     let [line_end, column_end] = getpos("'>")[1:2]
@@ -163,27 +158,57 @@ function! altvim#get_selection()
     return join(lines, "\n")
 endfunction
 
-function! altvim#copy()
-    normal! gvy
-    let @+ = substitute(@+, '\n\+$', '', '')
-    let @+ = substitute(@+, '^\s*', '', '')
+function! altvim#select_word()
+    let l:currSymbol = getline('.')[col('.') - 1]
+    let l:prevSymbol = getline('.')[col('.') - 2]
+
+    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
+
+    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
 endfunction
 
-function! altvim#paste()
+" Replace found results
+function! altvim#replace_found(...) abort
+    exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
+endfunction
+
+" Copy function that implement multiclipboard
+function! altvim#_copy() abort
+    let @0 = substitute(@0, '\n\+$', '', '')
+    let @0 = substitute(@0, '^\s*', '', '')
+    let @+ = @0
+    let l:multiclipboard = [@0] + (empty(@e) ? [] : eval(@e))
+    let @e = string(l:multiclipboard[:4])
+endfunction
+
+" Improved copy
+function! altvim#copy() abort
+    normal! gvy
+    call altvim#_copy()
+endfunction
+
+" Simple paste
+function! altvim#paste() abort
     normal! p
 endfunction
 
-function! altvim#cut()
-    normal! gvd
+" Improved cut
+function! altvim#cut() abort
+    normal! gv"0d
+    call altvim#_copy()
+endfunction
+
+" Activate multiclipboard (show last 5 copied items)
+function! altvim#multiclipboard() abort
+    call fzf#vim#complete({ 'source': (empty(@e) ? [] : eval(@e)), 'down': 10 })
 endfunction
 
 " Select a line/char
-"
 " Params:
 "   - opts: {'type': 'line|char|nextline|nextchar|prevline|prevchar', 'isSelected': 1|0}
 " Note:
 " - input a number N to select N line/s. Default value N = 1
-function! altvim#select(opts)
+function! altvim#select(opts) abort
     let l:type = get(a:opts, 'type')
     let l:isSelected = get(a:opts, 'isSelected')
     let l:isFirstSelection = line("'>") - line("'<")
@@ -233,7 +258,7 @@ endfunction
 " Note:
 "   - [!] case-insensitive
 "   - [!] also works in visual mode until first found
-function! altvim#jump_to(opts)
+function! altvim#jump_to(opts) abort
     let l:mode = get(a:opts, 'mode', 'base')
     let l:isEnabledSelection = get(a:opts, 'isEnabledSelection', v:false)
 
@@ -260,19 +285,14 @@ function! altvim#jump_to(opts)
     endif
 endfunction
 
-function! altvim#select_word()
-    let l:currSymbol = getline('.')[col('.') - 1]
-    let l:prevSymbol = getline('.')[col('.') - 2]
-
-    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
-
-    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
-endfunction
-
+" Get all filetypes that vim knows
 function! altvim#get_known_filetypes() abort
     return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
 endfunction
 
+" [Commands]
+" =*=*=*=*=
+"
 command! -nargs=* SetAction inoremap <args>
 command! -nargs=* SetOperation vnoremap <silent> <args>
 command! -nargs=0 OpenInBrowser !google-chrome %
@@ -283,7 +303,7 @@ command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
 
 " [StartUp]
 " =*=*=*=*=
-
+"
 " disable netrw directory listing on startup
 let loaded_netrw = 0
 " Show file search after start on directory
@@ -326,6 +346,8 @@ SetOperation <C-z> :<C-u>normal! u<CR>
 SetAction <ESC>z <C-o><C-r>
 " paste
 SetAction <C-v> <C-o>:call altvim#paste()<CR>
+" paste from multiclipboard
+SetAction <ESC>v <C-o>:call altvim#multiclipboard()<CR>
 " copy
 SetOperation <C-c> :<C-u>call altvim#copy()<CR>
 " cut
@@ -392,7 +414,7 @@ SetAction <ESC>s <C-o>gv
 " select all lines
 SetAction <C-a> <C-o>gg<C-o>VGg
 " select a word
-SetAction <C-m> <C-o>:call altvim#select_word()<CR> 
+SetAction <C-t> <C-o>:call altvim#select_word()<CR> 
 " select line above
 SetAction <S-up> <C-o>:call altvim#select({'type': 'line'})<CR>
 SetOperation <S-up> :<C-u>call altvim#select({'type': 'prevline', 'isSelected': 1})<CR>
@@ -405,6 +427,7 @@ SetOperation <S-right> :<C-u>call altvim#select({'type': 'nextchar', 'isSelected
 " select a next char
 SetAction <S-left> <C-o>:call altvim#select({'type': 'char'})<CR>
 SetOperation <S-left> :<C-u>call altvim#select({'type': 'prevchar', 'isSelected': 1})<CR>
+
 " select content within parentheses
 SetOperation ( i(
 " ))( select content with parentheses
@@ -444,10 +467,11 @@ SetAction <ESC>` <C-o>:Files<CR>
 SetAction <ESC><Tab> <C-o>:Buffers<CR>
 " search in project files
 SetAction <ESC>f <C-o>:Ag<CR>
-" find in current file
-SetAction <C-f> <C-o>:BLines<CR>
 " show recent opened files
 SetAction <Esc>~ <C-o>:History<CR>
+
+" find in current file
+SetAction <C-f> <C-o>:BLines<CR>
 " search selection within current file
 SetOperation <C-u> :<C-u>SearchSelectionInFile<CR>
 " search selection within root directory
