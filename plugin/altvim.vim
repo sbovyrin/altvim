@@ -112,6 +112,7 @@ if !exists("g:coc_user_config")
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
         \ "diagnostic.refreshAfterSave": v:true,
+        \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
         \ "suggest.timeout": 3000,
         \ "suggest.snippetIndicator": "►",
@@ -170,6 +171,16 @@ endfunction
 " Replace found results
 function! altvim#replace_found(...) abort
     exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
+endfunction
+
+function! altvim#cloneline(...)
+    let l:cmd = 'gv'
+    if len(a:000) > 0 && get(a:1, 'is_insert_mode') | let l:cmd = '^v$' | endif
+
+    exe 'normal! ' . l:cmd . '"cyO'
+    let @c = substitute(@c, '\n\+$', '', '')
+    let @c = substitute(@c, '^\s*', '', '')
+    normal! "cp
 endfunction
 
 " Copy function that implement multiclipboard
@@ -353,7 +364,8 @@ SetOperation <C-c> :<C-u>call altvim#copy()<CR>
 " cut
 SetOperation <C-x> :<C-u>call altvim#cut()<CR>
 " clone
-SetOperation <C-l> "dyk"dp
+SetOperation <C-l> :<C-u>call altvim#cloneline()<CR>
+SetAction <C-l> <C-o>:call altvim#cloneline({'is_insert_mode': 1})<CR>
 " delete
 SetOperation <C-d> "_d
 SetOperation <BS> "_d
