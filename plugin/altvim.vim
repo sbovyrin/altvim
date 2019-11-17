@@ -174,6 +174,8 @@ function! altvim#replace_found(...) abort
 endfunction
 
 function! altvim#cloneline(...)
+    let l:lineNumber = (line("'<") >= line("'>") ? line("'<") : line("'>")) - 
+        \ (line("'<") <= line("'>") ? line("'<") : line("'>")) + 2
     let l:cmd = 'gv'
     if len(a:000) > 0 && get(a:1, 'is_insert_mode') | let l:cmd = '^v$' | endif
 
@@ -181,6 +183,7 @@ function! altvim#cloneline(...)
     let @c = substitute(@c, '\n\+$', '', '')
     let @c = substitute(@c, '^\s*', '', '')
     normal! "cp
+    exec 'normal! vk=' . l:lineNumber . 'j'
 endfunction
 
 " Copy function that implement multiclipboard
@@ -304,7 +307,7 @@ endfunction
 " [Commands]
 " =*=*=*=*=
 "
-command! -nargs=* SetAction inoremap <args>
+command! -nargs=* SetAction inoremap <silent> <args>
 command! -nargs=* SetOperation vnoremap <silent> <args>
 command! -nargs=0 OpenInBrowser !google-chrome %
 command! -nargs=0 SearchSelectionInFile execute ":BLines '" . altvim#get_selection()
