@@ -1,6 +1,7 @@
-" [Settings]
-" =*=*=*=*=
-"
+" o===I=============>
+" [Base VIM settings] 
+" <=============I===o
+
 " disable back-compatibility with Vi
 set nocompatible
 
@@ -45,8 +46,134 @@ set omnifunc=syntaxcomplete#Complete
 
 let mapleader="\\"
 
-" [altvim variables]
-" =*=*=*=*=*=*=*=*=
+
+" o=I=====>
+" [StartUp] 
+" <=====I=o
+
+" disable netrw directory listing on startup
+let loaded_netrw = 0
+" Show file search after start on directory
+autocmd VimEnter * nested if argc() == 1 && isdirectory(argv()[0]) |
+            \   sleep 100m |
+            \   exe "call fzf#run({'sink': 'e', 'options': '--height 99% --reverse --multi'})" |
+            \ endif 
+
+" language specific tab
+autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
+autocmd FileType css setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
+autocmd FileType html setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
+autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
+
+
+command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
+command! -nargs=0 OpenInBrowser !google-chrome %
+command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
+
+
+" o==I========>
+" [Keybindings] 
+" <========I==o
+
+""" Editor
+""""""""""
+" command prompt
+SetHotkey <ESC>? = :
+
+SetHotkey <C-s> = call altvim#save()
+SetHotkey <C-q> = call altvim#quit()
+SetHotkey <C-w> = call altvim#close_file()
+
+
+""" Edit text
+"""""""""""""
+SetHotkey <C-z> = call altvim#undo()
+SetHotkey <ESC>z = call altvim#redo()
+
+SetHotkey <C-v> = call altvim#paste()
+SetHotkey <ESC>v = call altvim#multiclipboard()
+SetHotkey <C-c> = call altvim#copy()
+SetHotkey <C-x> = call altvim#cut()
+SetHotkey <C-l> = call altvim#cloneline()
+SetHotkey <C-d> = call altvim#delete_line()
+SetHotkey <BS> = _, call altvim#delete_line()
+SetHotkey <Space> = _, call altvim#clear_line()
+SetHotkey <C-j> = call altvim#join_line()
+SetHotkey <C-r> = call altvim#replace()
+
+SetHotkey <ESC><CR> = call altvim#repeat_last_action()
+
+SetHotkey <Tab> = _, call altvim#indent()
+SetHotkey <S-Tab> = _, call altvim#outdent()
+
+SetHotkey <ESC>b = call altvim#format()
+SetHotkey <C-b> = _, call altvim#format_lang()
+
+SetHotkey <C-_> = call altvim#toggle_comment()
+
+SetHotkey <S-M-down> = call altvim#move_line('down')
+SetHotkey <S-M-up> = call altvim#move_line('up')
+
+
+""" GoTo
+""""""""
+SetHotkey <ESC><BS> = call altvim#goto_last_change()
+SetHotkey <C-up> = call altvim#goto_line_begin()
+SetHotkey <C-down> = call altvim#goto_line_end()
+SetHotkey <C-right> = call altvim#goto_next_word()
+SetHotkey <C-left> = call altvim#goto_prev_word()
+SetHotkey <ESC>/ = call altvim#jump_to()
+SetHotkey <M-right> = call altvim#jump_to('next')
+SetHotkey <M-left> = call altvim#jump_to('prev')
+
+
+""" Scrolling
+"""""""""""""
+SetHotkey <M-up> = call altvim#scroll_page('up')
+SetHotkey <M-down> = call altvim#scroll_page('down')
+
+
+""" Selection
+"""""""""""""
+SetHotkey <ESC>s = call altvim#select_last_selection()
+SetHotkey <C-a> = call altvim#select_all() 
+SetHotkey <C-t> = call altvim#select_word()
+SetHotkey <S-up> = call altvim#select('prevline')
+SetHotkey <S-down> = call altvim#select('nextline')
+SetHotkey <S-right> = call altvim#select('nextchar')
+SetHotkey <S-left> = call altvim#select('prevchar')
+
+SetHotkey ( = _, call altvim#select_content_within('parentheses')
+SetHotkey ) = _, call altvim#select_content_within_included('parentheses')
+SetHotkey { = _, call altvim#select_content_within('braces')
+SetHotkey } = _, call altvim#select_content_within_included('braces')
+SetHotkey [ = _, call altvim#select_content_within('square_brackets')
+SetHotkey ] = _, call altvim#select_content_within_included('square_brackets')
+SetHotkey t = _, call altvim#select_content_within('tag')
+SetHotkey T = _, call altvim#select_content_within_included('tag')
+SetHotkey < = _, call altvim#select_content_within('lessthan')
+SetHotkey > = _, call altvim#select_content_within_included('lessthan')
+
+
+""" Project
+"""""""""""
+SetHotkey <ESC>2 = call altvim#show_project_symbols()
+SetHotkey <ESC>3 = call altvim#show_file_symbols()
+
+SetHotkey <C-e> = call altvim#show_problems()
+SetHotkey <ESC>1 = call altvim#goto_next_problem()
+SetHotkey <ESC>! = call altvim#goto_prev_problem()
+
+SetHotkey <ESC>` = call altvim#find_project_files()
+SetHotkey <ESC><Tab> = call altvim#show_open_files()
+SetHotkey <ESC>f = call altvim#find_in_project_files()
+SetHotkey <Esc>~ = call altvim#show_recent_files()
+SetHotkey <C-f> = call altvim#find_in_file()
+
+
+" o====I===================>
+" [The plugin configuration] 
+" <===================I====o
 
 if exists("g:plugs")
     let g:altvim#plugin_dir = g:plugs['altvim'].dir
@@ -67,8 +194,15 @@ if stridx($PATH, 'node') < 0
     let $PATH=$PATH . ':' . g:altvim#plugin_dir . 'deps/nodejs/bin'
 endif
 
+" snippets directory
+if !exists("g:altvim_snippets")
+    let g:altvim_snippets = '~/.vim/snippets'
+endif
+
+
+" o===I============>
 " [Plugins settings]
-" =*=*=*=*=*=*=*=*=
+" <============I===o
 
 " setting up emmet
 if !exists("g:user_emmet_install_global")
@@ -112,6 +246,7 @@ if !exists("g:coc_user_config")
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
         \ "diagnostic.refreshAfterSave": v:true,
+        \ "diagnostic.refreshOnInsertMode": v:true,
         \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
         \ "suggest.timeout": 3000,
@@ -121,12 +256,7 @@ if !exists("g:coc_user_config")
         \ "snippets.extends": {
         \   "javascriptreact": ["javascript"],
         \ }
-    \ }
-endif
-
-" snippets directory
-if !exists("g:altvim_snippets")
-    let g:altvim_snippets = '~/.vim/snippets'
+\ }
 endif
 
 " indent-line
@@ -136,362 +266,3 @@ endif
 if !exists("g:indentLine_setConceal")
     let g:indentLine_setConceal = 0
 endif
-
-" [Utils]
-" =*=*=*=
-function! altvim#format()
-    if (line("'>") - line("'<") + 1) > 1
-        normal! gv=
-    else
-        normal! gv=gvgq
-    endif
-endfunction
-
-function! altvim#get_selection()
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
-    endif
-    let lines[-1] = lines[-1][: column_end - 2]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, "\n")
-endfunction
-
-function! altvim#select_word()
-    let l:currSymbol = getline('.')[col('.') - 1]
-    let l:prevSymbol = getline('.')[col('.') - 2]
-
-    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
-
-    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
-endfunction
-
-" Replace found results
-function! altvim#replace_found(...) abort
-    exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
-endfunction
-
-function! altvim#cloneline(...)
-    let l:lineNumber = (line("'<") >= line("'>") ? line("'<") : line("'>")) - 
-        \ (line("'<") <= line("'>") ? line("'<") : line("'>")) + 2
-    let l:cmd = 'gv'
-    if len(a:000) > 0 && get(a:1, 'is_insert_mode') | let l:cmd = '^v$' | endif
-
-    exe 'normal! ' . l:cmd . '"cyO'
-    let @c = substitute(@c, '\n\+$', '', '')
-    let @c = substitute(@c, '^\s*', '', '')
-    normal! "cp
-    exec 'normal! vk=' . l:lineNumber . 'j'
-endfunction
-
-" Copy function that implement multiclipboard
-function! altvim#_copy() abort
-    let @0 = substitute(@0, '\n\+$', '', '')
-    let @0 = substitute(@0, '^\s*', '', '')
-    let @+ = @0
-    let l:multiclipboard = [@0] + (empty(@e) ? [] : eval(@e))
-    let @e = string(l:multiclipboard[:4])
-endfunction
-
-" Improved copy
-function! altvim#copy() abort
-    normal! gvy
-    call altvim#_copy()
-endfunction
-
-" Simple paste
-function! altvim#paste() abort
-    normal! p
-endfunction
-
-" Improved cut
-function! altvim#cut() abort
-    normal! gv"0d
-    call altvim#_copy()
-endfunction
-
-" Activate multiclipboard (show last 5 copied items)
-function! altvim#multiclipboard() abort
-    call fzf#vim#complete({ 'source': (empty(@e) ? [] : eval(@e)), 'down': 10 })
-endfunction
-
-" Select a line/char
-" Params:
-"   - opts: {'type': 'line|char|nextline|nextchar|prevline|prevchar', 'isSelected': 1|0}
-" Note:
-" - input a number N to select N line/s. Default value N = 1
-function! altvim#select(opts) abort
-    let l:type = get(a:opts, 'type')
-    let l:isSelected = get(a:opts, 'isSelected')
-    let l:isFirstSelection = line("'>") - line("'<")
-    let l:cmd = ''
-    let l:direction = ''
-    
-    if l:type == 'line' && l:isSelected == 0
-        let l:cmd = '^v$'
-    elseif l:type == 'char' && l:isSelected == 0
-        let l:cmd = 'v'
-    elseif l:isSelected == 1
-
-        if !l:isFirstSelection && l:type =~ 'line'
-            let l:cmd = (l:type =~ 'next' ? '^v$' : '$v^')
-        else
-            let l:cmd = 'gv'
-        endif
-
-        if l:type == 'nextchar'
-            let l:direction = 'l'
-        elseif l:type == 'prevchar'
-            let l:direction = 'h'
-        elseif l:type == 'nextline'
-            let l:direction = 'j'
-        elseif l:type == 'prevline'
-            let l:direction = 'k'
-        endif
-
-        if l:direction == '' | return | endif
-
-        let l:cmd = l:cmd . v:count1 . l:direction
-    endif
-    
-    if l:cmd == '' | return | endif
-    
-    exe 'normal! ' . l:cmd
-endfunction
-
-
-" Jump to start of specific char
-" Params:
-"   - opts: {'mode': 'next'|'prev', 'isEnabledSelection': true|false}
-" Usage:
-"   - type "an" to jump first found "an" chars sequence in current file
-"   - search next result if passed 'next' as first param
-"   - search previous result if passed 'prev' as first param
-" Note:
-"   - [!] case-insensitive
-"   - [!] also works in visual mode until first found
-function! altvim#jump_to(opts) abort
-    let l:mode = get(a:opts, 'mode', 'base')
-    let l:isEnabledSelection = get(a:opts, 'isEnabledSelection', v:false)
-
-    if l:mode == 'base' | let b:altvimJumpToChar = nr2char(getchar()) . nr2char(getchar()) | endif
-
-    if l:mode == 'prev'
-        let l:searchFlag = 'b'
-    else
-        let l:searchFlag = ''
-    endif
-    
-    let [l:lineNumber, l:pos] = searchpos(get(b:, 'altvimJumpToChar', ''), l:searchFlag)
-        
-    if l:isEnabledSelection
-        if l:mode == 'prev'
-            let l:selectionDirection = "'<"
-            let l:pos = l:pos + 1
-        else
-            let l:selectionDirection = "'>"
-            let l:pos = l:pos - 1
-        endif
-        call setpos(l:selectionDirection, [0, l:lineNumber, l:pos, 0])
-        normal! gv
-    endif
-endfunction
-
-" Get all filetypes that vim knows
-function! altvim#get_known_filetypes() abort
-    return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
-endfunction
-
-" [Commands]
-" =*=*=*=*=
-"
-command! -nargs=* SetAction inoremap <silent> <args>
-command! -nargs=* SetOperation vnoremap <silent> <args>
-command! -nargs=0 OpenInBrowser !google-chrome %
-command! -nargs=0 SearchSelectionInFile execute ":BLines '" . altvim#get_selection()
-command! -nargs=0 SearchSelectionInRoot execute ":Ag '" . altvim#get_selection()
-command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
-
-
-" [StartUp]
-" =*=*=*=*=
-"
-" disable netrw directory listing on startup
-let loaded_netrw = 0
-" Show file search after start on directory
-autocmd VimEnter * nested if argc() == 1 && isdirectory(argv()[0]) |
-            \   sleep 100m |
-            \   exe "call fzf#run({'sink': 'e', 'options': '--height 99% --reverse --multi'})" |
-            \ endif 
-
-" language specific tab
-autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType css setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType html setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-
-
-" [Keybindings]
-" =*=*=*=*=*=*=
-" - Operation work only when something is selected
-
-""""""""
-" Editor
-""""""""
-" save
-SetAction <C-s> <C-o>:w<CR>
-" quit
-SetAction <C-q> <C-o>:q!<CR>
-" command prompt
-SetAction <ESC>? <C-o>:
-" close current buffer
-SetAction <C-w> <C-o>:bdelete<CR>
-SetOperation <C-w> :<C-u>bdelete<CR>
-
-""""""""""""""""
-" Work with text
-""""""""""""""""
-" undo
-SetAction <C-z> <C-o>u
-SetOperation <C-z> :<C-u>normal! u<CR>
-" redo
-SetAction <ESC>z <C-o><C-r>
-" paste
-SetAction <C-v> <C-o>:call altvim#paste()<CR>
-" paste from multiclipboard
-SetAction <ESC>v <C-o>:call altvim#multiclipboard()<CR>
-" copy
-SetOperation <C-c> :<C-u>call altvim#copy()<CR>
-" cut
-SetOperation <C-x> :<C-u>call altvim#cut()<CR>
-" clone
-SetOperation <C-l> :<C-u>call altvim#cloneline()<CR>
-SetAction <C-l> <C-o>:call altvim#cloneline({'is_insert_mode': 1})<CR>
-" delete
-SetOperation <C-d> "_d
-SetOperation <BS> "_d
-" replace
-SetOperation <Space> "_c
-" join
-SetOperation <C-j> J
-" replace found
-SetAction <C-r> <C-o>:ReplaceFound
-
-" repeat
-SetAction <ESC><CR> <C-o>.
-
-" base format
-SetOperation <ESC>b :<C-u>call altvim#format()<CR>
-" indent to the right
-SetOperation <Tab> >gv
-" indent to the left
-SetOperation <S-Tab> <gv
-" move line up
-SetOperation <M-up> :m'<-2<CR>gv=gv
-" move line down
-SetOperation <M-down> :m'>+1<CR>gv=gv
-" go to begin of a line
-SetAction <C-up> <C-o>^
-SetOperation <C-up> ^
-" go to end of a line
-SetOperation <C-down> $
-SetAction <C-down> <C-o>$
-" go to next word
-SetAction <C-right> <C-o>e
-SetOperation <C-right> e
-" go to prev word
-SetAction <C-left> <C-o>b
-SetOperation <C-left> b
-" activate search char mode
-SetAction <ESC>/ <C-o>:call altvim#jump_to({})<CR>
-SetOperation <ESC>/ :<C-u>call altvim#jump_to({"isEnabledSelection": v:true})<CR>
-" go to next found char
-SetAction <M-right> <C-o>:call altvim#jump_to({"mode": "next"})<CR>
-SetOperation <M-right> :<C-u>call altvim#jump_to({"mode": "next", "isEnabledSelection": v:true})<CR>
-" go to prev found char
-SetAction <M-left> <C-o>:call altvim#jump_to({"mode": "prev"})<CR>
-SetOperation <M-left> :<C-u>call altvim#jump_to({"mode": "prev", "isEnabledSelection": v:true})<CR>
-" go to next paired braces
-SetAction <ESC>% <C-o>%
-SetOperation <ESC>% %
-" go to prev cursor position
-SetAction <ESC><BS> <C-o>g;
-
-" scroll page up
-SetAction <M-up> <C-o><C-y>
-" scroll page down
-SetAction <M-down> <C-o><C-e>
-
-" select last selection
-SetAction <ESC>s <C-o>gv
-" select all lines
-SetAction <C-a> <C-o>gg<C-o>VGg
-" select a word
-SetAction <C-t> <C-o>:call altvim#select_word()<CR> 
-" select line above
-SetAction <S-up> <C-o>:call altvim#select({'type': 'line'})<CR>
-SetOperation <S-up> :<C-u>call altvim#select({'type': 'prevline', 'isSelected': 1})<CR>
-" select line below
-SetAction <S-down> <C-o>:call altvim#select({'type': 'line'})<CR>
-SetOperation <S-down> :<C-u>call altvim#select({'type': 'nextline', 'isSelected': 1})<CR>
-" select a prev char
-SetAction <S-right> <C-o>:call altvim#select({'type': 'char'})<CR>
-SetOperation <S-right> :<C-u>call altvim#select({'type': 'nextchar', 'isSelected': 1})<CR>
-" select a next char
-SetAction <S-left> <C-o>:call altvim#select({'type': 'char'})<CR>
-SetOperation <S-left> :<C-u>call altvim#select({'type': 'prevchar', 'isSelected': 1})<CR>
-
-" select content within parentheses
-SetOperation ( i(
-" ))( select content with parentheses
-SetOperation ) a(
-" ) select content within braces
-SetOperation [ i[
-" select content with braces
-SetOperation ] a[
-" select content within curly braces
-SetOperation { i{
-" }}{ select content with curly braces
-SetOperation } a{
-" } select content within single quotes
-SetOperation ' i'
-" select content within double quotes
-SetOperation " i"
-" select content withing tags
-SetOperation t it
-" select content with tags
-SetOperation t at
-
-" show workspace symbol
-SetAction <ESC>2 <C-o>:CocList -I symbols<CR>
-" show current file symbols
-SetAction <ESC>3 <C-o>:CocList outline<CR>
-" format selected according to code style and editor text-width setting
-SetOperation <C-b> :<C-u>call CocActionAsync('formatSelected', visualmode())<CR>
-" show errors and warnings
-SetAction <C-e> <C-o>:CocList diagnostics<CR>
-" navigate diagnostic
-SetAction <ESC>1 <C-o>:call CocActionAsync('diagnosticNext')<CR>
-SetAction <ESC>! <C-o>:call CocActionAsync('diagnosticPrevious')<CR>
-
-" show all files in projects
-SetAction <ESC>` <C-o>:Files<CR>
-" show current opened files
-SetAction <ESC><Tab> <C-o>:Buffers<CR>
-" search in project files
-SetAction <ESC>f <C-o>:Ag<CR>
-" show recent opened files
-SetAction <Esc>~ <C-o>:History<CR>
-
-" find in current file
-SetAction <C-f> <C-o>:BLines<CR>
-" search selection within current file
-SetOperation <C-u> :<C-u>SearchSelectionInFile<CR>
-" search selection within root directory
-SetOperation <ESC>u :<C-u>SearchSelectionInRoot<CR>
-
-" toggle comment selected text
-SetOperation <C-_> :Commentary<CR>
-SetAction <C-_> <C-o>:Commentary<CR>
