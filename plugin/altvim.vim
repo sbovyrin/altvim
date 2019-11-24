@@ -66,10 +66,12 @@ autocmd FileType html setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
 
 
+" o=I======>
+" [Commands] 
+" <======I=o
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
-command! -nargs=0 OpenInBrowser !google-chrome %
 command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
-
+command! -nargs=0 OpenInBrowser !google-chrome %
 
 " o==I========>
 " [Keybindings] 
@@ -122,9 +124,9 @@ SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <ESC>/ = call altvim#jump_to()
-SetHotkey <M-right> = call altvim#jump_to('next')
-SetHotkey <M-left> = call altvim#jump_to('prev')
+SetHotkey <ESC>/ = call altvim#goto_char('first')
+SetHotkey <M-right> = call altvim#goto_char('next')
+SetHotkey <M-left> = call altvim#goto_char('prev')
 
 
 """ Scrolling
