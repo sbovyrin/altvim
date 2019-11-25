@@ -203,12 +203,27 @@ function! altvim#delete_line() abort
         normal! V
     endif
     
-    normal! "_d==g;
+    normal! "_d==
+    
+    if line("'>") != line('$')
+        normal! g;
+    endif
 endfunction
 
 function! altvim#clear_line() abort
-    normal! gv"xc
-    normal! ==g;
+    if g:altvim#is_selection
+        normal! gv
+    else
+        normal! ^v$
+    endif
+
+    normal! h
+    normal! "xc
+    normal! ==
+
+    if line("'>") != line('$')
+        normal! g;
+    endif
     
     if col('.') == 1 && indent(line('.')) + 1 != col('.')
         normal! ^
