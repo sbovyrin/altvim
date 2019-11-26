@@ -24,7 +24,7 @@ function! altvim#select_word() abort
 
     let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
 
-    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'eh'
+    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'e'
 endfunction
 
 " Replace found results
@@ -211,16 +211,15 @@ function! altvim#delete_line() abort
 endfunction
 
 function! altvim#clear_line() abort
-    if g:altvim#is_selection
-        normal! gv
-    else
-        normal! ^v$
+    normal! gv
+
+    if col("'>") == col('$')
+        normal! h
     endif
 
-    normal! h
     normal! "xc
     normal! ==
-
+    
     if line("'>") != line('$')
         normal! g;
     endif
