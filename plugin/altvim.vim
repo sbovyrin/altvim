@@ -102,6 +102,7 @@ SetHotkey <BS> = _, call altvim#delete_line()
 SetHotkey <Space> = _, call altvim#clear_line()
 SetHotkey <C-j> = call altvim#join_line()
 SetHotkey <C-r> = call altvim#replace()
+SetHotkey <C-t> = _, call altvim#trim()
 
 SetHotkey <ESC><CR> = call altvim#repeat_last_action()
 
@@ -139,7 +140,7 @@ SetHotkey <M-down> = call altvim#scroll_page('down')
 """""""""""""
 SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
-SetHotkey <C-t> = call altvim#select_word()
+SetHotkey <C-h> = call altvim#select_word()
 SetHotkey <S-up> = call altvim#select('prevline')
 SetHotkey <S-down> = call altvim#select('nextline')
 SetHotkey <S-right> = call altvim#select('nextchar')

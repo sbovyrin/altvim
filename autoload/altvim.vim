@@ -242,6 +242,10 @@ function! altvim#outdent() abort
 endfunction
 
 function! altvim#join_line() abort
+    if g:altvim#is_selection
+        normal! gv
+    endif
+
     normal! J
 endfunction
 
