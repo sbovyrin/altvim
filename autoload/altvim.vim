@@ -32,7 +32,7 @@ function! altvim#replace_found(...) abort
     exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
 endfunction
 
-function! altvim#cloneline() abort
+function! altvim#clone_line() abort
     let l:lineCount = g:altvim#is_selection ? (line("'>") - line("'<") + 1) : 1
 
     if g:altvim#is_selection
@@ -42,6 +42,7 @@ function! altvim#cloneline() abort
     endif
 
     normal! "cyO
+    normal! S
     let @c = substitute(@c, '\n\+$', '', '')
     let @c = substitute(@c, '^\s*', '', '')
     normal! "cp==
