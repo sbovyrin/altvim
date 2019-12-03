@@ -140,7 +140,7 @@ SetHotkey <M-down> = call altvim#scroll_page('down')
 """""""""""""
 SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
-SetHotkey <C-h> = call altvim#select_word()
+SetHotkey <C-t> = call altvim#select_word()
 SetHotkey <S-up> = call altvim#select('prevline')
 SetHotkey <S-down> = call altvim#select('nextline')
 SetHotkey <S-right> = call altvim#select('nextchar')
@@ -156,6 +156,9 @@ SetHotkey t = _, call altvim#select_content_within('tag')
 SetHotkey T = _, call altvim#select_content_within_included('tag')
 SetHotkey < = _, call altvim#select_content_within('lessthan')
 SetHotkey > = _, call altvim#select_content_within_included('lessthan')
+SetHotkey ' = _, call altvim#select_content_within('single_quotes')
+SetHotkey " = _, call altvim#select_content_within('double_quotes')
+SetHotkey ` = _, call altvim#select_content_within('back_quotes')
 
 
 """ Project

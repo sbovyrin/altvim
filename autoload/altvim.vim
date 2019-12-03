@@ -292,6 +292,12 @@ function! altvim#select_content(type, scope) abort
         let l:cmd = 't'
     elseif a:scope == 'lessthan'
         let l:cmd = '<'
+    elseif a:scope == 'double_quotes'
+        let l:cmd = '"'
+    elseif a:scope == 'single_quotes'
+        let l:cmd = "'"
+    elseif a:scope == 'back_quotes'
+        let l:cmd = '`'
     endif
     
     if empty(l:cmd) | return | endif
