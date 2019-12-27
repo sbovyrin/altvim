@@ -109,8 +109,7 @@ SetHotkey <ESC><CR> = call altvim#repeat_last_action()
 SetHotkey <Tab> = _, call altvim#indent()
 SetHotkey <S-Tab> = _, call altvim#outdent()
 
-SetHotkey <ESC>b = call altvim#format()
-SetHotkey <C-b> = _, call altvim#format_lang()
+SetHotkey <C-b> = call altvim#format()
 
 SetHotkey <C-_> = call altvim#toggle_comment()
 

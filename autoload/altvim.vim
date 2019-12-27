@@ -1,27 +1,102 @@
-function! altvim#format() abort
-    if (line("'>") - line("'<") + 1) > 1
-        normal! gv=
+" lmbd functions
+" fun! altvim#_reduce(fn, xs, ...)
+"     let l:xs = deepcopy(a:xs)
+"     let l:acc = get(a:, 1, l:xs[0])
+    
+"     for l:Value in (l:acc == l:xs[0] ? l:xs[1:] : l:xs[0:])
+"         let l:acc = a:fn(l:acc, l:Value)
+"     endfor
+    
+"     return l:acc
+" endfun
+
+" fun! altvim#reduce(...)
+"     let l:Reduce = altvim#curry(3, function('altvim#_reduce'))
+"     return function(l:Reduce, a:000)
+" endfun
+
+" fun! altvim#map(...)
+"     let l:Map = altvim#curry(2, function({fn, xs -> map(deepcopy(xs), {k, v -> fn(v)})}))
+"     return function(l:Map, a:000)
+" endfun
+
+" fun! altvim#filter(...)
+"     let l:Filter = altvim#curry(2, function({fn, xs -> filter(deepcopy(xs), {k, v -> fn(v)})}))
+"     return function(l:Filter, a:000)
+" endfun
+
+" fun! altvim#_curry(ar, fn, args)
+"     let l:ar = a:ar
+"     let l:Fn = a:fn
+"     let l:args = a:args
+    
+"     return {-> len(l:args + a:000) < l:ar ? altvim#_curry(l:ar, l:Fn, l:args + a:000) : call(l:Fn, l:args + a:000)}
+" endfun
+
+" fun! altvim#curry(ar, fn)
+"     return altvim#_curry(a:ar, a:fn, [])
+" endfun
+
+" fun! altvim#compose(...)
+"     let l:fns = reverse(copy(a:000))
+"     return {initV -> altvim#reduce({arg, fn -> fn(arg)}, l:fns, initV)}
+" endfun
+
+" fun! altvim#sum(x, y)
+"     return a:x + a:y
+" endfun
+
+" fun! altvim#sqr(x)
+"     return a:x * a:x
+" endfun
+
+" echo altvim#curry(2, function('altvim#sum'))(1)(2)
+" echo altvim#curry(2, function('altvim#map'))(function('altvim#sqr'))([1,2,3])
+" echo altvim#map(function('altvim#sqr'))
+
+" echo altvim#compose(
+" \   function('altvim#sqr'), 
+" \   altvim#curry(function('altvim#sum'), 3)
+" \)(2)
+
+" utils
+function! altvim#count_selected_lines() abort
+    return g:altvim#is_selection ? (line("'>") - line("'<") + 1) : 1
+endfunction
+
+" Features
+
+"" Formatting
+fun! altvim#format_editor() abort
+    let l:number_lines = altvim#count_selected_lines()
+    if l:number_lines > 1 
+        exe a:firstline . ',' . (a:firstline + l:number_lines - 1) .'g/./normal! gqqgv='
     else
         normal! gv=gvgq
     endif
-endfunction
+endfun
 
-function! altvim#get_selection() abort
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
+fun! altvim#format_lang() abort
+    if index(g:altvim#installed_plugins, 'coc.nvim') > 0
+        if !g:altvim#is_selection
+            normal! V
+        endif
+
+        call CocActionAsync('formatSelected', visualmode())
     endif
-    let lines[-1] = lines[-1][: column_end - 2]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, "\n")
-endfunction
+endfun
+
+fun! altvim#format() abort
+    call altvim#format_editor()
+    call altvim#format_lang()
+endfun
+
 
 function! altvim#select_word() abort
     let l:currSymbol = getline('.')[col('.') - 1]
     let l:prevSymbol = getline('.')[col('.') - 2]
 
+    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
     let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
 
     exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'e'
@@ -371,10 +446,6 @@ endfunction
 
 function! altvim#show_file_symbols() abort
     exec 'CocList outline'
-endfunction
-
-function! altvim#format_lang() abort
-    call CocActionAsync('formatSelected', visualmode())
 endfunction
 
 function! altvim#show_problems() abort
