@@ -60,6 +60,16 @@
 " \)(2)
 
 " Utils
+fun! altvim#remember_cursor_pos() abort
+    let l:cur_pos = getcurpos()
+    let @p = l:cur_pos[1] . ':' . l:cur_pos[2]
+endfun
+
+fun! altvim#restore_cursor_pos() abort
+    let l:cur_pos = split(@p, ':')
+    call setpos('.', [0, l:cur_pos[0], l:cur_pos[1], 0])
+endfun
+
 fun! altvim#apply_to_range(fn, range) abort
     exe a:range .'g/^/' . a:fn
 endfun
@@ -78,6 +88,17 @@ endfun
 fun! altvim#get_selected_line_range() abort
     let l:line_numbers = altvim#get_selected_line_numbers()
     return get(l:line_numbers, 0) . ',' . get(l:line_numbers, -1, '')
+endfun
+
+fun! altvim#get_selection() abort
+    normal! gv
+endfun
+
+" -> string
+fun! altvim#get_selected_content() abort
+    call altvim#get_selection()
+    normal! "xy
+    return @x
 endfun
 
 " Features
@@ -111,6 +132,7 @@ endfun
 fun! altvim#format() abort
     call altvim#format_editor()
     call altvim#format_lang()
+    call altvim#restore_cursor_pos()
 endfun
 
 " Deleting
@@ -118,6 +140,7 @@ fun! altvim#delete() abort
     normal! "xc
 endfun
 
+" *
 function! altvim#delete_line() abort
     call altvim#apply_to_range(
         \ 'call altvim#select_line() | call altvim#delete() | normal! dd',
@@ -127,10 +150,8 @@ function! altvim#delete_line() abort
 endfunction
 
 function! altvim#clear_line() abort
-    call altvim#apply_to_range(
-        \ 'call altvim#select_line() | call altvim#delete()',
-        \ altvim#get_selected_line_range()
-    \ )
+    call altvim#get_selection()
+    call altvim#delete()
     call altvim#format()
 endfunction
 
@@ -286,13 +307,13 @@ function! altvim#set_hotkey(...) abort
         exec 'inoremap ' . l:key . ' <C-o>' . l:naction
         exec 'vnoremap ' . l:key . ' ' . l:naction
     elseif empty(l:naction) && !empty(l:vaction)
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| ' . l:vaction . '<CR>'
+        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
     elseif !empty(l:naction) && empty(l:vaction)
-        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| ' . l:naction . '<CR>'
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| ' . l:naction . '<CR>'
+        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
     else
-        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| ' . l:naction . '<CR>'
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| ' . l:vaction . '<CR>'
+        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
     endif
 endfunction
 
