@@ -1,4 +1,4 @@
-" lmbd functions
+" lmbd functions 
 " fun! altvim#_reduce(fn, xs, ...)
 "     let l:xs = deepcopy(a:xs)
 "     let l:acc = get(a:, 1, l:xs[0])
@@ -101,9 +101,10 @@ fun! altvim#get_selected_content() abort
     return @x
 endfun
 
+
 " Features
 
-" Selecting
+"" Selecting
 fun! altvim#select_line() abort
     normal! V
 endfun
@@ -149,6 +150,7 @@ function! altvim#delete_line() abort
     call altvim#format()
 endfunction
 
+" *
 function! altvim#clear_line() abort
     call altvim#get_selection()
     call altvim#delete()
@@ -349,9 +351,9 @@ function! altvim#outdent() abort
     normal! gv<gv
 endfunction
 
-function! altvim#join_line() abort
+function! altvim#join_lines() abort
     if g:altvim#is_selection
-        normal! gv
+        call altvim#get_selection()
     endif
 
     normal! J

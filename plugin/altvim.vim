@@ -100,7 +100,7 @@ SetHotkey <C-l> = call altvim#clone_line()
 SetHotkey <C-d> = call altvim#delete_line()
 SetHotkey <BS> = _, call altvim#delete_line()
 SetHotkey <Space> = _, call altvim#clear_line()
-SetHotkey <C-j> = call altvim#join_line()
+SetHotkey <C-j> = call altvim#join_lines()
 SetHotkey <C-r> = call altvim#replace()
 SetHotkey <C-t> = _, call altvim#trim()
 
