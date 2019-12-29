@@ -59,18 +59,39 @@
 " \   altvim#curry(function('altvim#sum'), 3)
 " \)(2)
 
-" utils
-function! altvim#count_selected_lines() abort
+" Utils
+fun! altvim#apply_to_range(fn, range) abort
+    exe a:range .'g/^/' . a:fn
+endfun
+
+" -> number
+fun! altvim#count_selected_lines() abort
     return g:altvim#is_selection ? (line("'>") - line("'<") + 1) : 1
-endfunction
+endfun
+
+" -> list
+fun! altvim#get_selected_line_numbers() abort
+    return range(a:firstline, a:firstline + altvim#count_selected_lines() - 1)
+endfun
+
+" -> string
+fun! altvim#get_selected_line_range() abort
+    let l:line_numbers = altvim#get_selected_line_numbers()
+    return get(l:line_numbers, 0) . ',' . get(l:line_numbers, -1, '')
+endfun
 
 " Features
 
+" Selecting
+fun! altvim#select_line() abort
+    normal! V
+endfun
+
 "" Formatting
 fun! altvim#format_editor() abort
-    let l:number_lines = altvim#count_selected_lines()
-    if l:number_lines > 1 
-        exe a:firstline . ',' . (a:firstline + l:number_lines - 1) .'g/./normal! gqqgv='
+    let l:selected_lines = altvim#count_selected_lines()
+    if l:selected_lines > 1 
+        call altvim#apply_to_range('normal! gqqgv=', altvim#get_selected_line_range())
     else
         normal! gv=gvgq
     endif
@@ -78,20 +99,43 @@ endfun
 
 fun! altvim#format_lang() abort
     if index(g:altvim#installed_plugins, 'coc.nvim') > 0
-        if !g:altvim#is_selection
-            normal! V
-        endif
+        " if !g:altvim#is_selection
+        "     call altvim#select_line()
+        " endif
 
         call CocActionAsync('formatSelected', visualmode())
     endif
 endfun
 
+" *
 fun! altvim#format() abort
     call altvim#format_editor()
     call altvim#format_lang()
 endfun
 
+" Deleting
+fun! altvim#delete() abort
+    normal! "xc
+endfun
 
+function! altvim#delete_line() abort
+    call altvim#apply_to_range(
+        \ 'call altvim#select_line() | call altvim#delete() | normal! dd',
+        \ altvim#get_selected_line_range()
+    \ )
+    call altvim#format()
+endfunction
+
+function! altvim#clear_line() abort
+    call altvim#apply_to_range(
+        \ 'call altvim#select_line() | call altvim#delete()',
+        \ altvim#get_selected_line_range()
+    \ )
+    call altvim#format()
+endfunction
+
+
+""""
 function! altvim#select_word() abort
     let l:currSymbol = getline('.')[col('.') - 1]
     let l:prevSymbol = getline('.')[col('.') - 2]
@@ -270,39 +314,6 @@ endfunction
 
 function! altvim#redo() abort
     exec 'redo'
-endfunction
-
-function! altvim#delete_line() abort
-    if g:altvim#is_selection
-        normal! gv
-    else
-        normal! V
-    endif
-    
-    normal! "_d==
-    
-    if line("'>") != line('$')
-        normal! g;
-    endif
-endfunction
-
-function! altvim#clear_line() abort
-    normal! gv
-
-    if col("'>") == col('$')
-        normal! h
-    endif
-
-    normal! "xc
-    normal! ==
-    
-    if line("'>") != line('$')
-        normal! g;
-    endif
-    
-    if col('.') == 1 && indent(line('.')) + 1 != col('.')
-        normal! ^
-    endif
 endfunction
 
 function! altvim#repeat_last_action() abort
