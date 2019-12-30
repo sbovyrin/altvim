@@ -65,8 +65,12 @@ fun! altvim#remember_cursor_pos() abort
     let @p = l:cur_pos[1] . ':' . l:cur_pos[2]
 endfun
 
+fun! altvim#get_remembered_cursor_pos() abort
+    return split(@p, ':')
+endfun
+
 fun! altvim#restore_cursor_pos() abort
-    let l:cur_pos = split(@p, ':')
+    let l:cur_pos = altvim#get_remembered_cursor_pos()
     call setpos('.', [0, l:cur_pos[0], l:cur_pos[1], 0])
 endfun
 
@@ -101,12 +105,71 @@ fun! altvim#get_selected_content() abort
     return @x
 endfun
 
+" -> bool
+fun! altvim#is_selected_whole_line() abort
+    let l:selected_content_length = strlen(altvim#get_selected_content())
+    let l:line_content_length = strlen(getline('.'))
+    
+    return l:line_content_length  == l:selected_content_length
+endfun
+
 
 " Features
 
 "" Selecting
 fun! altvim#select_line() abort
     normal! V
+endfun
+
+fun! altvim#select_char() abort
+    normal! v
+endfun
+
+" *
+fun! altvim#select_next_line() abort
+    if !g:altvim#is_selection
+        call altvim#select_line()
+    else
+        call altvim#get_selection()
+        normal! j
+    endif
+endfun
+
+" *
+fun! altvim#select_prev_line() abort
+    if !g:altvim#is_selection
+        call altvim#select_line()
+    else
+        call altvim#get_selection()
+        normal! k
+    endif
+endfun
+
+" *
+fun! altvim#select_next_char() abort
+    if !g:altvim#is_selection
+        call altvim#select_char()
+    else
+        let l:cur_pos = altvim#get_remembered_cursor_pos()[1]
+        
+        call altvim#get_selection()
+        normal! l
+
+        " call altvim#get_selection()
+        " if col("'>") == l:cur_pos
+        "     normal! w
+        " endif
+    endif
+endfun
+
+" *
+fun! altvim#select_prev_char() abort
+    if !g:altvim#is_selection
+        call altvim#select_char()
+    else
+        call altvim#get_selection()
+        normal! h
+    endif
 endfun
 
 "" Formatting
@@ -309,13 +372,13 @@ function! altvim#set_hotkey(...) abort
         exec 'inoremap ' . l:key . ' <C-o>' . l:naction
         exec 'vnoremap ' . l:key . ' ' . l:naction
     elseif empty(l:naction) && !empty(l:vaction)
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
     elseif !empty(l:naction) && empty(l:vaction)
-        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'inoremap <silent> ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
     else
-        exec 'inoremap ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
-        exec 'vnoremap ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
+        exec 'inoremap <silent> ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
     endif
 endfunction
 
