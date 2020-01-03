@@ -61,16 +61,18 @@
 
 " Utils
 fun! altvim#remember_cursor_pos() abort
-    let l:cur_pos = getcurpos()
+    let l:cur_pos = getpos('.')
+    
     let @p = l:cur_pos[1] . ':' . l:cur_pos[2]
 endfun
 
-fun! altvim#get_remembered_cursor_pos() abort
+" -> list
+fun! altvim#get_last_cursor_pos() abort
     return split(@p, ':')
 endfun
 
 fun! altvim#restore_cursor_pos() abort
-    let l:cur_pos = altvim#get_remembered_cursor_pos()
+    let l:cur_pos = altvim#get_last_cursor_pos()
     call setpos('.', [0, l:cur_pos[0], l:cur_pos[1], 0])
 endfun
 
@@ -113,7 +115,6 @@ fun! altvim#is_selected_whole_line() abort
     return l:line_content_length  == l:selected_content_length
 endfun
 
-
 " Features
 
 "" Selecting
@@ -150,15 +151,15 @@ fun! altvim#select_next_char() abort
     if !g:altvim#is_selection
         call altvim#select_char()
     else
-        let l:cur_pos = altvim#get_remembered_cursor_pos()[1]
+        let l:cur_pos = altvim#get_last_cursor_pos()
+        let l:end_selection_pos = len(getline(l:cur_pos[0]))
         
         call altvim#get_selection()
         normal! l
 
-        " call altvim#get_selection()
-        " if col("'>") == l:cur_pos
-        "     normal! w
-        " endif
+        if l:cur_pos[1] == (l:end_selection_pos == 0 ? l:end_selection_pos + 1 : l:end_selection_pos)
+            normal! w
+        endif
     endif
 endfun
 
@@ -167,8 +168,14 @@ fun! altvim#select_prev_char() abort
     if !g:altvim#is_selection
         call altvim#select_char()
     else
+        let l:cur_pos = getpos("'<")[2]
+
         call altvim#get_selection()
         normal! h
+
+        if l:cur_pos == 1
+            normal! b
+        endif
     endif
 endfun
 
@@ -210,14 +217,12 @@ function! altvim#delete_line() abort
         \ 'call altvim#select_line() | call altvim#delete() | normal! dd',
         \ altvim#get_selected_line_range()
     \ )
-    call altvim#format()
 endfunction
 
 " *
 function! altvim#clear_line() abort
     call altvim#get_selection()
     call altvim#delete()
-    call altvim#format()
 endfunction
 
 
