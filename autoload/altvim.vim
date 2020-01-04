@@ -101,19 +101,11 @@ fun! altvim#get_selection() abort
 endfun
 
 " -> string
-fun! altvim#get_selected_content() abort
-    call altvim#get_selection()
-    normal! "xy
-    return @x
-endfun
-
-" -> bool
-fun! altvim#is_selected_whole_line() abort
-    let l:selected_content_length = strlen(altvim#get_selected_content())
-    let l:line_content_length = strlen(getline('.'))
-    
-    return l:line_content_length  == l:selected_content_length
-endfun
+" fun! altvim#get_selected_content() abort
+"     call altvim#get_selection()
+"     normal! "xy
+"     return @x
+" endfun
 
 " Features
 
@@ -151,15 +143,8 @@ fun! altvim#select_next_char() abort
     if !g:altvim#is_selection
         call altvim#select_char()
     else
-        let l:cur_pos = altvim#get_last_cursor_pos()
-        let l:end_selection_pos = len(getline(l:cur_pos[0]))
-        
         call altvim#get_selection()
         normal! l
-
-        if l:cur_pos[1] == (l:end_selection_pos == 0 ? l:end_selection_pos + 1 : l:end_selection_pos)
-            normal! w
-        endif
     endif
 endfun
 
@@ -168,14 +153,8 @@ fun! altvim#select_prev_char() abort
     if !g:altvim#is_selection
         call altvim#select_char()
     else
-        let l:cur_pos = getpos("'<")[2]
-
         call altvim#get_selection()
         normal! h
-
-        if l:cur_pos == 1
-            normal! b
-        endif
     endif
 endfun
 
@@ -217,12 +196,14 @@ function! altvim#delete_line() abort
         \ 'call altvim#select_line() | call altvim#delete() | normal! dd',
         \ altvim#get_selected_line_range()
     \ )
+    call altvim#restore_cursor_pos()
 endfunction
 
 " *
 function! altvim#clear_line() abort
     call altvim#get_selection()
     call altvim#delete()
+    call altvim#restore_cursor_pos()
 endfunction
 
 
@@ -420,6 +401,7 @@ function! altvim#outdent() abort
 endfunction
 
 function! altvim#join_lines() abort
+    " TODO: remove redundant whitespaces, keep only one space between words
     if g:altvim#is_selection
         call altvim#get_selection()
     endif
