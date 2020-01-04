@@ -154,7 +154,7 @@ fun! altvim#goto_next_word() abort
         normal! w
     endif
 
-    if altvim#get_char_under_cursor() !~ '\w'
+   if altvim#get_char_under_cursor() !~ '\_[a-zA-ZА-яЁё]'
         call altvim#goto_next_word()
     endif
 endfun
@@ -163,7 +163,7 @@ endfun
 fun! altvim#goto_prev_word() abort
     normal! b
 
-   if altvim#get_char_under_cursor() !~ '\w'
+    if altvim#get_char_under_cursor() !~ '\_[a-zA-ZА-яЁё]'
         call altvim#goto_prev_word()
     endif
 endfun
@@ -311,7 +311,7 @@ function! altvim#select_word() abort
     let l:cur_pos = altvim#get_cursor_pos()
     let l:prev_char = altvim#get_char(l:cur_pos[0], l:cur_pos[1] - 1)
 
-    if l:prev_char =~ '\w'
+   if l:prev_char =~ '\_[a-zA-ZА-яЁё]'
         call altvim#goto_prev_word()
     endif
 
