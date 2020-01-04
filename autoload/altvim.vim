@@ -1,3 +1,5 @@
+" TODO: prevent unselect one char when shift to normal mode
+"
 " lmbd functions 
 " fun! altvim#_reduce(fn, xs, ...)
 "     let l:xs = deepcopy(a:xs)
@@ -62,7 +64,7 @@
 " Utils
 fun! altvim#remember_cursor_pos() abort
     let l:cur_pos = getpos('.')
-    
+
     let @p = l:cur_pos[1] . ':' . l:cur_pos[2]
 endfun
 
@@ -74,6 +76,11 @@ endfun
 fun! altvim#restore_cursor_pos() abort
     let l:cur_pos = altvim#get_last_cursor_pos()
     call setpos('.', [0, l:cur_pos[0], l:cur_pos[1], 0])
+endfun
+
+" -> list
+fun! altvim#get_cursor_pos() abort
+    return [line('.'), col('.')]
 endfun
 
 fun! altvim#apply_to_range(fn, range) abort
@@ -109,12 +116,82 @@ endfun
 
 " Features
 
+"" Core
+fun! altvim#repeat(fn) abort
+    exe a:fn
+endfun
+
+fun! altvim#repeat_hotkey() abort
+    call altvim#repeat(@h)
+endfun
+
+" -> string
+fun! altvim#listen_keys(number, ...) abort
+    let l:input = get(a:, 1, '')
+    return a:number == 0 
+        \ ? join(map(split(l:input, ','), {k, v -> nr2char(v)}), '')
+        \ : altvim#listen_keys(a:number - 1, l:input .  getchar() . ',')
+endfun
+
+" -> string
+fun! altvim#get_char(line, column) abort
+    return strcharpart(strpart(getline(a:line), a:column - 1), 0, 1)
+endfun
+
+" -> string
+fun! altvim#get_char_under_cursor() abort
+    let l:cur_pos = altvim#get_cursor_pos()
+    return altvim#get_char(l:cur_pos[0], l:cur_pos[1])
+endfun
+
+"" Navigation
+
+" *
+fun! altvim#goto_next_word() abort
+    if g:altvim#is_selection
+        normal! e
+    else
+        normal! w
+    endif
+
+    if altvim#get_char_under_cursor() !~ '\w'
+        call altvim#goto_next_word()
+    endif
+endfun
+
+" *
+fun! altvim#goto_prev_word() abort
+    normal! b
+
+   if altvim#get_char_under_cursor() !~ '\w'
+        call altvim#goto_prev_word()
+    endif
+endfun
+
+" *
+function! altvim#goto_char(mode) abort
+    if a:mode == 'first'
+        let b:altvimJumpToChar = nr2char(getchar()) . nr2char(getchar())
+    endif
+
+    let l:searchFlag = a:mode == 'prev' ? 'b' : ''
+
+    let [l:lineNumber, l:pos] = searchpos(get(b:, 'altvimJumpToChar', ''), l:searchFlag)
+
+    if g:altvim#is_selection
+        call setpos(a:mode == 'prev' ?  "'<" : "'>", [0, l:lineNumber, l:pos])
+        normal! gv
+    endif
+endfunction
+
 "" Selecting
 fun! altvim#select_line() abort
+    let g:altvim#is_selection = 1
     normal! V
 endfun
 
 fun! altvim#select_char() abort
+    let g:altvim#is_selection = 1
     normal! v
 endfun
 
@@ -156,6 +233,28 @@ fun! altvim#select_prev_char() abort
         call altvim#get_selection()
         normal! h
     endif
+endfun
+
+" *
+fun! altvim#select_next_word() abort
+    if !g:altvim#is_selection
+        call altvim#select_char()
+    else
+        call altvim#get_selection()
+    endif
+
+    call altvim#goto_next_word()
+endfun
+
+" *
+fun! altvim#select_prev_word() abort
+    if !g:altvim#is_selection
+        call altvim#select_char()
+    else
+        call altvim#get_selection()
+    endif
+
+    call altvim#goto_prev_word()
 endfun
 
 "" Formatting
@@ -209,13 +308,15 @@ endfunction
 
 """"
 function! altvim#select_word() abort
-    let l:currSymbol = getline('.')[col('.') - 1]
-    let l:prevSymbol = getline('.')[col('.') - 2]
+    let l:cur_pos = altvim#get_cursor_pos()
+    let l:prev_char = altvim#get_char(l:cur_pos[0], l:cur_pos[1] - 1)
 
-    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
-    let l:condition =  (matchstr(l:prevSymbol, '\w') != '' && matchstr(l:currSymbol, '\w') != '')
+    if l:prev_char =~ '\w'
+        call altvim#goto_prev_word()
+    endif
 
-    exe 'normal! ' . (l:condition ? 'bv' : 'v') . 'e'
+    call altvim#select_char()
+    call altvim#goto_next_word()
 endfunction
 
 " Replace found results
@@ -280,61 +381,6 @@ function! altvim#multiclipboard() abort
     call fzf#vim#complete({ 'source': (empty(@e) ? [] : eval(@e)), 'down': 10 })
 endfunction
 
-" Select a line/char
-function! altvim#select(type) abort
-    let l:isFirstSelection = line("'>") - line("'<")
-    let l:cmd = ''
-    let l:direction = ''
-    
-    if a:type =~ 'line' && !g:altvim#is_selection
-        let l:cmd = '^v$'
-    elseif a:type =~ 'char' && !g:altvim#is_selection
-        let l:cmd = 'v'
-    elseif g:altvim#is_selection
-
-        if !l:isFirstSelection && a:type =~ 'line'
-            let l:cmd = (a:type =~ 'next' ? '^v$' : '$v^')
-        else
-            let l:cmd = 'gv'
-        endif
-
-        if a:type == 'nextchar'
-            let l:direction = 'l'
-        elseif a:type == 'prevchar'
-            let l:direction = 'h'
-        elseif a:type == 'nextline'
-            let l:direction = 'j'
-        elseif a:type == 'prevline'
-            let l:direction = 'k'
-        endif
-
-        if l:direction == '' | return | endif
-
-        let l:cmd = l:cmd . v:count1 . l:direction
-    endif
-    
-    if l:cmd == '' | return | endif
-    
-    exec 'normal! ' . l:cmd
-endfunction
-
-
-" Go to start of specific char
-function! altvim#goto_char(mode) abort
-    if a:mode == 'first'
-        let b:altvimJumpToChar = nr2char(getchar()) . nr2char(getchar())
-    endif
-    
-    let l:searchFlag = a:mode == 'prev' ? 'b' : ''
-
-    let [l:lineNumber, l:pos] = searchpos(get(b:, 'altvimJumpToChar', ''), l:searchFlag)
-    
-    if g:altvim#is_selection
-        call setpos(a:mode == 'prev' ? "'<" : "'>", [0, l:lineNumber, l:pos])
-        normal! gv
-    endif
-endfunction
-
 " Get all filetypes that vim knows
 function! altvim#get_known_filetypes() abort
     return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
@@ -353,18 +399,21 @@ function! altvim#set_hotkey(...) abort
 
     let l:naction = get(l:actions, 0) == '_' ? '' : get(l:actions, 0)
     let l:vaction = get(l:actions, 1)
-        
-    if l:naction == ':'
+            
+    if l:naction == ':' 
         exec 'inoremap ' . l:key . ' <C-o>' . l:naction
         exec 'vnoremap ' . l:key . ' ' . l:naction
+    elseif l:naction =~ 'repeat_hotkey'
+        exec 'inoremap ' . l:key . ' <C-o>:' . l:naction . '<CR>'
+        exec 'vnoremap ' . l:key . ' :<C-u>' . l:naction . '<CR>'
     elseif empty(l:naction) && !empty(l:vaction)
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '" \| exe @h<CR>'
     elseif !empty(l:naction) && empty(l:vaction)
-        exec 'inoremap <silent> ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
+        exec 'inoremap <silent> ' . l:key . ' <C-o>:let @h = "let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
     else
-        exec 'inoremap <silent> ' . l:key . ' <C-o>:let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '<CR>'
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '<CR>'
+        exec 'inoremap <silent> ' . l:key . ' <C-o>:let @h = "let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
+        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '" \| exe @h<CR>'
     endif
 endfunction
 
@@ -506,22 +555,6 @@ function! altvim#goto_line_end() abort
     endif
 
     normal! $
-endfunction
-
-function! altvim#goto_next_word() abort
-    if g:altvim#is_selection
-        normal! gve
-    else
-        normal! w
-    endif
-endfunction
-
-function! altvim#goto_prev_word() abort
-    if g:altvim#is_selection
-        normal! gv
-    endif
-
-    normal! b
 endfunction
 
 function! altvim#show_project_symbols() abort
