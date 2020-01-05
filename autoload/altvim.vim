@@ -1,5 +1,3 @@
-" TODO: prevent unselect one char when shift to normal mode
-"
 " lmbd functions 
 " fun! altvim#_reduce(fn, xs, ...)
 "     let l:xs = deepcopy(a:xs)
@@ -144,45 +142,60 @@ fun! altvim#get_char_under_cursor() abort
     return altvim#get_char(l:cur_pos[0], l:cur_pos[1])
 endfun
 
+fun! altvim#update_cursor_pos(line, col) abort
+    let l:cursor = '.'
+    
+    if g:altvim#is_selection
+        let l:cursor = g:altvim#is_reverse_selection ? "'<" : "'>"
+    endif
+
+    call setpos(l:cursor, [0, a:line, a:col])
+endfun
+
 "" Navigation
 
-" *
-fun! altvim#goto_next_word() abort
-    if g:altvim#is_selection
-        normal! e
-    else
-        normal! w
-    endif
+" -> list
+fun! altvim#goto_char(char, mode) abort
+    return searchpos(a:char, a:mode)
+endfun
 
-   if altvim#get_char_under_cursor() !~ '\_[a-zA-ZА-яЁё]'
-        call altvim#goto_next_word()
+" *
+fun! altvim#goto_word(...) abort
+    let l:is_reverse  = get(a:, 1, 0)
+
+    exe 'normal! ' . (l:is_reverse ? 'h' : 'l')
+
+    let [l:new_line_pos, l:new_col_pos] = altvim#goto_char(
+                \ '\_[^0-9a-zA-ZА-яЁё]',
+                \ l:is_reverse ? 'b' : '')
+    
+    exe 'normal! ' . (l:is_reverse ? 'l' : 'h')
+
+    if altvim#get_char_under_cursor() !~ '\_[0-9a-zA-ZА-яЁё]'
+        call altvim#goto_word(l:is_reverse)
     endif
+endfun
+
+fun! altvim#goto_next_word() abort
+    call altvim#goto_word()
 endfun
 
 " *
 fun! altvim#goto_prev_word() abort
-    normal! b
-
-    if altvim#get_char_under_cursor() !~ '\_[a-zA-ZА-яЁё]'
-        call altvim#goto_prev_word()
-    endif
+    call altvim#goto_word(1)
 endfun
 
 " *
-function! altvim#goto_char(mode) abort
-    if a:mode == 'first'
-        let b:altvimJumpToChar = nr2char(getchar()) . nr2char(getchar())
-    endif
+fun! altvim#goto_pair(...) abort
+    let l:pair = altvim#listen_keys(2)
 
-    let l:searchFlag = a:mode == 'prev' ? 'b' : ''
+    let l:is_reverse  = get(a:, 1, 0) 
 
-    let [l:lineNumber, l:pos] = searchpos(get(b:, 'altvimJumpToChar', ''), l:searchFlag)
+    let [l:new_line_pos, l:new_col_pos] = altvim#goto_char(
+                \ l:pair,
+                \ l:is_reverse ? 'b' : '')
+endfun
 
-    if g:altvim#is_selection
-        call setpos(a:mode == 'prev' ?  "'<" : "'>", [0, l:lineNumber, l:pos])
-        normal! gv
-    endif
-endfunction
 
 "" Selecting
 fun! altvim#select_line() abort
