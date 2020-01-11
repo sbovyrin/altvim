@@ -160,6 +160,7 @@ fun! altvim#goto_char(char, mode) abort
 endfun
 
 " *
+" TODO: fix goto for cyrilic chars
 fun! altvim#goto_word(...) abort
     let l:is_reverse  = get(a:, 1, 0)
 
@@ -176,7 +177,7 @@ fun! altvim#goto_word(...) abort
     endif
     
     if !l:is_reverse && altvim#get_char(l:line, l:col - 1) !~ '\_[0-9a-zA-ZА-яЁё]'
-        call altvim#goto_word(l:is_reverse)
+        call altvim#goto_word()
     endif
 
     if l:is_reverse && altvim#get_char(l:line, l:col + 1) !~ '\_[0-9a-zA-ZА-яЁё]'
