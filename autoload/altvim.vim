@@ -163,17 +163,27 @@ endfun
 fun! altvim#goto_word(...) abort
     let l:is_reverse  = get(a:, 1, 0)
 
-    exe 'normal! ' . (l:is_reverse ? 'h' : 'l')
+    if l:is_reverse
+        normal! h
+    endif
 
-    let [l:new_line_pos, l:new_col_pos] = altvim#goto_char(
-                \ '\_[^0-9a-zA-ZА-яЁё]',
-                \ l:is_reverse ? 'b' : '')
+    call altvim#goto_char('\_[^0-9a-zA-ZА-яЁё\s]', l:is_reverse ? 'b' : '')
+
+    let [l:line, l:col] = altvim#get_cursor_pos()
     
-    exe 'normal! ' . (l:is_reverse ? 'l' : 'h')
-
-    if altvim#get_char_under_cursor() !~ '\_[0-9a-zA-ZА-яЁё]'
+    if l:is_reverse
+        normal! l
+    endif
+    
+    if !l:is_reverse && altvim#get_char(l:line, l:col - 1) !~ '\_[0-9a-zA-ZА-яЁё]'
         call altvim#goto_word(l:is_reverse)
     endif
+
+    if l:is_reverse && altvim#get_char(l:line, l:col + 1) !~ '\_[0-9a-zA-ZА-яЁё]'
+        call altvim#goto_word(l:is_reverse)
+    endif
+
+    return [l:line, l:col]
 endfun
 
 fun! altvim#goto_next_word() abort
@@ -250,13 +260,11 @@ endfun
 
 " *
 fun! altvim#select_next_word() abort
-    if !g:altvim#is_selection
-        call altvim#select_char()
-    else
-        call altvim#get_selection()
-    endif
+    call altvim#get_selection()
 
-    call altvim#goto_next_word()
+    let [l:line, l:col] = altvim#goto_word()
+    
+    call setpos("'>", [0, l:line, l:col, 0])
 endfun
 
 " *
