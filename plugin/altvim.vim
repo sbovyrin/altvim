@@ -1,4 +1,3 @@
-" o===I=============>
 " [Base VIM settings] 
 " <=============I===o
 
@@ -30,7 +29,7 @@ set hlsearch incsearch ignorecase smartcase
 set hidden ttyfast undolevels=500 history=500 backspace=indent,eol,start lazyredraw title autoread noswapfile nobackup nowritebackup clipboard=unnamedplus updatetime=300 updatecount=100
 
 " UI
-set t_Co=256 number numberwidth=4 showcmd noshowmode nomodeline laststatus=2 cursorline cmdheight=1 scrolloff=2 showtabline=0 signcolumn=yes display=lastline
+set t_Co=256 number numberwidth=4 showcmd noshowmode nomodeline laststatus=2 cursorline cmdheight=1 scrolloff=2 showtabline=0 signcolumn=yes display=lastline termguicolors
 
 " enable brace matching and for tags
 set showmatch matchpairs+=<:>
@@ -42,6 +41,7 @@ set wildmenu wildmode=longest:full,full
 set diffopt=filler diffopt+=iwhite
 
 " autocomplete
+set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
 
 let mapleader="\\"
@@ -119,12 +119,13 @@ SetHotkey <S-M-up> = call altvim#move_line('up')
 
 """ GoTo
 """"""""
-SetHotkey <ESC><BS> = call altvim#goto_last_change()
+SetHotkey <leader>ll = call altvim#goto_last_change()
 SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <ESC>/ = call altvim#goto_char('first')
+SetHotkey <leader>/ = call altvim#goto_next_pair()
+SetHotkey <leader>? = call altvim#goto_prev_pair()
 SetHotkey <M-right> = call altvim#goto_char('next')
 SetHotkey <M-left> = call altvim#goto_char('prev')
 
@@ -140,8 +141,8 @@ SetHotkey <M-down> = call altvim#scroll_page('down')
 SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
 SetHotkey <C-t> = call altvim#select_word()
-SetHotkey <leader><S-s>w = call altvim#select_prev_word()
 SetHotkey <leader>sw = call altvim#select_next_word()
+SetHotkey <leader><S-s>w = call altvim#select_prev_word()
 SetHotkey <S-up> = call altvim#select_prev_line()
 SetHotkey <S-down> = call altvim#select_next_line()
 SetHotkey <S-right> = call altvim#select_next_char()

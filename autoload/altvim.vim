@@ -159,54 +159,50 @@ fun! altvim#goto_char(char, mode) abort
     return searchpos(a:char, a:mode)
 endfun
 
-" *
-" TODO: fix goto for cyrilic chars
 fun! altvim#goto_word(...) abort
     let l:is_reverse  = get(a:, 1, 0)
 
-    if l:is_reverse
-        normal! h
-    endif
+    let l:pattern = l:is_reverse 
+                \ ? '\(_\)\@<=[A-z]\&[^\[\]]\|\(#\)\@<=[A-z]\&[^\[\]]\|\<'
+                \ : '_[0-9A-zА-яЁё]\|#\|\>'
 
-    call altvim#goto_char('\_[^0-9a-zA-ZА-яЁё\s]', l:is_reverse ? 'b' : '')
+    call altvim#goto_char(l:pattern, l:is_reverse ? 'b' : '')
 
     let [l:line, l:col] = altvim#get_cursor_pos()
-    
-    if l:is_reverse
-        normal! l
-    endif
-    
-    if !l:is_reverse && altvim#get_char(l:line, l:col - 1) !~ '\_[0-9a-zA-ZА-яЁё]'
-        call altvim#goto_word()
-    endif
-
-    if l:is_reverse && altvim#get_char(l:line, l:col + 1) !~ '\_[0-9a-zA-ZА-яЁё]'
-        call altvim#goto_word(l:is_reverse)
-    endif
 
     return [l:line, l:col]
 endfun
 
+" *
 fun! altvim#goto_next_word() abort
-    call altvim#goto_word()
+    return altvim#goto_word()
 endfun
 
 " *
 fun! altvim#goto_prev_word() abort
-    call altvim#goto_word(1)
+    return altvim#goto_word(1)
 endfun
 
-" *
 fun! altvim#goto_pair(...) abort
     let l:pair = altvim#listen_keys(2)
 
     let l:is_reverse  = get(a:, 1, 0) 
 
-    let [l:new_line_pos, l:new_col_pos] = altvim#goto_char(
-                \ l:pair,
-                \ l:is_reverse ? 'b' : '')
+    return altvim#goto_char(
+        \ l:pair,
+        \ l:is_reverse ? 'b' : ''
+    \)
 endfun
 
+" *
+fun! altvim#goto_next_pair() abort
+    call altvim#goto_pair()
+endfun
+
+" *
+fun! altvim#goto_prev_pair() abort
+    call altvim#goto_pair(1)
+endfun
 
 "" Selecting
 fun! altvim#select_line() abort
@@ -261,11 +257,15 @@ endfun
 
 " *
 fun! altvim#select_next_word() abort
-    call altvim#get_selection()
-
-    let [l:line, l:col] = altvim#goto_word()
+    if !g:altvim#is_selection
+        call altvim#select_char()
+    else
+        call altvim#get_selection()
+    endif
     
-    call setpos("'>", [0, l:line, l:col, 0])
+    let g:altvim#is_selection = 1
+
+    call altvim#goto_next_word()
 endfun
 
 " *
@@ -408,7 +408,7 @@ function! altvim#get_known_filetypes() abort
     return map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
 endfunction
 
-function! altvim#set_hotkey(...) abort
+fun! altvim#set_hotkey(...) abort
     let l:args = split(a:1, ' = ')
 
     if len(l:args) < 2
@@ -422,22 +422,33 @@ function! altvim#set_hotkey(...) abort
     let l:naction = get(l:actions, 0) == '_' ? '' : get(l:actions, 0)
     let l:vaction = get(l:actions, 1)
             
+    let l:Ncmd = {key, action -> ('inoremap <silent> ' 
+        \ . key 
+        \ . ' <C-o>:let g:altvim#is_selection = 0 \| call altvim#remember_cursor_pos() \| ' 
+        \ . action 
+        \ . '<CR>')}
+    let l:Vcmd = {key, action -> ('vnoremap <silent> ' 
+        \ . key 
+        \ . ' :<C-u>let g:altvim#is_selection = 1 \| call altvim#remember_cursor_pos() \| ' 
+        \ . action 
+        \ . '<CR>')}
+    
     if l:naction == ':' 
-        exec 'inoremap ' . l:key . ' <C-o>' . l:naction
-        exec 'vnoremap ' . l:key . ' ' . l:naction
+        exe 'inoremap ' . l:key . ' <C-o>' . l:naction
+        exe 'vnoremap ' . l:key . ' ' . l:naction
     elseif l:naction =~ 'repeat_hotkey'
-        exec 'inoremap ' . l:key . ' <C-o>:' . l:naction . '<CR>'
-        exec 'vnoremap ' . l:key . ' :<C-u>' . l:naction . '<CR>'
+        exe 'inoremap ' . l:key . ' <C-o>:' . l:naction . '<CR>'
+        exe 'vnoremap ' . l:key . ' :<C-u>' . l:naction . '<CR>'
     elseif empty(l:naction) && !empty(l:vaction)
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '" \| exe @h<CR>'
+        exe l:Vcmd(l:key, l:vaction)
     elseif !empty(l:naction) && empty(l:vaction)
-        exec 'inoremap <silent> ' . l:key . ' <C-o>:let @h = "let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
+        exe l:Ncmd(l:key, l:naction)
+        exe l:Vcmd(l:key, l:naction)
     else
-        exec 'inoremap <silent> ' . l:key . ' <C-o>:let @h = "let g:altvim#is_selection=0 \| call altvim#remember_cursor_pos() \| ' . l:naction . '" \| exe @h<CR>'
-        exec 'vnoremap <silent> ' . l:key . ' :<C-u>let @h = "let g:altvim#is_selection=1 \| call altvim#remember_cursor_pos() \| ' . l:vaction . '" \| exe @h<CR>'
+        exe l:Ncmd(l:key, l:naction)
+        exe l:Vcmd(l:key, l:vaction)
     endif
-endfunction
+endfun
 
 function! altvim#save() abort
     exec 'w'
