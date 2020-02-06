@@ -41,7 +41,7 @@ set wildmenu wildmode=longest:full,full
 set diffopt=filler diffopt+=iwhite
 
 " autocomplete
-set completeopt=menu,menuone,noinsert,noselect
+" set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
 
 let mapleader="\\"
@@ -80,12 +80,11 @@ command! -nargs=0 OpenInBrowser !google-chrome %
 """ Editor
 """"""""""
 " command prompt
-SetHotkey <ESC>? = :
+SetHotkey <ESC>/ = :
 
 SetHotkey <C-s> = call altvim#save()
 SetHotkey <C-q> = call altvim#quit()
 SetHotkey <C-w> = call altvim#close_file()
-
 
 """ Edit text
 """""""""""""
@@ -102,9 +101,8 @@ SetHotkey <BS> = _, call altvim#delete_line()
 SetHotkey <Space> = _, call altvim#clear_line()
 SetHotkey <C-j> = call altvim#join_lines()
 SetHotkey <C-r> = call altvim#replace()
-SetHotkey <C-t> = _, call altvim#trim()
 
-SetHotkey <leader><CR> = call altvim#repeat_hotkey()
+SetHotkey <ESC><CR> = call altvim#repeat_hotkey()
 
 SetHotkey <Tab> = _, call altvim#indent()
 SetHotkey <S-Tab> = _, call altvim#outdent()
@@ -116,16 +114,13 @@ SetHotkey <C-_> = call altvim#toggle_comment()
 SetHotkey <S-M-down> = call altvim#move_line('down')
 SetHotkey <S-M-up> = call altvim#move_line('up')
 
-
 """ GoTo
 """"""""
-SetHotkey <leader>ll = call altvim#goto_last_change()
+SetHotkey <ESC><BS> = call altvim#goto_last_change()
 SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <leader>/ = call altvim#goto_next_pair()
-SetHotkey <leader>? = call altvim#goto_prev_pair()
 SetHotkey <M-right> = call altvim#goto_char('next')
 SetHotkey <M-left> = call altvim#goto_char('prev')
 
@@ -141,8 +136,8 @@ SetHotkey <M-down> = call altvim#scroll_page('down')
 SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
 SetHotkey <C-t> = call altvim#select_word()
-SetHotkey <leader>sw = call altvim#select_next_word()
-SetHotkey <leader><S-s>w = call altvim#select_prev_word()
+SetHotkey <C-S-right> = call altvim#select_next_word()
+SetHotkey <C-S-left> = call altvim#select_prev_word()
 SetHotkey <S-up> = call altvim#select_prev_line()
 SetHotkey <S-down> = call altvim#select_next_line()
 SetHotkey <S-right> = call altvim#select_next_char()
@@ -165,17 +160,17 @@ SetHotkey ` = _, call altvim#select_content_within('back_quotes')
 
 """ Project
 """""""""""
-SetHotkey <ESC>2 = call altvim#show_project_symbols()
-SetHotkey <ESC>3 = call altvim#show_file_symbols()
+" SetHotkey <ESC>2 = call altvim#show_project_symbols()
+" SetHotkey <ESC>3 = call altvim#show_file_symbols()
 
 SetHotkey <C-e> = call altvim#show_problems()
-SetHotkey <ESC>1 = call altvim#goto_next_problem()
-SetHotkey <ESC>! = call altvim#goto_prev_problem()
+" SetHotkey <ESC>1 = call altvim#goto_next_problem()
+" SetHotkey <ESC>! = call altvim#goto_prev_problem()
 
 SetHotkey <ESC>` = call altvim#find_project_files()
 SetHotkey <ESC><Tab> = call altvim#show_open_files()
 SetHotkey <ESC>f = call altvim#find_in_project_files()
-SetHotkey <Esc>~ = call altvim#show_recent_files()
+SetHotkey <ESC>h = call altvim#show_recent_files()
 SetHotkey <C-f> = call altvim#find_in_file()
 
 
