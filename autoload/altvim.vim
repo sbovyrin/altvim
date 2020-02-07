@@ -637,3 +637,4 @@ function! altvim#toggle_comment() abort
         exec 'Commentary'
     endif
 endfunction
+

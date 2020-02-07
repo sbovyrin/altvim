@@ -71,6 +71,7 @@ autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 " <======I=o
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
 command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
+
 command! -nargs=0 OpenInBrowser !google-chrome %
 
 " o==I========>
@@ -179,70 +180,68 @@ SetHotkey <C-f> = call altvim#find_in_file()
 " <===================I====o
 
 if exists("g:plugs")
-    let g:altvim#plugin_dir = g:plugs['altvim'].dir
-    let g:altvim#defined_plugins = keys(g:plugs)
-    let g:altvim#installed_plugins = filter(keys(g:plugs), 'isdirectory(g:plugs[v:val].dir)')
+    let g:altvim_plugin_dir = g:plugs['altvim'].dir
+    let g:altvim_defined_plugins = keys(g:plugs)
+    let g:altvim_installed_plugins = filter(keys(g:plugs), 'isdirectory(g:plugs[v:val].dir)')
     function! altvim#install_plugins() abort
         PlugInstall --sync
     endfunction
 endif
 
 " when vim startup auto install altvim plugins if its were not installed
-if len(g:altvim#defined_plugins) != len(g:altvim#installed_plugins)
+if len(g:altvim_defined_plugins) != len(g:altvim_installed_plugins)
     nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
-endif
-
-" add nodejs bin to $PATH if needed
-if stridx($PATH, 'node') < 0
-    let $PATH=$PATH . ':' . g:altvim#plugin_dir . 'deps/nodejs/bin'
 endif
 
 " snippets directory
 if !exists("g:altvim_snippets")
-    let g:altvim_snippets = '~/.vim/snippets'
+    let g:altvim_snippets = "~/.vim/snippets"
+endif
+" status bar color
+if !exists("g:altvim_statusbar_colorscheme")
+    let g:altvim_statusbar_colorscheme = "seoul256"
 endif
 
 
 " o===I============>
 " [Plugins settings]
 " <============I===o
-
+"
 " setting up emmet
-if !exists("g:user_emmet_install_global")
-    let g:user_emmet_install_global = 0
-    autocmd FileType html,css,php,js,jsx EmmetInstall
-endif
-if !exists("g:user_emmet_leader_key")
-    let g:user_emmet_leader_key = ','
-endif
+let g:user_emmet_install_global = 0
+autocmd FileType html,css,php,js,jsx EmmetInstall
+let g:user_emmet_leader_key = ','
 
 " customize status bar
-if !exists("g:lightline")
-    let g:lightline = {
-                \ 'active': {
-                \   'left': [ [], ['modified', 'filename', 'readonly'] ],
-                \   'right': [ ['lspstatus'], ['fileencoding', 'filetype', 'lineinfo'] ]
-                \ },
-                \ 'component' : {
-                \   'filename': '%F'
-                \ },
-                \ 'component_expand': {
-                \   'lspstatus': 'coc#status'
-                \ }}
-endif
+let g:lightline = {
+    \ 'colorscheme': g:altvim_statusbar_colorscheme,
+    \ 'active': {
+    \   'left': [ ['mode'], ['modified', 'filename', 'readonly'] ],
+    \   'right': [ ['fileencoding', 'filetype', 'lineinfo', 'percent'] ]
+    \ },
+    \ 'component': {
+    \   'filename': '%F'
+    \ }
+\}
 
 " setting up fzf
-if !exists("g:fzf_layout")
-    let g:fzf_layout = {'down': '50%'}
-endif
+let g:fzf_layout = {'down': '50%'}
 
+" indent-line
+let g:indentLine_setColors = 0
+let g:indentLine_setConceal = 0
+
+" add nodejs bin to $PATH if needed
+if stridx($PATH, 'node') < 0
+    let $PATH=$PATH . ':' . g:altvim_plugin_dir . 'deps/nodejs/bin'
+endif
 " setting up lsp 
 if !exists("g:coc_node_path")
-    let g:coc_node_path = g:altvim#plugin_dir . 'deps/nodejs/bin/node'
+    let g:coc_node_path = g:altvim_plugin_dir . 'deps/nodejs/bin/node'
 endif
 if !exists("g:coc_user_config")
     let g:coc_user_config = {
-        \ "npm.binPath": g:altvim#plugin_dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
+        \ "npm.binPath": g:altvim_plugin_dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
         \ "diagnostic.signOffset": 9999999,
         \ "diagnostic.errorSign": "●",
         \ "diagnostic.warningSign": "●",
@@ -260,12 +259,4 @@ if !exists("g:coc_user_config")
         \   "javascriptreact": ["javascript"],
         \ }
 \ }
-endif
-
-" indent-line
-if !exists("g:indentLine_setColors")
-    let g:indentLine_setColors = 0
-endif
-if !exists("g:indentLine_setConceal")
-    let g:indentLine_setConceal = 0
 endif
