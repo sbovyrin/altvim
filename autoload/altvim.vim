@@ -314,7 +314,7 @@ endfun
 " *
 function! altvim#delete_line() abort
     call altvim#apply_to_range(
-        \ 'call altvim#select_line() | call altvim#delete() | normal! dd',
+        \ 'call altvim#select_line() | call altvim#delete() | normal! "xdd',
         \ altvim#get_selected_line_range()
     \ )
     call altvim#restore_cursor_pos()
@@ -369,9 +369,9 @@ function! altvim#_copy() abort
     let @0 = substitute(@0, '\n\+$', '', '')
     let @0 = substitute(@0, '^\s*', '', '')
     let @+ = @0
-    
-    let l:multiclipboard = [@0] + (empty(@e) ? [] : eval(@e))
-    let @e = string(l:multiclipboard[:4])
+
+    let g:altvim#multiclipboard = 
+        \ ([@0] + get(g:, 'altvim#multiclipboard', []))[:4]
 endfunction
 
 " Improved copy
@@ -400,7 +400,7 @@ endfunction
 
 " Activate multiclipboard (show last 5 copied items)
 function! altvim#multiclipboard() abort
-    call fzf#vim#complete({ 'source': (empty(@e) ? [] : eval(@e)), 'down': 10 })
+    call fzf#vim#complete({ 'source': get(g:, 'altvim#multiclipboard', []), 'down': 10 })
 endfunction
 
 " Get all filetypes that vim knows
