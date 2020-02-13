@@ -290,7 +290,7 @@ fun! altvim#format_editor() abort
 endfun
 
 fun! altvim#format_lang() abort
-    if index(g:altvim#installed_plugins, 'coc.nvim') > 0
+    if index(g:altvim_installed_plugins, 'coc.nvim') > 0
         " if !g:altvim#is_selection
         "     call altvim#select_line()
         " endif
@@ -301,7 +301,7 @@ endfun
 
 " *
 fun! altvim#format() abort
-    call altvim#format_editor()
+    " call altvim#format_editor()
     call altvim#format_lang()
     call altvim#restore_cursor_pos()
 endfun
