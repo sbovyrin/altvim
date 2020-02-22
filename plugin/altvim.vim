@@ -169,7 +169,7 @@ SetHotkey <C-e> = call altvim#show_problems()
 " SetHotkey <ESC>! = call altvim#goto_prev_problem()
 
 SetHotkey <ESC>` = call altvim#find_project_files()
-SetHotkey <ESC><Tab> = call altvim#show_open_files()
+SetHotkey <ESC>~ = call altvim#show_open_files()
 SetHotkey <ESC>f = call altvim#find_in_project_files()
 SetHotkey <ESC>h = call altvim#show_recent_files()
 SetHotkey <C-f> = call altvim#find_in_file()

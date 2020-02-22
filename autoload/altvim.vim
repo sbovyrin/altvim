@@ -1,63 +1,92 @@
-" lmbd functions 
-" fun! altvim#_reduce(fn, xs, ...)
-"     let l:xs = deepcopy(a:xs)
-"     let l:acc = get(a:, 1, l:xs[0])
+" lmbd functions
+fun! altvim#_reduce(fn, xs, ...)
+    let l:xs = deepcopy(a:xs)
+    let l:Acc = get(a:, 1, get(l:xs, 0, v:null))
+    let l:xs = type(l:Acc) == type(l:xs[0]) && l:Acc == l:xs[0]
+        \ ? l:xs[1:]
+        \ : l:xs
+
+    for l:Value in l:xs
+        let l:Acc = a:fn(l:Acc, l:Value)
+    endfor
+
+    return l:Acc
+endfun
+
+fun! altvim#_curry(ar, fn, args)
+    let l:ar = a:ar
+    let l:Fn = a:fn
+    let l:args = a:args
     
-"     for l:Value in (l:acc == l:xs[0] ? l:xs[1:] : l:xs[0:])
-"         let l:acc = a:fn(l:acc, l:Value)
-"     endfor
+    return {
+        \ -> len(l:args + a:000) < l:ar 
+            \ ? altvim#_curry(l:ar, l:Fn, l:args + a:000)
+            \ : call(l:Fn, l:args + a:000)
+    \ }
+endfun
+
+fun! altvim#curry(ar, fn)
+    return altvim#_curry(a:ar, a:fn, [])
+endfun
+
+fun! altvim#reduce(...)
+    let l:Reduce = altvim#curry(
+        \ 2,
+        \ function('altvim#_reduce')
+    \ )
     
-"     return l:acc
-" endfun
+    return call(l:Reduce, a:000)
+endfun
 
-" fun! altvim#reduce(...)
-"     let l:Reduce = altvim#curry(3, function('altvim#_reduce'))
-"     return function(l:Reduce, a:000)
-" endfun
+fun! altvim#map(...)
+    let l:Map = altvim#curry(2, function({fn, xs -> map(deepcopy(xs), {k, v -> fn(v)})}))
+    return call(l:Map, a:000)
+endfun
 
-" fun! altvim#map(...)
-"     let l:Map = altvim#curry(2, function({fn, xs -> map(deepcopy(xs), {k, v -> fn(v)})}))
-"     return function(l:Map, a:000)
-" endfun
+fun! altvim#filter(...)
+    let l:Filter = altvim#curry(2, function({fn, xs -> filter(deepcopy(xs), {k, v -> fn(k, v)})}))
+    return call(l:Filter, a:000)
+endfun
 
-" fun! altvim#filter(...)
-"     let l:Filter = altvim#curry(2, function({fn, xs -> filter(deepcopy(xs), {k, v -> fn(v)})}))
-"     return function(l:Filter, a:000)
-" endfun
+fun! altvim#compose(...)
+    let l:fns = reverse(copy(a:000))
+    return {initV -> altvim#reduce({arg, fn -> fn(arg)}, l:fns, initV)}
+endfun
 
-" fun! altvim#_curry(ar, fn, args)
-"     let l:ar = a:ar
-"     let l:Fn = a:fn
-"     let l:args = a:args
-    
-"     return {-> len(l:args + a:000) < l:ar ? altvim#_curry(l:ar, l:Fn, l:args + a:000) : call(l:Fn, l:args + a:000)}
-" endfun
+" Tested functions
+fun! altvim#sum(x, y)
+    return a:x + a:y
+endfun
 
-" fun! altvim#curry(ar, fn)
-"     return altvim#_curry(a:ar, a:fn, [])
-" endfun
+fun! altvim#sqr(x)
+    return a:x * a:x
+endfun
 
-" fun! altvim#compose(...)
-"     let l:fns = reverse(copy(a:000))
-"     return {initV -> altvim#reduce({arg, fn -> fn(arg)}, l:fns, initV)}
-" endfun
-
-" fun! altvim#sum(x, y)
-"     return a:x + a:y
-" endfun
-
-" fun! altvim#sqr(x)
-"     return a:x * a:x
-" endfun
-
-" echo altvim#curry(2, function('altvim#sum'))(1)(2)
-" echo altvim#curry(2, function('altvim#map'))(function('altvim#sqr'))([1,2,3])
-" echo altvim#map(function('altvim#sqr'))
-
-" echo altvim#compose(
-" \   function('altvim#sqr'), 
-" \   altvim#curry(function('altvim#sum'), 3)
-" \)(2)
+" Tests
+" -> [1,4,9]
+echo altvim#map(function('altvim#sqr'), [1,2,3])
+" -> [1,4,9]
+echo altvim#map(function('altvim#sqr'))([1,2,3])
+" -> [3]
+echo altvim#filter(function({k, v -> v > 2}), [1,2,3])
+" -> [3]
+echo altvim#filter(function({k, v -> v > 2}))([1,2,3])
+" -> 6
+echo altvim#reduce(function('altvim#sum'), [1,2,3])
+" -> 8
+echo altvim#reduce(function('altvim#sum'), [1,2,3], 2)
+" -> 6
+echo altvim#reduce(function('altvim#sum'))([1,2,3])
+" -> 6 2 (should be 8)
+echo altvim#reduce(function('altvim#sum'), [1,2,3])(2)
+" -> 6 2 (should be 8)
+echo altvim#reduce(function('altvim#sum'))([1,2,3])(2)
+" -> 13
+echo altvim#compose(
+\   function('altvim#reduce')(function('altvim#sum')),
+\   function('altvim#filter')(function({k, v -> v > 2})),
+\   function('altvim#map')(function('altvim#sqr'))
+\)([1,2,3])
 
 " Utils
 fun! altvim#remember_cursor_pos() abort
