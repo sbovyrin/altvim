@@ -1,97 +1,5 @@
-" lmbd functions
-" fun! altvim#_reduce(fn, xs, ...)
-"     let l:xs = deepcopy(a:xs)
-"     let l:Acc = get(a:, 1, get(l:xs, 0, v:null))
-"     let l:xs = type(l:Acc) == type(l:xs[0]) && l:Acc == l:xs[0]
-"         \ ? l:xs[1:]
-"         \ : l:xs
-
-"     for l:Value in l:xs
-"         let l:Acc = a:fn(l:Acc, l:Value)
-"     endfor
-
-"     return l:Acc
-" endfun
-
-" fun! altvim#_curry(ar, fn, args)
-"     let l:ar = a:ar
-"     let l:Fn = a:fn
-"     let l:args = a:args
-    
-"     return {
-"         \ -> len(l:args + a:000) < l:ar 
-"             \ ? altvim#_curry(l:ar, l:Fn, l:args + a:000)
-"             \ : call(l:Fn, l:args + a:000)
-"     \ }
-" endfun
-
-" fun! altvim#curry(ar, fn)
-"     return altvim#_curry(a:ar, a:fn, [])
-" endfun
-
-" fun! altvim#reduce(...)
-"     let l:Reduce = altvim#curry(
-"         \ 2,
-"         \ function('altvim#_reduce')
-"     \ )
-    
-"     return call(l:Reduce, a:000)
-" endfun
-
-" fun! altvim#map(...)
-"     let l:Map = altvim#curry(2, function({fn, xs -> map(deepcopy(xs), {k, v -> fn(v)})}))
-"     return call(l:Map, a:000)
-" endfun
-
-" fun! altvim#filter(...)
-"     let l:Filter = altvim#curry(2, function({fn, xs -> filter(deepcopy(xs), {k, v -> fn(k, v)})}))
-"     return call(l:Filter, a:000)
-" endfun
-
-" fun! altvim#compose(...)
-"     let l:fns = reverse(copy(a:000))
-"     return {initV -> altvim#reduce({arg, fn -> fn(arg)}, l:fns, initV)}
-" endfun
-
-" " Tested functions
-" fun! altvim#sum(x, y)
-"     return a:x + a:y
-" endfun
-
-" fun! altvim#sqr(x)
-"     return a:x * a:x
-" endfun
-
-" Tests
-" " -> [1,4,9]
-" echo altvim#map(function('altvim#sqr'), [1,2,3])
-" " -> [1,4,9]
-" echo altvim#map(function('altvim#sqr'))([1,2,3])
-" " -> [3]
-" echo altvim#filter(function({k, v -> v > 2}), [1,2,3])
-" " -> [3]
-" echo altvim#filter(function({k, v -> v > 2}))([1,2,3])
-" " -> 6
-" echo altvim#reduce(function('altvim#sum'), [1,2,3])
-" " -> 8
-" echo altvim#reduce(function('altvim#sum'), [1,2,3], 2)
-" " -> 6
-" echo altvim#reduce(function('altvim#sum'))([1,2,3])
-" " -> 6 2 (should be 8)
-" echo altvim#reduce(function('altvim#sum'), [1,2,3])(2)
-" " -> 6 2 (should be 8)
-" echo altvim#reduce(function('altvim#sum'))([1,2,3])(2)
-" " -> 13
-" echo altvim#compose(
-" \   altvim#reduce(function('altvim#sum')),
-" \   altvim#filter(function({k, v -> v > 2})),
-" \   altvim#map(function('altvim#sqr'))
-" \)([1,2,3])
-
-
-
-
 " Utils functions
+
 " -> string
 fun! altvim#_listen_keys(number, ...) abort
     let l:input = get(a:, 1, '')
@@ -118,30 +26,9 @@ fun! altvim#_get_cursor_pos() abort
 endfun
 
 " Selection functions
-fun! altvim#_select_line() abort
-    let g:altvim#is_selection = 1
-    normal! V
-endfun
-
-fun! altvim#_select_char() abort
+fun! altvim#_select() abort
     let g:altvim#is_selection = 1
     normal! v
-endfun
-
-fun! altvim#_get_lines() abort
-    if g:altvim#is_selection
-        normal! gv
-    else
-        call altvim#_select_line()
-    endif
-endfun
-
-fun! altvim#_get_chars() abort
-    if g:altvim#is_selection
-        normal! gv
-    else
-        call altvim#_select_char()
-    endif
 endfun
 
 fun! altvim#_select_content(type, scope) abort
@@ -161,6 +48,8 @@ fun! altvim#_select_content(type, scope) abort
         let l:cmd = "'"
     elseif a:scope == 'back_quotes'
         let l:cmd = '`'
+    elseif a:scope == 'word'
+        let l:cmd = 'w'
     endif
 
     if empty(l:cmd) | return | endif
@@ -177,16 +66,20 @@ fun! altvim#select_content_within_included(scope) abort
 endfun
 
 fun! altvim#select_last_selection() abort
-    normal! gv
+    if g:altvim#is_selection
+        normal! gv
+    else
+        call altvim#_select()
+    endif
 endfun
 
 fun! altvim#select_till_line_end() abort
-    call altvim#_get_chars()
+    call altvim#select_last_selection()
     call altvim#goto_line_end()
 endfun
 
 fun! altvim#select_till_line_begin() abort
-    call altvim#_get_chars()
+    call altvim#select_last_selection()
     call altvim#goto_line_begin()
 endfun
 
@@ -197,40 +90,44 @@ endfun
 fun! altvim#select_next_line() abort
     let l:cmd = altvim#_count_selected_lines() > 0
         \ ? 'call altvim#_goto_next_line()' : ''
-    call altvim#_get_lines()
+    call altvim#goto_line_begin()
+    call altvim#select_last_selection()
     exe l:cmd
+    call altvim#goto_line_end()
 endfun
 
 fun! altvim#select_prev_line() abort
     let l:cmd = altvim#_count_selected_lines() > 0
         \ ? 'call altvim#_goto_prev_line()' : ''
-    call altvim#_get_lines()
+    call altvim#goto_line_end()
+    call altvim#select_last_selection()
     exe l:cmd
+    call altvim#goto_line_begin()
 endfun
 
 fun! altvim#select_next_char() abort
     let l:cmd = altvim#_count_selected_chars() > 0
         \ ? 'call altvim#_goto_next_char()' : ''
-    call altvim#_get_chars()
+    call altvim#select_last_selection()
     exe l:cmd
 endfun
 
 fun! altvim#select_prev_char() abort
     let l:cmd = altvim#_count_selected_chars() > 0
         \ ? 'call altvim#_goto_prev_char()' : ''
-    call altvim#_get_chars()
+    call altvim#select_last_selection()
     exe l:cmd
 endfun
 
-fun! altvim#select_next_word() abort
-    call altvim#_get_chars()
+fun! altvim#select_word() abort
+    call altvim#select_last_selection()
     call altvim#_goto_next_char()
     call altvim#goto_next_word()
     call altvim#_goto_prev_char()
 endfun
 
-fun! altvim#select_prev_word() abort
-    call altvim#_get_chars()
+fun! altvim#backward_select_word() abort
+    call altvim#select_last_selection()
     call altvim#goto_prev_word()
 endfun
 
@@ -246,13 +143,13 @@ endfun
 
 " -> string
 fun! altvim#_get_selected_line_range() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     return line("'<") . ',' . line("'>")
 endfun
 
 " Deleting functions
 fun! altvim#_delete() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     normal! "xc
 endfun
 
@@ -268,32 +165,20 @@ fun! altvim#clear_line() abort
 endfun
 
 " Text navigation functions
-fun! altvim#goto_last_change() abort
-    normal! g;
-endfun
-
-fun! altvim#goto_line_begin() abort
-    normal! ^
-endfun
-
-fun! altvim#goto_line_end() abort
-    normal! $
-endfun
-
 fun! altvim#_goto_next_line() abort
-    normal! j
+    exe "normal! " . g:altvim#_repeat_number . "j"
 endfun
 
 fun! altvim#_goto_prev_line() abort
-    normal! k
+    exe "normal! " . g:altvim#_repeat_number . "k"
 endfun
 
 fun! altvim#_goto_next_char() abort
-    normal! l
+    exe "normal! " . g:altvim#_repeat_number . "l"
 endfun
 
 fun! altvim#_goto_prev_char() abort
-    normal! h
+    exe "normal! " . g:altvim#_repeat_number . "h"
 endfun
 
 fun! altvim#_goto_found_char(char, opts) abort
@@ -308,6 +193,18 @@ fun! altvim#_goto_prev_found_char(char) abort
     call altvim#_goto_found_char(a:char, 'b')
 endfun
 
+fun! altvim#goto_last_change() abort
+    normal! g;
+endfun
+
+fun! altvim#goto_line_begin() abort
+    normal! ^
+endfun
+
+fun! altvim#goto_line_end() abort
+    normal! $
+endfun
+
 fun! altvim#goto_next_word() abort
     let l:pattern = '_[0-9A-zА-яЁё]\|#\|\>'
     call altvim#_goto_next_found_char(l:pattern)
@@ -320,15 +217,18 @@ fun! altvim#goto_prev_word() abort
     return altvim#_get_cursor_pos()
 endfun
 
+fun! altvim#find_place() abort
+    let g:altvim#_place_pattern = altvim#_listen_keys(2)
+    call altvim#goto_next_place()
+endfun
+
 fun! altvim#goto_next_place() abort
-    let l:pattern = altvim#_listen_keys(2)
-    call altvim#_goto_next_found_char(l:pattern)
+    call altvim#_goto_next_found_char(g:altvim#_place_pattern)
     return altvim#_get_cursor_pos()
 endfun
 
 fun! altvim#goto_prev_place() abort
-    let l:pattern = altvim#_listen_keys(2)
-    call altvim#_goto_prev_found_char(l:pattern)
+    call altvim#_goto_prev_found_char(g:altvim#_place_pattern)
     return altvim#_get_cursor_pos()
 endfun
 
@@ -358,32 +258,32 @@ endfun
 "     call altvim#format()
 " endfun
 fun! altvim#move_line_up() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     exe altvim#_get_selected_line_range() . "move '<-2"
 endfun
 
 fun! altvim#move_line_down() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     exe altvim#_get_selected_line_range() . "move '>+"
 endfun
 
 " Format functions
 fun! altvim#_format_editor() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     normal! =
     exe altvim#_get_selected_line_range() . 's/\v(.{80})/\1\r/ge'
 endfun
 
 fun! altvim#_format_lang() abort
     if index(g:altvim_installed_plugins, 'coc.nvim') > 0
-        call altvim#_get_lines()
+        call altvim#select_last_selection()
         call CocActionAsync('formatSelected', visualmode())
         normal! "_y
     endif
 endfun
 
 fun! altvim#format() abort
-    call altvim#_format_editor()
+    " call altvim#_format_editor()
     call altvim#_format_lang()
     call altvim#_restore_cursor_pos()
 endfun
@@ -422,11 +322,10 @@ fun! altvim#multiclipboard() abort
 endfun
 
 fun! altvim#clone_line() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
 
     normal! "cyO
     let @c = substitute(@c, '\n\+$', '', '')
-    let @c = substitute(@c, '^\s*', '', '')
     normal! "cp==
     let @c = ''
 
@@ -453,19 +352,19 @@ fun! altvim#redo() abort
 endfun
 
 fun! altvim#indent() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     normal! >
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
 endfun
 
 fun! altvim#outdent() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     normal! <
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
 endfun
 
 fun! altvim#join_lines() abort
-    call altvim#_get_lines()
+    call altvim#select_last_selection()
     normal! J
     call altvim#_restore_cursor_pos()
 endfun
@@ -510,7 +409,7 @@ fun! altvim#set_hotkey(...) abort
     let l:Vcmd = {key, action -> 
         \ ('vnoremap <silent> '
         \ . key
-        \ . ' :<C-u>'
+        \ . ' :<C-u>let g:altvim#_repeat_number = v:count1 \| '
         \ . 'call altvim#_remember_cursor_pos() \| '
         \ . action
         \ . '<CR>')

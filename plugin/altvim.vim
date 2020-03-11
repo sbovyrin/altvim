@@ -48,6 +48,8 @@ set diffopt=filler diffopt+=iwhite
 set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
 
+set statusline=%#StatusLineNC#%m%r\ %.30F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
+
 let mapleader="\\"
 
 
@@ -73,7 +75,7 @@ autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 " [Commands] 
 
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
-command! -nargs=1 ReplaceFound call altvim#replace_found(<f-args>)
+command! -nargs=1 ReplaceFound call altvim#_replace_found(<f-args>)
 
 command! -nargs=0 OpenInBrowser !google-chrome %
 
@@ -121,8 +123,11 @@ SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <M-right> = call altvim#goto_next_found_char()
-SetHotkey <M-left> = call altvim#goto_prev_found_char()
+SetHotkey <C-@> = call altvim#find_place()
+SetHotkey <M-right> = call altvim#goto_next_place()
+SetHotkey <M-left> = call altvim#goto_prev_place()
+SetHotkey <C-]> = call altvim#goto_next_problem()
+SetHotkey <C-[> = call altvim#goto_prev_problem()
 
 
 """ Scrolling
@@ -135,12 +140,14 @@ SetHotkey <leader>[ = call altvim#scroll_page_down()
 """""""""""""
 SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
-SetHotkey <C-S-right> = call altvim#select_next_word()
-SetHotkey <C-S-left> = call altvim#select_prev_word()
+SetHotkey <C-S-right> = call altvim#select_word()
+SetHotkey <C-S-left> = call altvim#backward_select_word()
 SetHotkey <S-up> = call altvim#select_prev_line()
 SetHotkey <S-down> = call altvim#select_next_line()
 SetHotkey <S-right> = call altvim#select_next_char()
 SetHotkey <S-left> = call altvim#select_prev_char()
+SetHotkey <C-S-up> = call altvim#select_till_line_begin()
+SetHotkey <C-S-down> = call altvim#select_till_line_end()
 
 SetHotkey ( = _, call altvim#select_content_within('parentheses')
 SetHotkey ) = _, call altvim#select_content_within_included('parentheses')
@@ -155,6 +162,7 @@ SetHotkey > = _, call altvim#select_content_within_included('lessthan')
 SetHotkey ' = _, call altvim#select_content_within('single_quotes')
 SetHotkey " = _, call altvim#select_content_within('double_quotes')
 SetHotkey ` = _, call altvim#select_content_within('back_quotes')
+SetHotkey w = _, call altvim#select_content_within('word')
 
 
 """ Project
@@ -163,8 +171,6 @@ SetHotkey ` = _, call altvim#select_content_within('back_quotes')
 " SetHotkey <ESC>3 = call altvim#show_file_symbols()
 
 SetHotkey <C-e> = call altvim#show_problems()
-" SetHotkey <ESC>1 = call altvim#goto_next_problem()
-" SetHotkey <ESC>! = call altvim#goto_prev_problem()
 
 SetHotkey <ESC>` = call altvim#find_project_files()
 SetHotkey <ESC>~ = call altvim#show_open_files()
@@ -195,10 +201,6 @@ endif
 if !exists("g:altvim_snippets")
     let g:altvim_snippets = "~/.vim/snippets"
 endif
-" status bar color
-if !exists("g:altvim_statusbar_colorscheme")
-    let g:altvim_statusbar_colorscheme = "seoul256"
-endif
 
 
 " o===I============>
@@ -209,18 +211,6 @@ endif
 let g:user_emmet_install_global = 0
 autocmd FileType html,css,php,js,jsx EmmetInstall
 let g:user_emmet_leader_key = ','
-
-" customize status bar
-let g:lightline = {
-    \ 'colorscheme': g:altvim_statusbar_colorscheme,
-    \ 'active': {
-    \   'left': [ ['mode'], ['modified', 'filename', 'readonly'] ],
-    \   'right': [ ['fileencoding', 'filetype', 'lineinfo', 'percent'] ]
-    \ },
-    \ 'component': {
-    \   'filename': '%F'
-    \ }
-\}
 
 " setting up fzf
 let g:fzf_layout = {'down': '50%'}
