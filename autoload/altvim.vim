@@ -94,6 +94,7 @@ fun! altvim#select_next_line() abort
     call altvim#select_last_selection()
     exe l:cmd
     call altvim#goto_line_end()
+    call altvim#_goto_prev_char()
 endfun
 
 fun! altvim#select_prev_line() abort
@@ -148,19 +149,19 @@ fun! altvim#_get_selected_line_range() abort
 endfun
 
 " Deleting functions
-fun! altvim#_delete() abort
+fun! altvim#delete() abort
     call altvim#select_last_selection()
     normal! "xc
 endfun
 
 fun! altvim#delete_line() abort
-    call altvim#_delete()
+    call altvim#delete()
     normal! "xdd
     call altvim#_restore_cursor_pos()
 endfun
 
 fun! altvim#clear_line() abort
-    call altvim#_delete()
+    call altvim#delete()
     call altvim#_restore_cursor_pos()
 endfun
 
@@ -292,6 +293,10 @@ endfun
 fun! altvim#_copy() abort
     let @0 = substitute(@0, '\n\+$', '', '')
     let @0 = substitute(@0, '^\s*', '', '')
+    
+    if system('uname -r') =~ 'microsoft'
+        call system('clip.exe', @0)
+    endif
 
     let g:altvim#multiclipboard = 
         \ ([@0] + get(g:, 'altvim#multiclipboard', []))[:4]
@@ -306,6 +311,7 @@ fun! altvim#paste() abort
     let l:currCol = getcurpos()[4]
     let l:lastCol = col('$')
     let l:cmd = l:currCol >= l:lastCol ? 'p' : 'P'
+        
     exe 'normal! "0' . l:cmd . '=`]g;'
 endfun
 
