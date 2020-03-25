@@ -1,4 +1,4 @@
-" [Base VIM settings] 
+" [Base VIM settings]
 
 " disable back-compatibility with Vi
 set nocompatible
@@ -48,12 +48,12 @@ set diffopt=filler diffopt+=iwhite
 set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
 
-set statusline=%#StatusLineNC#%m%r\ %.30F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
+set statusline=%#StatusLineNC#%m%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
 
 let mapleader="\\"
 
 
-" [StartUp] 
+" [StartUp]
 
 " disable netrw directory listing on startup
 let loaded_netrw = 0
@@ -72,17 +72,18 @@ autocmd FileType html setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
 
 
-" [Commands] 
+" [Commands]
 
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
 command! -nargs=1 ReplaceFound call altvim#_replace_found(<f-args>)
 
 command! -nargs=0 OpenInBrowser !google-chrome %
 
-" [Keybindings] 
+" [Keybindings]
 
 """ Editor
 """"""""""
+
 " command prompt
 SetHotkey <ESC>/ = :
 
@@ -113,8 +114,6 @@ SetHotkey <C-b> = call altvim#format()
 
 SetHotkey <C-_> = call altvim#toggle_comment()
 
-SetHotkey <leader><up> = call altvim#move_line_up()
-SetHotkey <leader><down> = call altvim#move_line_down()
 
 """ GoTo
 """"""""
@@ -126,14 +125,7 @@ SetHotkey <C-left> = call altvim#goto_prev_word()
 SetHotkey <C-@> = call altvim#find_place()
 SetHotkey <M-right> = call altvim#goto_next_place()
 SetHotkey <M-left> = call altvim#goto_prev_place()
-SetHotkey <C-]> = call altvim#goto_next_problem()
-SetHotkey <C-[> = call altvim#goto_prev_problem()
-
-
-""" Scrolling
-"""""""""""""
-SetHotkey <leader>] = call altvim#scroll_page_up()
-SetHotkey <leader>[ = call altvim#scroll_page_down()
+SetHotkey <M-e> = call altvim#goto_next_problem()
 
 
 """ Selection
@@ -142,6 +134,8 @@ SetHotkey <ESC>s = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
 SetHotkey <C-S-right> = call altvim#select_word()
 SetHotkey <C-S-left> = call altvim#backward_select_word()
+SetHotkey <M-C-right> = call altvim#select_till_char()
+SetHotkey <M-C-left> = call altvim#backward_select_till_char()
 SetHotkey <S-up> = call altvim#select_prev_line()
 SetHotkey <S-down> = call altvim#select_next_line()
 SetHotkey <S-right> = call altvim#select_next_char()
@@ -164,12 +158,8 @@ SetHotkey " = _, call altvim#select_content_within('double_quotes')
 SetHotkey ` = _, call altvim#select_content_within('back_quotes')
 SetHotkey w = _, call altvim#select_content_within('word')
 
-
 """ Project
 """""""""""
-" SetHotkey <ESC>2 = call altvim#show_project_symbols()
-" SetHotkey <ESC>3 = call altvim#show_file_symbols()
-
 SetHotkey <C-e> = call altvim#show_problems()
 
 SetHotkey <ESC>` = call altvim#find_project_files()
@@ -179,10 +169,7 @@ SetHotkey <ESC>h = call altvim#show_recent_files()
 SetHotkey <C-f> = call altvim#find_in_file()
 
 
-" o====I===================>
-" [The plugin configuration] 
-" <===================I====o
-
+" [Configurations]
 if exists("g:plugs")
     let g:altvim_plugin_dir = g:plugs['altvim'].dir
     let g:altvim_defined_plugins = keys(g:plugs)
@@ -199,31 +186,21 @@ endif
 
 " snippets directory
 if !exists("g:altvim_snippets")
-    let g:altvim_snippets = "~/.vim/snippets"
+    let g:altvim_snippets = g:altvim_plugin_dir . 'snippets'
 endif
-
-
-" o===I============>
-" [Plugins settings]
-" <============I===o
-"
-" setting up emmet
-let g:user_emmet_install_global = 0
-autocmd FileType html,css,php,js,jsx EmmetInstall
-let g:user_emmet_leader_key = ','
 
 " setting up fzf
 let g:fzf_layout = {'down': '50%'}
-
-" indent-line
-let g:indentLine_setColors = 0
-let g:indentLine_setConceal = 0
 
 " add nodejs bin to $PATH if needed
 if stridx($PATH, 'node') < 0
     let $PATH=$PATH . ':' . g:altvim_plugin_dir . 'deps/nodejs/bin'
 endif
-" setting up lsp 
+
+" setting up lsp
+let g:coc_config_home = g:altvim_plugin_dir . 'deps/lsp/config'
+let g:coc_data_home = g:altvim_plugin_dir . 'deps/lsp/config'
+
 if !exists("g:coc_node_path")
     let g:coc_node_path = g:altvim_plugin_dir . 'deps/nodejs/bin/node'
 endif
@@ -235,6 +212,7 @@ if !exists("g:coc_user_config")
         \ "diagnostic.warningSign": "●",
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
+        \ "diagnostic.level": "error",
         \ "diagnostic.refreshAfterSave": v:true,
         \ "diagnostic.refreshOnInsertMode": v:true,
         \ "suggest.noselect": v:false,
@@ -242,9 +220,12 @@ if !exists("g:coc_user_config")
         \ "suggest.timeout": 3000,
         \ "suggest.snippetIndicator": "►",
         \ "suggest.maxCompleteItemCount": 15,
+        \ "suggest.enablePreview": v:false,
+        \ "suggest.floatEnable": v:false,
         \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
         \ "snippets.extends": {
         \   "javascriptreact": ["javascript"],
-        \ }
+        \ },
+        \ "emmet.showExpandedAbbreviation": v:false
 \ }
 endif

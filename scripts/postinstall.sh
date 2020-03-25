@@ -2,10 +2,12 @@
 
 echo "Running altvim post-install...\n"
 
-VIM_DEPS=./deps
-
 which curl 1>/dev/null 2>&1 \
     || (echo "Please install curl" && exit 1)
+
+VIM_DEPS=./deps
+# prevent creating .npm or .yarn directories in home directory
+HOME=/tmp
 
 ls $VIM_DEPS 1>/dev/null 2>&1 || mkdir -p $VIM_DEPS
 
@@ -19,6 +21,6 @@ ls $VIM_DEPS/nodejs 1>/dev/null 2>&1 \
         && $VIM_DEPS/nodejs/bin/npm i --prefix $VIM_DEPS/nodejs/lib/node_modules/yarn yarn \
         && mv $VIM_DEPS/nodejs/lib/node_modules/yarn/node_modules/yarn/* $VIM_DEPS/nodejs/lib/node_modules/yarn \
         && rm -rf $VIM_DEPS/nodejs/lib/node_modules/yarn/{node_modules,package-lock.json} \
-        && ln -s $VIM_DEPS/nodejs/lib/node_modules/yarn/bin/yarn $VIM_DEPS/nodejs/bin/yarn)
+        && ln -s ./../lib/node_modules/yarn/bin/yarn $VIM_DEPS/nodejs/bin/yarn)
 
 which clear 1>/dev/null 2>&1 && clear

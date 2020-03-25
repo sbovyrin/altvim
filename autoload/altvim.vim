@@ -1,4 +1,7 @@
-" Utils functions
+" [Properties]
+let g:altvim#_repeat_number = 1
+
+" [Utils functions]
 
 " -> string
 fun! altvim#_listen_keys(number, ...) abort
@@ -8,7 +11,7 @@ fun! altvim#_listen_keys(number, ...) abort
         \ : altvim#_listen_keys(a:number - 1, l:input .  getchar() . ',')
 endfun
 
-" Cursor functions
+" [Cursor functions]
 fun! altvim#_remember_cursor_pos() abort
     let g:altvim#cursor_pos = [line('.'), col('.')] 
 endfun
@@ -25,7 +28,7 @@ fun! altvim#_get_cursor_pos() abort
     return [line('.'), col('.')]
 endfun
 
-" Selection functions
+" [Selection functions]
 fun! altvim#_select() abort
     let g:altvim#is_selection = 1
     normal! v
@@ -84,12 +87,14 @@ fun! altvim#select_till_line_begin() abort
 endfun
 
 fun! altvim#select_all() abort
+    let g:altvim#is_selection = 1
     normal! ggVGg
 endfun
 
 fun! altvim#select_next_line() abort
     let l:cmd = altvim#_count_selected_lines() > 0
         \ ? 'call altvim#_goto_next_line()' : ''
+    
     call altvim#goto_line_begin()
     call altvim#select_last_selection()
     exe l:cmd
@@ -132,6 +137,18 @@ fun! altvim#backward_select_word() abort
     call altvim#goto_prev_word()
 endfun
 
+fun! altvim#select_till_char() abort
+    call altvim#select_last_selection()
+    call altvim#_goto_next_char()
+    call altvim#goto_next_place() 
+    call altvim#_goto_prev_char()
+endfun
+
+fun! altvim#backward_select_till_char() abort
+    call altvim#select_last_selection()
+    call altvim#goto_prev_place()
+endfun
+
 " -> number
 fun! altvim#_count_selected_lines() abort
     return g:altvim#is_selection ? (line("'>") - line("'<") + 1) : 0
@@ -148,10 +165,12 @@ fun! altvim#_get_selected_line_range() abort
     return line("'<") . ',' . line("'>")
 endfun
 
-" Deleting functions
+" [Deleting functions]
 fun! altvim#delete() abort
     call altvim#select_last_selection()
-    normal! "xc
+    if (col('$') - col('^')) > 1
+        normal! "xc
+    endif
 endfun
 
 fun! altvim#delete_line() abort
@@ -206,15 +225,31 @@ fun! altvim#goto_line_end() abort
     normal! $
 endfun
 
+fun! altvim#_word_navigation_pattern() abort
+    let l:letters = 'A-zА-яЁё'
+
+    let l:after_letters = '[' . l:letters . ']\@<=\([^' . l:letters . ']\|_\|$\)'
+    let l:before_letters = '\([^' . l:letters . ']\|_\|^\)\@<=[' . l:letters . ']'
+    let l:number = '[0-9]\@<=\([^0-9]\|$\)\|[^0-9]\@<=[0-9]'
+
+    return l:after_letters . '\|' . l:before_letters . '\|' . l:number
+endfun
+
 fun! altvim#goto_next_word() abort
-    let l:pattern = '_[0-9A-zА-яЁё]\|#\|\>'
-    call altvim#_goto_next_found_char(l:pattern)
+    " example camelCase
+    " example kebab-case
+    " example00 023443534 123examp1111e
+    " 003534534 3423 4345 1 34 554
+    " 100_000_000
+    let l:camel_case = '[a-zа-яё]\@<=[A-ZА-ЯЁ]'
+    
+    call altvim#_goto_next_found_char(altvim#_word_navigation_pattern() . '\|' . l:camel_case)
     return altvim#_get_cursor_pos()
 endfun
 
 fun! altvim#goto_prev_word() abort
-    let l:pattern = '\(_\)\@<=[A-z]\&[^\[\]]\|\(#\)\@<=[A-z]\&[^\[\]]\|\<'
-    call altvim#_goto_prev_found_char(l:pattern)
+    let l:camel_case = '[a-zа-яё][A-ZА-ЯЁ]'
+    call altvim#_goto_prev_found_char(altvim#_word_navigation_pattern() . '\|' . l:camel_case)
     return altvim#_get_cursor_pos()
 endfun
 
@@ -224,12 +259,12 @@ fun! altvim#find_place() abort
 endfun
 
 fun! altvim#goto_next_place() abort
-    call altvim#_goto_next_found_char(g:altvim#_place_pattern)
+    call altvim#_goto_next_found_char(get(g:, 'altvim#_place_pattern', ''))
     return altvim#_get_cursor_pos()
 endfun
 
 fun! altvim#goto_prev_place() abort
-    call altvim#_goto_prev_found_char(g:altvim#_place_pattern)
+    call altvim#_goto_prev_found_char(get(g:, 'altvim#_place_pattern', ''))
     return altvim#_get_cursor_pos()
 endfun
 
@@ -239,33 +274,6 @@ endfun
 
 fun! altvim#goto_prev_problem() abort
     call CocActionAsync('diagnosticPrevious')
-endfun
-
-" Move functions
-" fun! altvim#_move_line(direction) abort
-"     if g:altvim#is_selection && a:direction == 'up'
-"         exe "'<,'>move '<-2"
-"     elseif g:altvim#is_selection && a:direction == 'down'
-"         exe "'<,'>move '>+"
-"     elseif a:direction == 'up'
-"         exe 'move-2'
-"     elseif a:direction == 'down'
-"         exe 'move+'
-"     else
-"         return
-"     endif
-
-"     call altvim#select_last_selection()
-"     call altvim#format()
-" endfun
-fun! altvim#move_line_up() abort
-    call altvim#select_last_selection()
-    exe altvim#_get_selected_line_range() . "move '<-2"
-endfun
-
-fun! altvim#move_line_down() abort
-    call altvim#select_last_selection()
-    exe altvim#_get_selected_line_range() . "move '>+"
 endfun
 
 " Format functions
@@ -445,14 +453,6 @@ endfun
 
 fun! altvim#close_file() abort
     exe 'bdelete'
-endfun
-
-fun! altvim#scroll_page_up() abort
-    normal! zb
-endfun
-
-fun! altvim#scroll_page_down() abort
-    normal! zt
 endfun
 
 fun! altvim#show_project_symbols() abort
