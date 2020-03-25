@@ -45,7 +45,7 @@ set wildmenu wildmode=longest:full,full
 set diffopt=filler diffopt+=iwhite
 
 " autocomplete
-set completeopt=menu,menuone,noinsert,noselect
+" set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
 
 set statusline=%#StatusLineNC#%m%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
