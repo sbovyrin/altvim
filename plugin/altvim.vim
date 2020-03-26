@@ -28,7 +28,7 @@ set hlsearch incsearch ignorecase smartcase
 " tweaks
 set hidden ttyfast undolevels=500 history=500 backspace=indent,eol,start
 set lazyredraw title autoread noswapfile nobackup nowritebackup
-set clipboard=unnamedplus updatetime=300 updatecount=100
+set clipboard=unnamedplus updatetime=300 updatecount=100 regexpengine=1
 
 " UI
 set t_Co=256 number numberwidth=4 showcmd noshowmode nomodeline laststatus=2
@@ -189,6 +189,9 @@ if !exists("g:altvim_snippets")
     let g:altvim_snippets = g:altvim_plugin_dir . 'snippets'
 endif
 
+" indent-line
+let g:indentLine_fileTypeExclude = ['markdown']
+
 " setting up fzf
 let g:fzf_layout = {'down': '50%'}
 
@@ -207,25 +210,30 @@ endif
 if !exists("g:coc_user_config")
     let g:coc_user_config = {
         \ "npm.binPath": g:altvim_plugin_dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
+        \ "diagnostic.messageTarget": "echo",
+        \ "diagnostic.enableMessage": "always",
+        \ "diagnostic.locationList": v:false,
         \ "diagnostic.signOffset": 9999999,
         \ "diagnostic.errorSign": "●",
         \ "diagnostic.warningSign": "●",
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
-        \ "diagnostic.level": "error",
         \ "diagnostic.refreshAfterSave": v:true,
-        \ "diagnostic.refreshOnInsertMode": v:true,
+        \ "diagnostic.refreshOnInsertMode": v:false,
         \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
         \ "suggest.timeout": 3000,
         \ "suggest.snippetIndicator": "►",
-        \ "suggest.maxCompleteItemCount": 15,
+        \ "suggest.maxCompleteItemCount": 7,
         \ "suggest.enablePreview": v:false,
         \ "suggest.floatEnable": v:false,
         \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
         \ "snippets.extends": {
         \   "javascriptreact": ["javascript"],
         \ },
+        \ "signature.target": "echo",
         \ "emmet.showExpandedAbbreviation": v:false
 \ }
 endif
+
+" call CocActionAsync('showSignatureHelp')
