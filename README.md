@@ -44,6 +44,7 @@ Considering all my positive experience working in VIM I’m excited to give a lo
 ### Requirements
 
 - VIM 8.0+
+- Installed [vim-plug](https://github.com/junegunn/vim-plug#installation)
 - Installed `curl`
 - Installed `git`
 
@@ -51,23 +52,12 @@ Considering all my positive experience working in VIM I’m excited to give a lo
 ### Setting up `.vimrc`
 
 1. Create `.vimrc` file in your home user directory if you don't have it yet.
-2. Add below code in `.vimrc`:
+2. Add below code in `.vimrc` between `call plug#begin(...)` and `call plug#end`:
 ```
-" auto install package manager if is not installed
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-      \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim -s
-endif
-
-call plug#begin('~/.vim/plugged')
-
-" altvim plugin
 Plug 'sbovyrin/altvim', { 'do': './scripts/postinstall.sh' }
 if isdirectory(get(g:plugs, 'altvim', {'dir': ''}).dir)
     exe join(['source ', g:plugs['altvim'].dir, 'deps/plugins.vim'], '')
 endif
-
-call plug#end
 ```
 
 ## Using
