@@ -23,4 +23,7 @@ ls $VIM_DEPS/nodejs 1>/dev/null 2>&1 \
     && rm -rf $VIM_DEPS/nodejs/lib/node_modules/yarn/{node_modules,package-lock.json} \
     && ln -s ./../lib/node_modules/yarn/bin/yarn $VIM_DEPS/nodejs/bin/yarn)
 
+mkdir $(pwd)/../../after/plugin/altvim \
+    && echo "autocmd QuitPre * if &ft =~ 'vim-plug' | source $MYVIMRC | endif" > $(pwd)/../../after/plugin/altvim.vim
+
 which clear 1>/dev/null 2>&1 && clear
