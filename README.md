@@ -12,6 +12,7 @@ Using VIM has never been easier.
 - [Installing](#Installing)
 - [Using](#Using)
 - [Hotkeys](#Hotkeys)
+- [Advanced code editing](#Advanced-code-editing)
 
 
 ## Why I created this plugin?
@@ -32,7 +33,7 @@ Considering all my positive experience working in VIM I’m excited to give a lo
 - Low-resource consumption
 - No modes
 - Habitual hotkeys ([details](#Hotkeys))
-- Advanced code editing ([details](#Advanced-code- editing))
+- Advanced code editing ([details](#Advanced-code-editing))
 - Language Server Protocol ([details](https://microsoft.github.io/language-server-protocol/))
 
 
@@ -89,9 +90,9 @@ To use hotkeys for save and undo/redo, add to your .bashrc/.zshrc file: `stty -i
 - Close current file: `Ctrl + w`
 
 
-- Copy: `ctrl + c`
-- Cut: `ctrl + x`
-- Paste: `ctrl + v`
+- Copy: `Ctrl + c`
+- Cut: `Ctrl + x`
+- Paste: `Ctrl + v`
 - Paste from multiclipboard: `Alt + v`
 - Undo: `Ctrl + z`
 - Redo: `Alt + z`
@@ -124,8 +125,8 @@ To use hotkeys for save and undo/redo, add to your .bashrc/.zshrc file: `stty -i
 - Select all: `Ctrl + a`
 - Select word: `Ctrl + Shift + Right`
 - Select previous word: `Ctrl + Shift + Left`
-- Select till specific place in current file `Ctrl + Alt + Right` ([detail](#go-to-specific-place-in-file))
-- Select till previous specific place in current file `Ctrl + Alt + Left` ([detail](#go-to-specific-place-in-file))
+- Select till specific place in current file: `Ctrl + Alt + Right` ([detail](#go-to-specific-place-in-file))
+- Select till previous specific place in current file: `Ctrl + Alt + Left` ([detail](#go-to-specific-place-in-file))
 - Select till line begin: `Ctrl + Shift + Up`
 - Select till line end: `Ctrl + Shift + Down`
 
@@ -140,5 +141,5 @@ To use hotkeys for save and undo/redo, add to your .bashrc/.zshrc file: `stty -i
 
 ## Advanced code editing
 
-### Go to specific place in current file
+### Go to specific place in file
 Comming soon...

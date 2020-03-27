@@ -1,15 +1,158 @@
-*vim-altvim.txt* 
-                              Reference Manual~
+*altvim.txt*
 
+Version 1.0.0
 
-==============================================================================
+1. Description          |altvim-description|
+2. Installation         |altvim-installation|
+3. Hotkeys              |altvim-hotkeys|
+4. Advanced editing     |altvim-advanced-editing|
+5. Changelog            |altvim-changelog|
+=============================================================================
 
-CONTENTS                                                     *altvim-contents*
-    1.Intro...................................|altvim-intro|
+DESCRIPTION                                              *altvim-description*
 
-==============================================================================
-1. Intro                                              *altvim-intro*
+See https://github.com/sbovyrin/altvim#why-i-created-this-plugin
+=============================================================================
+
+INSTALLATION                                            *altvim-installation*
+
+See https://github.com/sbovyrin/altvim#Installing
+=============================================================================
+
+HOTKEYS                                                      *altvim-hotkeys*
+
+!!! It means that a hotkey works only when some chars/lines are selected
+
+Alt + /~
+* Editor command prompt
+
+Ctrl + s~
+* Save file
+
+Ctrl + q~
+* Quit
+
+Ctrl + w~
+* Close current file
+
+Ctrl + c~
+* Copy
+
+Ctrl + x~
+* Cut
+
+Ctrl + v~
+* Paste
+
+Alt + v~
+* Paste from multiclipboard
+
+Ctrl + z~
+* Undo
+
+Alt + z~
+* Redo
+
+Space~
+* Clear !!!
+
+Ctrl + l~
+* Clone !!!
+
+Ctrl + j~
+* Join
+
+Tab~
+* Indent
+
+Shift + Tab~
+* Outdent !!!
+
+Ctrl + b~
+* Format code !!!
+
+Ctrl + /~
+* Toggle comment
+
+Alt + Backspace~
+* Go to last change
+
+Ctrl + Up~
+* Go to line begin
+
+Ctrl + Down~
+* Go to line end
+
+Ctrl + Right~
+* Go to next word
+
+Ctrl + Left~
+* Go to previous word
+
+Ctrl + Space~
+* Go to specific place in current file
+
+Alt + Right~
+* Go to next specific place in current file
+
+Alt + Left~
+* Go to previous specific place in current file
+
+Alt + e~
+* Go to next problem in current file
+
+Alt + s~
+* Select last selection
+
+Ctrl + a~
+* Select all
+
+Ctrl + Shift + Right~
+* Select word
+
+Ctrl + Shift + Left~
+* Select previous word
+
+Ctrl + Alt + Right~
+* Select till specific place in current file
+
+Ctrl + Alt + Left~
+* Select till previous specific place in current file
+
+Ctrl + Shift + Up~
+* Select till line begin
+
+Ctrl + Shift + Down~
+* Select till line end
+
+Ctrl + e~
+* Show errors/warnings
+
+Ctrl + f~
+* Find in current file
+
+Alt + f~
+* Find in project files
+
+Alt + `~
+* Open a file from current workspace
+
+Alt + Shift + `~
+* Select opened file
+
+Alt + Shift + `~
+* Open last opened file
+=============================================================================
+
+ADVANCED EDITING                                    *altvim-advanced-editing*
+
 
 Comming soon...
+=============================================================================
 
-vim:tw=78:sw=4:ft=help:norl:
+CHANGELOG                                                  *altvim-changelog*
+
+See https://github.com/sbovyrin/altvim/blob/master/CHANGELOG.md
+=============================================================================
+
+vim:set filetype=help:tw=78:
