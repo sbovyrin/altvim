@@ -1,3 +1,5 @@
+exe 'silent !stty -ixon'
+
 " [Base VIM settings]
 
 " disable back-compatibility with Vi

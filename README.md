@@ -77,8 +77,6 @@ call plug#end
 
 
 ## Hotkeys
-To use hotkeys for save and undo/redo, add to your .bashrc/.zshrc file: `stty -ixon`
-
 
 > \* It means that a hotkey works only when some chars/lines are selected
 
