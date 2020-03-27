@@ -1,6 +1,4 @@
 " [Properties]
-let g:altvim#lsp_post_install_cmd="HOME=/tmp && yarn install --frozen-lockfile"
-
 let g:altvim#_repeat_number = 1
 
 " [Utils functions]

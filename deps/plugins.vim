@@ -3,6 +3,8 @@ if stridx($PATH, 'node') < 0
     let $PATH=$PATH . ':' . g:plugs['altvim'].dir . 'deps/nodejs/bin'
 endif
 
+let b:altvim#lsp_post_install_cmd="HOME=/tmp && yarn install --frozen-lockfile"
+
 if exists("g:plugs")
     " comments  
     Plug 'tpope/vim-commentary'
@@ -13,6 +15,8 @@ if exists("g:plugs")
     Plug 'junegunn/fzf.vim'
     " language server protocol  
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'neoclide/coc-emmet', {'do': b:altvim#lsp_post_install_cmd}
+    Plug 'neoclide/coc-snippets', {'do': b:altvim#lsp_post_install_cmd}
     " language syntax  
     Plug 'sheerun/vim-polyglot'
     " show on the left panel code line status (added | modified | removed)

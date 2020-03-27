@@ -1,4 +1,4 @@
-exe 'silent !stty -ixon'
+silent !stty -ixon
 
 " [Base VIM settings]
 
