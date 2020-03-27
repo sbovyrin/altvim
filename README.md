@@ -59,6 +59,8 @@ if isdirectory(get(g:plugs, 'altvim', {'dir': ''}).dir)
     exe join(['source ', g:plugs['altvim'].dir, 'deps/plugins.vim'], '')
 endif
 ```
+3. Run VIM command `:PlugInstall --sync | source $MYVIMRC`
+
 
 ## Using
 
