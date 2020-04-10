@@ -24,6 +24,20 @@
 #
 # Online reference: https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt
 
+snippet ff "public function" b
+public function $1($2): $3
+{
+    $0
+}
+endsnippet
+
+snippet pf "private function" b
+private function $1($2): $3
+{
+    $0
+}
+endsnippet
+
 snippet sf "public static function" b
 public static function $1($2): $3
 {
@@ -38,6 +52,33 @@ private static function $1($2): $3
 }
 endsnippet
 
+snippet map "array_map" b
+array_map(
+    function ($2) {
+	$0
+    },
+    $1
+)
+endsnippet
+
+snippet filter "array_filter" b
+array_filter(
+    $1,
+    function ($2) {
+        $0
+    }
+)
+endsnippet
+
+snippet reduce "array_reduce" b
+array_reduce(
+    $1,
+    function ($2, $3) {
+        $0
+    }
+)
+endsnippet
+
 snippet dd "dump debug" b
 echo "<pre>";var_dump($1);die;
 endsnippet
@@ -49,3 +90,4 @@ endsnippet
 snippet :; "=>" Ai
 =>
 endsnippet
+

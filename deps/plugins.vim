@@ -15,7 +15,6 @@ if exists("g:plugs")
     Plug 'junegunn/fzf.vim'
     " language server protocol  
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'neoclide/coc-emmet', {'do': b:lsp_post_install_cmd}
     Plug 'neoclide/coc-snippets', {'do': b:lsp_post_install_cmd}
     Plug 'neoclide/coc-json', {'do': b:lsp_post_install_cmd}
     " language syntax  
