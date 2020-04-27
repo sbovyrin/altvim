@@ -87,7 +87,7 @@ command! -nargs=0 OpenInBrowser !google-chrome %
 """"""""""
 
 " command prompt
-SetHotkey <ESC>/ = :
+SetHotkey <ESC>` = :
 
 SetHotkey <C-s> = call altvim#save()
 SetHotkey <C-q> = call altvim#quit()
@@ -107,7 +107,7 @@ SetHotkey <C-d> = call altvim#delete_line()
 SetHotkey <BS> = _, call altvim#delete()
 SetHotkey <Space> = _, call altvim#clear_line()
 SetHotkey <C-j> = call altvim#join_lines()
-SetHotkey <C-r> = call altvim#replace()
+SetHotkey <C-h> = call altvim#replace()
 
 SetHotkey <Tab> = _, call altvim#indent()
 SetHotkey <S-Tab> = _, call altvim#outdent()
@@ -124,7 +124,7 @@ SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <C-@> = call altvim#find_place()
+SetHotkey <ESC>/ = call altvim#find_place()
 SetHotkey <M-right> = call altvim#goto_next_place()
 SetHotkey <M-left> = call altvim#goto_prev_place()
 SetHotkey <M-e> = call altvim#goto_next_problem()
@@ -164,8 +164,8 @@ SetHotkey w = _, call altvim#select_content_within('word')
 """""""""""
 SetHotkey <C-e> = call altvim#show_problems()
 
-SetHotkey <ESC>` = call altvim#find_project_files()
-SetHotkey <ESC>~ = call altvim#show_open_files()
+SetHotkey <ESC>; = call altvim#find_project_files()
+SetHotkey <ESC>: = call altvim#show_open_files()
 SetHotkey <ESC>f = call altvim#find_in_project_files()
 SetHotkey <ESC>h = call altvim#show_recent_files()
 SetHotkey <C-f> = call altvim#find_in_file()
