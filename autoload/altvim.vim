@@ -494,3 +494,27 @@ fun! altvim#toggle_comment() abort
         exe 'Commentary'
     endif
 endfun
+
+""""""
+""""""
+""""""
+
+fun! altvim#i_go_to_specific_place() abort
+    let l:key = input("Jump to: ")
+    
+    if str2nr(l:key) != 0
+        let l:place = split(l:key, ':')
+        call cursor(get(l:place, 0), get(l:place, 1, 1))
+        return
+    endif
+    
+    let g:altvim#specific_place = l:key
+    call altvim#i_find_specific_place('next')
+endfun
+
+fun! altvim#i_find_specific_place(direction) abort
+    call searchpos(
+    \   get(g:, 'altvim#specific_place', ''),
+    \   (a:direction == 'next' ? '' : 'b')
+    \)
+endfun

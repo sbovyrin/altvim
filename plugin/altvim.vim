@@ -22,7 +22,7 @@ set autoindent expandtab copyindent shiftround shiftwidth=4
 set smartindent smarttab softtabstop=4
 
 " text wrap
-set wrap linebreak breakindent nolist showbreak=↳\ \ \ 
+set wrap linebreak breakindent nolist showbreak=\ \ \ 
 
 " search
 set hlsearch incsearch ignorecase smartcase
@@ -124,11 +124,7 @@ SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
 SetHotkey <C-right> = call altvim#goto_next_word()
 SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <ESC>/ = call altvim#find_place()
-SetHotkey <M-right> = call altvim#goto_next_place()
-SetHotkey <M-left> = call altvim#goto_prev_place()
 SetHotkey <M-e> = call altvim#goto_next_problem()
-
 
 """ Selection
 """""""""""""
@@ -238,4 +234,7 @@ if !exists("g:coc_user_config")
 \ }
 endif
 
-" call CocActionAsync('showSignatureHelp')
+" [Navigation]
+SetHotkey <ESC>/ = call altvim#i_go_to_specific_place()
+SetHotkey <M-right> = call altvim#i_find_specific_place('next')
+SetHotkey <M-left> = call altvim#i_find_specific_place('prev')
