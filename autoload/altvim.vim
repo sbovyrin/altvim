@@ -518,3 +518,14 @@ fun! altvim#i_find_specific_place(direction) abort
     \   (a:direction == 'next' ? '' : 'b')
     \)
 endfun
+
+fun! altvim#i_go_to_block(direction)
+    call searchpos(
+    \   '(\|\[\|<\|{\|`.*\|".*\|' . "'.*",
+    \   ((a:direction) == 'next' ? '' : 'b')
+    \)
+endfun
+
+fun! altvim#i_go_to_paired()
+    normal! %
+endfun

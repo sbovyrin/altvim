@@ -238,3 +238,6 @@ endif
 SetHotkey <ESC>/ = call altvim#i_go_to_specific_place()
 SetHotkey <M-right> = call altvim#i_find_specific_place('next')
 SetHotkey <M-left> = call altvim#i_find_specific_place('prev')
+SetHotkey <ESC>. = call altvim#i_go_to_block('next')
+SetHotkey <ESC>, = call altvim#i_go_to_block('prev')
+SetHotkey <ESC>p = call altvim#i_go_to_paired()
