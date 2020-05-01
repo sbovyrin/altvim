@@ -122,9 +122,6 @@ SetHotkey <C-_> = call altvim#toggle_comment()
 SetHotkey <ESC><BS> = call altvim#goto_last_change()
 SetHotkey <C-up> = call altvim#goto_line_begin()
 SetHotkey <C-down> = call altvim#goto_line_end()
-SetHotkey <C-right> = call altvim#goto_next_word()
-SetHotkey <C-left> = call altvim#goto_prev_word()
-SetHotkey <M-e> = call altvim#goto_next_problem()
 
 """ Selection
 """""""""""""
@@ -241,3 +238,7 @@ SetHotkey <M-left> = call altvim#i_find_specific_place('prev')
 SetHotkey <ESC>. = call altvim#i_go_to_block('next')
 SetHotkey <ESC>, = call altvim#i_go_to_block('prev')
 SetHotkey <ESC>p = call altvim#i_go_to_paired()
+SetHotkey <ESC>1 = call altvim#i_go_to_occurrence('next')
+SetHotkey <ESC>2 = call altvim#i_go_to_occurrence('prev')
+SetHotkey <C-right> = call altvim#i_go_to_word('next')
+SetHotkey <C-left> = call altvim#i_go_to_word('prev')

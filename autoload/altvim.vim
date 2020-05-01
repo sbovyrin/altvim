@@ -225,34 +225,6 @@ fun! altvim#goto_line_end() abort
     normal! $
 endfun
 
-fun! altvim#_word_navigation_pattern() abort
-    let l:letters = 'A-zА-яЁё'
-
-    let l:after_letters = '[' . l:letters . ']\@<=\([^' . l:letters . ']\|_\|$\)'
-    let l:before_letters = '\([^' . l:letters . ']\|_\|^\)\@<=[' . l:letters . ']'
-    let l:number = '[0-9]\@<=\([^0-9]\|$\)\|[^0-9]\@<=[0-9]'
-
-    return l:after_letters . '\|' . l:before_letters . '\|' . l:number
-endfun
-
-fun! altvim#goto_next_word() abort
-    " example camelCase
-    " example kebab-case
-    " example00 023443534 123examp1111e
-    " 003534534 3423 4345 1 34 554
-    " 100_000_000
-    let l:camel_case = '[a-zа-яё]\@<=[A-ZА-ЯЁ]'
-    
-    call altvim#_goto_next_found_char(altvim#_word_navigation_pattern() . '\|' . l:camel_case)
-    return altvim#_get_cursor_pos()
-endfun
-
-fun! altvim#goto_prev_word() abort
-    let l:camel_case = '[a-zа-яё][A-ZА-ЯЁ]'
-    call altvim#_goto_prev_found_char(altvim#_word_navigation_pattern() . '\|' . l:camel_case)
-    return altvim#_get_cursor_pos()
-endfun
-
 fun! altvim#find_place() abort
     let g:altvim#_place_pattern = altvim#_listen_keys(2)
     call altvim#goto_next_place()
@@ -499,7 +471,7 @@ endfun
 """"""
 """"""
 
-fun! altvim#i_go_to_specific_place() abort
+fun! altvim#i_go_to_specific_place()
     let l:key = input("Jump to: ")
     
     if str2nr(l:key) != 0
@@ -512,7 +484,7 @@ fun! altvim#i_go_to_specific_place() abort
     call altvim#i_find_specific_place('next')
 endfun
 
-fun! altvim#i_find_specific_place(direction) abort
+fun! altvim#i_find_specific_place(direction)
     call searchpos(
     \   get(g:, 'altvim#specific_place', ''),
     \   (a:direction == 'next' ? '' : 'b')
@@ -522,10 +494,33 @@ endfun
 fun! altvim#i_go_to_block(direction)
     call searchpos(
     \   '(\|\[\|<\|{\|`.*\|".*\|' . "'.*",
-    \   ((a:direction) == 'next' ? '' : 'b')
+    \   (a:direction == 'next' ? '' : 'b')
     \)
 endfun
 
 fun! altvim#i_go_to_paired()
     normal! %
+endfun
+
+fun! altvim#i_go_to_occurrence(direction)
+    exe 'normal! ' . (a:direction == 'next' ? '*' : '#')
+    exe 'nohl'
+endfun
+
+fun! altvim#i_go_to_word(direction)
+    let l:pattern_start = '\(\([^a-zA-Z0-9]\|[\n]\)\zs[a-zA-Z0-9]\)\|[a-z]\zs[A-Z0-9]'
+    let l:pattern_end = '[a-zA-Z0-9]\ze\([^a-zA-Z0-9]\|[\n]\)'
+    
+    if getline('.')[col('.') - 1] =~ '\W\|_'
+        normal! h
+    endif
+
+    let [l:line, l:col] = searchpos(
+    \   l:pattern_start . '\|' . l:pattern_end,
+    \   (a:direction == 'next' ? '' : 'b')
+    \)
+    
+    if getline(l:line)[l:col] =~ '\W\|_'
+        normal! l
+    endif
 endfun
