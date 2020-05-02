@@ -76,92 +76,18 @@ autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 
 " [Commands]
 
+" run fzf-file-search in a current directory
+command! -bang ProjectFiles
+    \ call fzf#vim#files(
+    \   (argv()[0] == getcwd()) ? getcwd() :  getcwd() . '/' . argv()[0],
+    \   {'options' : ['--preview', 'head -10 {}']},
+    \   <bang>0
+    \ )
+
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
 command! -nargs=1 ReplaceFound call altvim#_replace_found(<f-args>)
 
 command! -nargs=0 OpenInBrowser !google-chrome %
-
-" [Keybindings]
-
-""" Editor
-""""""""""
-
-" command prompt
-SetHotkey <ESC>` = :
-
-SetHotkey <C-s> = call altvim#save()
-SetHotkey <C-q> = call altvim#quit()
-SetHotkey <C-w> = call altvim#close_file()
-
-""" Edit text
-"""""""""""""
-SetHotkey <C-z> = call altvim#undo()
-SetHotkey <ESC>z = call altvim#redo()
-
-SetHotkey <C-v> = call altvim#paste()
-SetHotkey <ESC>v = call altvim#multiclipboard()
-SetHotkey <C-c> = call altvim#copy()
-SetHotkey <C-x> = call altvim#cut()
-SetHotkey <C-l> = call altvim#clone_line()
-SetHotkey <C-d> = call altvim#delete_line()
-SetHotkey <BS> = _, call altvim#delete()
-SetHotkey <Space> = _, call altvim#clear_line()
-SetHotkey <C-j> = call altvim#join_lines()
-SetHotkey <C-h> = call altvim#replace()
-
-SetHotkey <Tab> = _, call altvim#indent()
-SetHotkey <S-Tab> = _, call altvim#outdent()
-
-SetHotkey <C-b> = call altvim#format()
-
-SetHotkey <C-_> = call altvim#toggle_comment()
-
-
-""" GoTo
-""""""""
-SetHotkey <ESC><BS> = call altvim#goto_last_change()
-SetHotkey <C-up> = call altvim#goto_line_begin()
-SetHotkey <C-down> = call altvim#goto_line_end()
-
-""" Selection
-"""""""""""""
-SetHotkey <ESC>s = call altvim#select_last_selection()
-SetHotkey <C-a> = call altvim#select_all() 
-SetHotkey <C-S-right> = call altvim#select_word()
-SetHotkey <C-S-left> = call altvim#backward_select_word()
-SetHotkey <M-C-right> = call altvim#select_till_char()
-SetHotkey <M-C-left> = call altvim#backward_select_till_char()
-SetHotkey <S-up> = call altvim#select_prev_line()
-SetHotkey <S-down> = call altvim#select_next_line()
-SetHotkey <S-right> = call altvim#select_next_char()
-SetHotkey <S-left> = call altvim#select_prev_char()
-SetHotkey <C-S-up> = call altvim#select_till_line_begin()
-SetHotkey <C-S-down> = call altvim#select_till_line_end()
-
-SetHotkey ( = _, call altvim#select_content_within('parentheses')
-SetHotkey ) = _, call altvim#select_content_within_included('parentheses')
-SetHotkey { = _, call altvim#select_content_within('braces')
-SetHotkey } = _, call altvim#select_content_within_included('braces')
-SetHotkey [ = _, call altvim#select_content_within('square_brackets')
-SetHotkey ] = _, call altvim#select_content_within_included('square_brackets')
-SetHotkey t = _, call altvim#select_content_within('tag')
-SetHotkey T = _, call altvim#select_content_within_included('tag')
-SetHotkey < = _, call altvim#select_content_within('lessthan')
-SetHotkey > = _, call altvim#select_content_within_included('lessthan')
-SetHotkey ' = _, call altvim#select_content_within('single_quotes')
-SetHotkey " = _, call altvim#select_content_within('double_quotes')
-SetHotkey ` = _, call altvim#select_content_within('back_quotes')
-SetHotkey w = _, call altvim#select_content_within('word')
-
-""" Project
-"""""""""""
-SetHotkey <C-e> = call altvim#show_problems()
-
-SetHotkey <ESC>; = call altvim#find_project_files()
-SetHotkey <ESC>: = call altvim#show_open_files()
-SetHotkey <ESC>f = call altvim#find_in_project_files()
-SetHotkey <ESC>h = call altvim#show_recent_files()
-SetHotkey <C-f> = call altvim#find_in_file()
 
 
 " [Configurations]
@@ -188,7 +114,7 @@ endif
 let g:indentLine_fileTypeExclude = ['markdown']
 
 " setting up fzf
-let g:fzf_layout = {'down': '50%'}
+let g:fzf_layout = {'down': '60%'}
 
 " add nodejs bin to $PATH if needed
 if stridx($PATH, 'node') < 0
@@ -213,8 +139,8 @@ if !exists("g:coc_user_config")
         \ "diagnostic.warningSign": "●",
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
-        \ "diagnostic.refreshAfterSave": v:true,
-        \ "diagnostic.refreshOnInsertMode": v:false,
+        \ "diagnostic.refreshAfterSave": v:false,
+        \ "diagnostic.refreshOnInsertMode": v:true,
         \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
         \ "suggest.timeout": 3000,
@@ -231,14 +157,77 @@ if !exists("g:coc_user_config")
 \ }
 endif
 
+" [Editor]
+SetHotkey <ESC>` = :
+SetHotkey <C-s> = call altvim#save()
+SetHotkey <C-q> = call altvim#quit()
+SetHotkey <C-w> = call altvim#close_file()
+
 " [Navigation]
-SetHotkey <ESC>/ = call altvim#i_go_to_specific_place()
-SetHotkey <M-right> = call altvim#i_find_specific_place('next')
-SetHotkey <M-left> = call altvim#i_find_specific_place('prev')
-SetHotkey <ESC>. = call altvim#i_go_to_block('next')
-SetHotkey <ESC>, = call altvim#i_go_to_block('prev')
-SetHotkey <ESC>p = call altvim#i_go_to_paired()
-SetHotkey <ESC>1 = call altvim#i_go_to_occurrence('next')
-SetHotkey <ESC>2 = call altvim#i_go_to_occurrence('prev')
-SetHotkey <C-right> = call altvim#i_go_to_word('next')
-SetHotkey <C-left> = call altvim#i_go_to_word('prev')
+SetHotkey <ESC>/ = call altvim#go_to_specific_place(),
+    \ call altvim#select_to_specific_place()
+SetHotkey <M-right> = call altvim#find_specific_place('next'),
+    \ call altvim#select_to_found_specific_place('next')
+SetHotkey <M-left> = call altvim#find_specific_place('prev'),
+    \ call altvim#select_to_found_specific_place('prev')
+SetHotkey <ESC>. = call altvim#go_to_block('next'), call altvim#select_to_block('next')
+SetHotkey <ESC>, = call altvim#go_to_block('prev'), call altvim#select_to_block('prev')
+SetHotkey <ESC>p = call altvim#go_to_paired(), call altvim#select_to_paired()
+SetHotkey <ESC>w = call altvim#go_to_occurrence('next')
+SetHotkey <ESC>e = call altvim#go_to_occurrence('prev')
+SetHotkey <C-right> = call altvim#go_to_word('next')
+SetHotkey <C-left> = call altvim#go_to_word('prev')
+SetHotkey <ESC><BS> = call altvim#go_to_last_change()
+SetHotkey <C-up> = call altvim#go_to_line('begin')
+SetHotkey <C-down> = call altvim#go_to_line('end')
+
+" [Selection]
+SetHotkey <M-b> = call altvim#select_rectangular()
+SetHotkey <C-S-right> = call altvim#select_to_word('next')
+SetHotkey <C-S-left> = call altvim#select_to_word('prev')
+SetHotkey <ESC>s = call altvim#select_last_selection()
+SetHotkey <C-a> = call altvim#select_all() 
+SetHotkey <M-C-right> = call altvim#select_till_char('next')
+SetHotkey <M-C-left> = call altvim#select_till_char('prev')
+SetHotkey <S-down> = call altvim#select_line('next')
+SetHotkey <S-up> = call altvim#select_line('prev')
+SetHotkey <S-right> = call altvim#select_char('next')
+SetHotkey <S-left> = call altvim#select_char('prev')
+SetHotkey <C-S-up> = call altvim#select_till_line('begin')
+SetHotkey <C-S-down> = call altvim#select_till_line('end')
+" SetHotkey ( = _, call altvim#select_scope( 'parentheses')
+" SetHotkey { = _, call altvim#select_scope('braces')
+" SetHotkey [ = _, call altvim#select_scope('square_brackets')
+" SetHotkey t = _, call altvim#select_scope('tag_content')
+" SetHotkey < = _, call altvim#select_scope('tag')
+" SetHotkey ' = _, call altvim#select_scope('single_quotes')
+" SetHotkey " = _, call altvim#select_scope('double_quotes')
+" SetHotkey ` = _, call altvim#select_scope('back_quotes')
+" SetHotkey w = _, call altvim#select_scope('word')
+
+" [Editing]
+SetHotkey <C-d> = call altvim#delete_line()
+SetHotkey <BS> = _, call altvim#delete()
+SetHotkey <Space> = _, call altvim#delete()
+SetHotkey <C-z> = call altvim#undo()
+SetHotkey <ESC>z = call altvim#redo()
+SetHotkey <C-v> = call altvim#paste()
+SetHotkey <ESC>v = call altvim#multiclipboard()
+SetHotkey <C-c> = call altvim#copy()
+SetHotkey <C-x> = call altvim#cut()
+SetHotkey <C-l> = call altvim#clone_line()
+SetHotkey <C-j> = call altvim#join_lines()
+SetHotkey <Tab> = _, call altvim#indent()
+SetHotkey <S-Tab> = _, call altvim#outdent()
+
+SetHotkey <C-h> = call altvim#replace()
+
+" [Plugins]
+SetHotkey <C-b> = call altvim#format()
+SetHotkey <C-e> = call altvim#show_problems()
+SetHotkey <ESC>1 = call altvim#find_project_files()
+SetHotkey <ESC>2 = call altvim#show_open_files()
+SetHotkey <ESC>f = call altvim#find_in_project_files()
+SetHotkey <ESC>r = call altvim#show_recent_files()
+SetHotkey <C-f> = call altvim#find_in_file()
+SetHotkey <C-_> = call altvim#toggle_comment()
