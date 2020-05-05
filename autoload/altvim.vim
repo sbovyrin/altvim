@@ -241,7 +241,6 @@ fun! altvim#select_all()
     normal! ggVG
 endfun
 
-" Is not using
 fun! altvim#select_scope(scope)
     let l:scopes = {
     \   "parentheses": "(",
@@ -263,7 +262,9 @@ endfun
 
 " [Editing]
 fun! altvim#delete()
-    call altvim#select()
+    if b:altvim_is_selection
+        call altvim#select()
+    endif
     normal! "xd
 endfun
 
@@ -275,20 +276,19 @@ endfun
 fun! altvim#copy()
     call altvim#select()
     normal! y
-    " let @0 = substitute(@0, '\n\+$', '', '')
-    " let @0 = substitute(@0, '^\s*', '', '')
  
     " windows wsl tweak
-    " if system('uname -r') =~ 'microsoft'
-    "     call system('clip.exe', @0)
-    " endif
+    if system('uname -r') =~ 'microsoft'
+        call system('clip.exe', @0)
+    endif
 
     " let g:altvim#multiclipboard = 
     "     \ ([@0] + get(g:, 'altvim#multiclipboard', []))[:4]
 endfun
 
-fun! altvim#paste()
-    if getline('.')[col('.')] == ''
+fun! altvim#paste() 
+    if (getline('.')[col('.')] == '' )
+        \ && (getline('.')[col('.') - 1] !~ ')\|]\|}')
         normal! "0p==
     else
         normal! "0P==
@@ -327,13 +327,13 @@ endfun
 
 fun! altvim#clone_line()
     if !b:altvim_is_selection
-        normal! V
+        normal! $v^
+    else
+        call altvim#select()
     endif
-
+    
     normal! "cyO
-    " let @c = substitute(@c, '\n\+$', '', '')
     normal! "cp==
-    " let @c = ''
 endfun
 
 
