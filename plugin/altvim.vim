@@ -63,8 +63,9 @@ let loaded_netrw = 0
 autocmd VimEnter * nested
             \ if argc() == 1 && isdirectory(argv()[0])
             \ | sleep 100m
-            \ | exe "call fzf#run(
-            \ {'sink': 'e', 'options': '--height 99% --reverse --multi'})"
+            \ | exe "call fzf#vim#files(
+            \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
+            \   {'options' : ['--preview', 'head -40 {}'], 'down': '100%'})"
             \ | endif 
 
 " language specific tab
@@ -75,11 +76,14 @@ autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\
 
 
 " [Commands]
-
 " run fzf-file-search in a current directory
 command! -bang ProjectFiles
     \ call fzf#vim#files(
-    \   (argv()[0] == getcwd()) ? getcwd() :  getcwd() . '/' . argv()[0],
+    \   (argv()[0] == getcwd()) 
+    \       ? getcwd() 
+    \       : (isdirectory(argv()[0])
+    \           ? getcwd() . '/' . argv()[0]
+    \           : fnamemodify(getcwd() . '/' . argv()[0], ':h')),
     \   {'options' : ['--preview', 'head -10 {}']},
     \   <bang>0
     \ )
