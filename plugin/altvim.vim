@@ -134,7 +134,7 @@ if !exists("g:coc_node_path")
 endif
 if !exists("g:coc_user_config")
     let g:coc_user_config = {
-        \ "npm.binPath": g:altvim_plugin_dir . 'deps/nodejs/lib/node_modules/yarn/bin/yarn',
+        \ "npm.binPath": g:altvim_plugin_dir . 'deps/nodejs/bin/npm',
         \ "diagnostic.messageTarget": "echo",
         \ "diagnostic.enableMessage": "always",
         \ "diagnostic.locationList": v:false,
@@ -143,8 +143,8 @@ if !exists("g:coc_user_config")
         \ "diagnostic.warningSign": "●",
         \ "diagnostic.infoSign": "●",
         \ "diagnostic.hintSign": "●",
-        \ "diagnostic.refreshAfterSave": v:false,
-        \ "diagnostic.refreshOnInsertMode": v:true,
+        \ "diagnostic.refreshAfterSave": v:true,
+        \ "diagnostic.refreshOnInsertMode": v:false,
         \ "suggest.noselect": v:false,
         \ "suggest.minTriggerInputLength": 2,
         \ "suggest.timeout": 3000,

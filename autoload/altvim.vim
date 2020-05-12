@@ -147,8 +147,8 @@ fun! altvim#go_to_occurrence(direction)
 endfun
 
 fun! altvim#go_to_word(direction, ...)
-    let l:pattern_start = '\(\([^a-zA-Z0-9]\|[\n]\)\zs[a-zA-Z0-9]\)\|[a-z]\zs[A-Z0-9]'
-    let l:pattern_end = '[a-zA-Z0-9]\ze\([^a-zA-Z0-9]\|[\n]\)'
+    let l:pattern_start = '\(\([^a-zA-Zа-яА-Я0-9]\|[\n]\)\zs[a-zA-Zа-яА-Я0-9]\)\|[a-z]\zs[A-Z0-9]'
+    let l:pattern_end = '[a-zA-Zа-яА-Я0-9]\ze\([^a-zA-Zа-яА-Я0-9]\|[\n]\)'
     
     " perform only for not selection purpose
     if (a:0 < 1) && (getline('.')[col('.') - 1] =~ '\W\|_')
