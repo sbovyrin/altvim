@@ -89,7 +89,6 @@ command! -bang ProjectFiles
     \ )
 
 command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
-command! -nargs=1 ReplaceFound call altvim#_replace_found(<f-args>)
 
 command! -nargs=0 OpenInBrowser !google-chrome %
 
@@ -186,7 +185,7 @@ SetHotkey <C-up> = call altvim#go_to_line('begin')
 SetHotkey <C-down> = call altvim#go_to_line('end')
 
 " [Selection]
-SetHotkey <M-b> = call altvim#select_rectangular()
+SetHotkey <ESC>b = call altvim#select_rectangular()
 SetHotkey <C-S-right> = call altvim#select_to_word('next')
 SetHotkey <C-S-left> = call altvim#select_to_word('prev')
 SetHotkey <ESC>s = call altvim#select_last_selection()
@@ -204,9 +203,9 @@ SetHotkey } = _, call altvim#select_scope('braces')
 SetHotkey ] = _, call altvim#select_scope('square_brackets')
 SetHotkey t = _, call altvim#select_scope('tag_content')
 SetHotkey > = _, call altvim#select_scope('tag')
-SetHotkey \' = _, call altvim#select_scope('single_quotes')
-SetHotkey \" = _, call altvim#select_scope('double_quotes')
-SetHotkey \` = _, call altvim#select_scope('back_quotes')
+SetHotkey ' = _, call altvim#select_scope('single_quotes')
+SetHotkey " = _, call altvim#select_scope('double_quotes')
+SetHotkey ` = _, call altvim#select_scope('back_quotes')
 SetHotkey w = _, call altvim#select_scope('word')
 
 " [Editing]
@@ -225,6 +224,7 @@ SetHotkey <Tab> = _, call altvim#indent()
 SetHotkey <S-Tab> = _, call altvim#outdent()
 
 SetHotkey <C-h> = call altvim#replace()
+SetHotkey <ESC>h = call altvim#replace_all()
 
 " [Plugins]
 SetHotkey <C-b> = call altvim#format()

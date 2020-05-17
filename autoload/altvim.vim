@@ -22,19 +22,6 @@ fun! altvim#multiclipboard() abort
     normal! `=]
 endfun
 
-fun! altvim#_replace_found(...) abort
-    exe "cdo s/" . a:1 . "/ge | :silent nohl | :silent only"
-endfun
-
-fun! altvim#replace() abort
-    let l:input = input('Replace: ')
-    if empty(l:input) | return | endif
-
-    exe 'ReplaceFound ' . l:input
-endfun
-
-
-
 
 " [Core]
 fun! altvim#perform_selection_action(action)
@@ -336,6 +323,27 @@ fun! altvim#clone_line()
     normal! "cp==
 endfun
 
+fun! altvim#replace()
+    let l:find = input('Find: ')
+    let l:val = fzf#vim#buffer_lines(l:find)
+    let l:replace = input('Replace: ')
+    
+    let l:nLines = map(l:val[1:], 'str2nr(v:val)')
+    
+    for n in l:nLines
+        exe n . 's/' . l:find . '/' . l:replace . '/gI'
+    endfor
+    
+    exe 'nohl'
+endfun
+
+fun! altvim#replace_all()
+    let l:find = input('Find: ')
+    let l:replace = input('Replace: ')
+    
+    exe '%s/' . l:find . '/' . l:replace . '/gI | nohl'
+endfun
+
 
 " [Plugins]
 fun! altvim#show_project_symbols()
@@ -379,9 +387,9 @@ fun! altvim#toggle_comment()
 endfun
 
 fun! altvim#format()
-    call altvim#select()
-    normal! gq
+    " call altvim#select()
+    " normal! gq
     if index(g:altvim_installed_plugins, 'coc.nvim') < 1 | return | endif
-    call altvim#select()
+    " call altvim#select()
     call CocActionAsync('formatSelected', visualmode())
 endfun
