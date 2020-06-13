@@ -19,7 +19,7 @@ set encoding=utf-8
 
 " indentations
 set autoindent expandtab copyindent shiftround shiftwidth=4
-set smartindent smarttab softtabstop=4
+set smartindent smarttab softtabstop=4 breakindent
 
 " text wrap
 set wrap linebreak breakindent nolist showbreak=\ \ \ 
@@ -30,12 +30,12 @@ set hlsearch incsearch ignorecase smartcase
 " tweaks
 set hidden ttyfast undolevels=500 history=500 backspace=indent,eol,start
 set lazyredraw title autoread noswapfile nobackup nowritebackup
-set clipboard=unnamedplus updatetime=300 updatecount=100 regexpengine=1
+set clipboard=unnamedplus updatetime=300 updatecount=100 regexpengine=1 autoread 
 
 " UI
 set t_Co=256 number numberwidth=4 showcmd noshowmode nomodeline laststatus=2
 set cursorline cmdheight=1 scrolloff=2 showtabline=0 signcolumn=yes
-set display=lastline termguicolors
+set display=lastline termguicolors guicursor=a:block-blinkoff0
 
 " enable brace matching and for tags
 set showmatch matchpairs+=<:>
@@ -67,6 +67,10 @@ autocmd VimEnter * nested
             \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
             \   {'options' : ['--preview', 'head -40 {}'], 'down': '100%'})"
             \ | endif 
+
+" FZF tweak
+autocmd! FileType fzf exe 'set laststatus=0 | IndentLinesToggle'
+    \| autocmd BufLeave <buffer> exe 'set laststatus=2 | IndentLinesToggle'
 
 " language specific tab
 autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
@@ -161,34 +165,34 @@ if !exists("g:coc_user_config")
 endif
 
 " [Editor]
-SetHotkey <ESC>` = :
+SetHotkey <M-`> = :
 SetHotkey <C-s> = call altvim#save()
 SetHotkey <C-q> = call altvim#quit()
 SetHotkey <C-w> = call altvim#close_file()
 
 " [Navigation]
-SetHotkey <ESC>/ = call altvim#go_to_specific_place(),
+SetHotkey <M-/> = call altvim#go_to_specific_place(),
     \ call altvim#select_to_specific_place()
 SetHotkey <M-right> = call altvim#find_specific_place('next'),
     \ call altvim#select_to_found_specific_place('next')
 SetHotkey <M-left> = call altvim#find_specific_place('prev'),
     \ call altvim#select_to_found_specific_place('prev')
-SetHotkey <ESC>. = call altvim#go_to_block('next'), call altvim#select_to_block('next')
-SetHotkey <ESC>, = call altvim#go_to_block('prev'), call altvim#select_to_block('prev')
-SetHotkey <ESC>p = call altvim#go_to_paired(), call altvim#select_to_paired()
-SetHotkey <ESC>w = call altvim#go_to_occurrence('next')
-SetHotkey <ESC>e = call altvim#go_to_occurrence('prev')
+SetHotkey <M-.> = call altvim#go_to_block('next'), call altvim#select_to_block('next')
+SetHotkey <M-,> = call altvim#go_to_block('prev'), call altvim#select_to_block('prev')
+SetHotkey <M-p> = call altvim#go_to_paired(), call altvim#select_to_paired()
+SetHotkey <M-w> = call altvim#go_to_occurrence('next')
+SetHotkey <M-e> = call altvim#go_to_occurrence('prev')
 SetHotkey <C-right> = call altvim#go_to_word('next')
 SetHotkey <C-left> = call altvim#go_to_word('prev')
-SetHotkey <ESC><BS> = call altvim#go_to_last_change()
+SetHotkey <M-BS> = call altvim#go_to_last_change()
 SetHotkey <C-up> = call altvim#go_to_line('begin')
 SetHotkey <C-down> = call altvim#go_to_line('end')
 
 " [Selection]
-SetHotkey <ESC>b = call altvim#select_rectangular()
+SetHotkey <M-b> = call altvim#select_rectangular()
 SetHotkey <C-S-right> = call altvim#select_to_word('next')
 SetHotkey <C-S-left> = call altvim#select_to_word('prev')
-SetHotkey <ESC>s = call altvim#select_last_selection()
+SetHotkey <M-s> = call altvim#select_last_selection()
 SetHotkey <C-a> = call altvim#select_all() 
 SetHotkey <M-C-right> = call altvim#select_till_char('next')
 SetHotkey <M-C-left> = call altvim#select_till_char('prev')
@@ -213,9 +217,9 @@ SetHotkey <C-d> = call altvim#delete_line()
 SetHotkey <BS> = _, call altvim#delete()
 SetHotkey <Space> = _, call altvim#delete()
 SetHotkey <C-z> = call altvim#undo()
-SetHotkey <ESC>z = call altvim#redo()
+SetHotkey <M-z> = call altvim#redo()
 SetHotkey <C-v> = call altvim#paste()
-SetHotkey <ESC>v = call altvim#multiclipboard()
+SetHotkey <M-v> = call altvim#multiclipboard()
 SetHotkey <C-c> = call altvim#copy()
 SetHotkey <C-x> = call altvim#cut()
 SetHotkey <C-l> = call altvim#clone_line()
@@ -224,14 +228,14 @@ SetHotkey <Tab> = _, call altvim#indent()
 SetHotkey <S-Tab> = _, call altvim#outdent()
 
 SetHotkey <C-h> = call altvim#replace()
-SetHotkey <ESC>h = call altvim#replace_all()
+SetHotkey <M-h> = call altvim#replace_all()
 
 " [Plugins]
 SetHotkey <C-b> = call altvim#format()
 SetHotkey <C-e> = call altvim#show_problems()
-SetHotkey <ESC>1 = call altvim#find_project_files()
-SetHotkey <ESC>2 = call altvim#show_open_files()
-SetHotkey <ESC>f = call altvim#find_in_project_files()
-SetHotkey <ESC>r = call altvim#show_recent_files()
+SetHotkey <M-1> = call altvim#find_project_files()
+SetHotkey <M-2> = call altvim#show_open_files()
+SetHotkey <M-f> = call altvim#find_in_project_files()
+SetHotkey <M-r> = call altvim#show_recent_files()
 SetHotkey <C-f> = call altvim#find_in_file()
 SetHotkey <C-_> = call altvim#toggle_comment()
