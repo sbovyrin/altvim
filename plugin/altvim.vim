@@ -49,6 +49,7 @@ set diffopt=filler diffopt+=iwhite
 " autocomplete
 " set completeopt=menu,menuone,noinsert,noselect
 set omnifunc=syntaxcomplete#Complete
+set shortmess+=c
 
 set statusline=%#StatusLineNC#%m%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
 
