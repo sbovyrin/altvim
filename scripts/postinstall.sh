@@ -21,8 +21,8 @@ ls $VIM_DEPS 1>/dev/null 2>&1 || mkdir -p $VIM_DEPS
 download_nodejs()
 {
     curl https://nodejs.org/dist/v12.4.0/node-v12.4.0-linux-x64.tar.xz -o $VIM_DEPS/nodejs.tar.xz -s
-    tar -xf $VIM_DEPS/nodejs.tar.xz -C $VIM_DEPS
-    rm -vf $VIM_DEPS/*.tar.xz
+    tar -xf $VIM_DEPS/nodejs.tar.xz -C $VIM_DEPS 1>/dev/null
+    rm -f $VIM_DEPS/*.tar.xz
     mv $VIM_DEPS/node* $VIM_DEPS/nodejs
 
     return 0
