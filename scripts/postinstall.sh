@@ -4,8 +4,6 @@
 set -e
 # to exit when your script tries to use undeclared variables
 set -u
-# to exit when a command before pipe is failed
-set -o pipefail
 
 echo "Running altvim post-install...\n"
 
