@@ -32,11 +32,6 @@ install_nodejs()
 {
     sed -i --follow-symlinks "s|/usr/bin/env node|$(pwd)/${VIM_DEPS}/nodejs/bin/node|g" $VIM_DEPS/nodejs/bin/npm
     sed -i --follow-symlinks "s|/usr/bin/env node|$(pwd)/${VIM_DEPS}/nodejs/bin/node|g" $VIM_DEPS/nodejs/bin/npx
-    $VIM_DEPS/nodejs/bin/npm i --prefix $VIM_DEPS/nodejs/lib/node_modules/yarn yarn
-    mv $VIM_DEPS/nodejs/lib/node_modules/yarn/node_modules/yarn/* $VIM_DEPS/nodejs/lib/node_modules/yarn
-    rm -rf $VIM_DEPS/nodejs/lib/node_modules/yarn/{node_modules,package-lock.json}
-    ln -s ./../lib/node_modules/yarn/bin/yarn.js $VIM_DEPS/nodejs/bin/yarn
-    sed -i --follow-symlinks "s|/usr/bin/env node|$(pwd)/${VIM_DEPS}/nodejs/bin/node|g" $VIM_DEPS/nodejs/bin/yarn
 
     return 0
 }
