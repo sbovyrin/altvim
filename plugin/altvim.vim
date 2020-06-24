@@ -124,45 +124,48 @@ let g:indentLine_fileTypeExclude = ['markdown']
 " setting up fzf
 let g:fzf_layout = {'down': '60%'}
 
-" add nodejs bin to $PATH if needed
-if stridx($PATH, 'node') < 0
-    let $PATH=$PATH . ':' . g:altvim_plugin_dir . 'deps/nodejs/bin'
-endif
-
 " setting up lsp
+let g:coc_data_home = g:altvim_plugin_dir . 'deps/lsp'
 let g:coc_config_home = g:altvim_plugin_dir . 'deps/lsp/config'
-let g:coc_data_home = g:altvim_plugin_dir . 'deps/lsp/config'
 
-if !exists("g:coc_node_path")
-    let g:coc_node_path = g:altvim_plugin_dir . 'deps/nodejs/bin/node'
+if exists("g:altvim_node_path")
+    let g:coc_node_path = g:altvim_node_path
 endif
-if !exists("g:coc_user_config")
-    let g:coc_user_config = {
-        \ "npm.binPath": g:altvim_plugin_dir . 'deps/nodejs/bin/npm',
-        \ "diagnostic.messageTarget": "echo",
-        \ "diagnostic.enableMessage": "always",
-        \ "diagnostic.locationList": v:false,
-        \ "diagnostic.signOffset": 9999999,
-        \ "diagnostic.errorSign": "●",
-        \ "diagnostic.warningSign": "●",
-        \ "diagnostic.infoSign": "●",
-        \ "diagnostic.hintSign": "●",
-        \ "diagnostic.refreshAfterSave": v:true,
-        \ "diagnostic.refreshOnInsertMode": v:false,
-        \ "suggest.noselect": v:false,
-        \ "suggest.minTriggerInputLength": 2,
-        \ "suggest.timeout": 3000,
-        \ "suggest.snippetIndicator": "►",
-        \ "suggest.maxCompleteItemCount": 7,
-        \ "suggest.enablePreview": v:false,
-        \ "suggest.floatEnable": v:false,
-        \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
-        \ "snippets.extends": {
-        \   "javascriptreact": ["javascript"],
-        \ },
-        \ "signature.target": "echo",
-        \ "emmet.showExpandedAbbreviation": v:false
+
+let g:coc_user_config = {
+    \ "diagnostic.refreshOnInsertMode": v:true,
+    \ "diagnostic.refreshAfterSave": v:true,
+    \ "diagnostic.messageTarget": "echo",
+    \ "diagnostic.virtualText": v:true,
+    \ "diagnostic.enableMessage": "always",
+    \ "diagnostic.locationList": v:false,
+    \ "diagnostic.enableSign": v:true,
+    \ "diagnostic.errorSign": "●",
+    \ "diagnostic.warningSign": "●",
+    \ "diagnostic.infoSign": "●",
+    \ "diagnostic.hintSign": "●",
+    \ "suggest.noselect": v:false,
+    \ "suggest.minTriggerInputLength": 2,
+    \ "suggest.timeout": 3000,
+    \ "suggest.snippetIndicator": "►",
+    \ "suggest.maxCompleteItemCount": 12,
+    \ "suggest.enablePreview": v:false,
+    \ "suggest.floatEnable": v:false,
+    \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
+    \ "snippets.extends": {
+    \   "javascriptreact": ["javascript"],
+    \ },
+    \ "signature.target": "echo",
+    \ "emmet.showExpandedAbbreviation": v:false,
+    \ "coc.preferences.hoverTarget": "echo",
+    \ "coc.preferences.extensionUpdateCheck": "never"
 \ }
+
+if exists("g:altvim_npm_path")
+    let g:coc_user_config = extend(
+        \ g:coc_user_config,
+        \ {"npm.binPath": g:altvim_npm_path}
+        \)
 endif
 
 " [Editor]
