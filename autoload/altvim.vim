@@ -371,7 +371,7 @@ fun! altvim#find_in_file()
 endfun
 
 fun! altvim#find_in_project_files()
-    exe 'Ag'
+    exe 'Rg'
 endfun
 
 fun! altvim#show_recent_files()

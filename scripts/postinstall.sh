@@ -8,7 +8,7 @@ set -u
 echo "Running altvim post-install...\n"
 
 which curl 1>/dev/null 2>&1 \
-    || (echo "Please install curl" && exit 1)
+        || (echo "Please install curl" && exit 1)
 
 VIM_DEPS=./deps
 ARG=$1

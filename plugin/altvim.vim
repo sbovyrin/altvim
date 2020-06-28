@@ -113,11 +113,6 @@ if len(g:altvim_defined_plugins) != len(g:altvim_installed_plugins)
     nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
 endif
 
-" snippets directory
-if !exists("g:altvim_snippets")
-    let g:altvim_snippets = g:altvim_plugin_dir . 'snippets'
-endif
-
 " indent-line
 let g:indentLine_fileTypeExclude = ['markdown']
 
@@ -132,7 +127,7 @@ if exists("g:altvim_node_path")
     let g:coc_node_path = g:altvim_node_path
 endif
 
-let g:coc_user_config = {
+let b:altvim_coc_user_config = {
     \ "diagnostic.refreshOnInsertMode": v:true,
     \ "diagnostic.refreshAfterSave": v:true,
     \ "diagnostic.messageTarget": "echo",
@@ -151,7 +146,7 @@ let g:coc_user_config = {
     \ "suggest.maxCompleteItemCount": 12,
     \ "suggest.enablePreview": v:false,
     \ "suggest.floatEnable": v:false,
-    \ "snippets.userSnippetsDirectory": get(g:, 'altvim_snippets'),
+    \ "snippets.userSnippetsDirectory": g:altvim_plugin_dir . 'snippets',
     \ "snippets.extends": {
     \   "javascriptreact": ["javascript"],
     \ },
@@ -161,10 +156,10 @@ let g:coc_user_config = {
     \ "coc.preferences.extensionUpdateCheck": "never"
 \ }
 
-if exists("g:altvim_npm_path")
+if exists("g:coc_user_config")
     let g:coc_user_config = extend(
-        \ g:coc_user_config,
-        \ {"npm.binPath": g:altvim_npm_path}
+        \ b:altvim_coc_user_config,
+        \ g:coc_user_config
         \)
 endif
 
