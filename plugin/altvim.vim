@@ -1,66 +1,136 @@
 silent !stty -ixon
 
-" [Base VIM settings]
-
 " disable back-compatibility with Vi
 set nocompatible
-
+" watch file outside changing
+set autoread
 " enable auto filetype determination 
 " and autoloading appropriated plugins for the filetype
 filetype plugin indent on
-
 " syntax highlighting
 syntax enable
-
+" disable syntax highlight for long lines
+set synmaxcol=300
+" hide bakcground buffer
+set hidden
+" disable report on line changing
+set report=0
+" enable lazy editor redraw
+set lazyredraw
+" enable magic regex patterns
+set magic
 " permanent insert mode by default
 set insertmode
-
+" default editor encoding
 set encoding=utf-8
+" copy, cut to '0' register
+set clipboard=unnamedplus
+" disable creating a backup files
+set nobackup
+" disable swap file
+set noswapfile
+" keep 50 commands in history
+set history=50
 
-" indentations
-set autoindent expandtab copyindent shiftround shiftwidth=4
-set smartindent smarttab softtabstop=4 breakindent
-
+" indent a new line as prev line
+set autoindent
+" indent after C-lang blocks
+set smartindent
+" visually break a long line to next line and keep indent
+set breakindent
+" add 2 indent to breakindented line
+set breakindentopt=shift:2,min:80
+" tab to space
+set expandtab
+" set tab length (4 spaces)
+set shiftwidth=4
+set tabstop=4
+" round indent to shiftwidth value
+set shiftround
 " text wrap
-set wrap linebreak breakindent nolist showbreak=\ \ \ 
+set whichwrap+=<,>,[,]
 
-" search
-set hlsearch incsearch ignorecase smartcase
+" disable break lines after one-letter word
+set formatoptions+=1
+" disable auto-wrap text
+set formatoptions-=t
+" remove comment leader when joining lines
+set formatoptions+=j
 
-" tweaks
-set hidden ttyfast undolevels=500 history=500 backspace=indent,eol,start
-set lazyredraw title autoread noswapfile nobackup nowritebackup
-set clipboard=unnamedplus updatetime=300 updatecount=100 regexpengine=1 autoread 
+" add only one space with join command
+set nojoinspaces
 
-" UI
-set t_Co=256 number numberwidth=4 showcmd noshowmode nomodeline laststatus=2
-set cursorline cmdheight=1 scrolloff=2 showtabline=0 signcolumn=yes
-set display=lastline termguicolors guicursor=a:block-blinkoff0
+" show found while typing in search
+set incsearch
+" ignore case sensitivity
+set ignorecase
+" if word has only lowercase, search lowercase, etc.
+set smartcase
+" search around the end of the file
+set wrapscan
+" highlight search only while typing
+augroup vimrc-incsearch-highlight
+        autocmd!
+        autocmd CmdlineEnter /,\? :set hlsearch
+        autocmd CmdlineLeave /,\? :set nohlsearch
+augroup END
 
-" enable brace matching and for tags
-set showmatch matchpairs+=<:>
+" show matched pairs
+set showmatch
+" add < > to pairs highlighting
+set matchpairs+=<:>
 
-" command line
-set wildmenu wildmode=longest:full,full
+" show incomplete command in the lower right corner
+set showcmd
+" hide mode info
+set noshowmode
+" hide cursor info
+set noruler
+" number of lines to use for the command-line
+set cmdheight=1
+" show line numbers
+set number
+" show signs at editor gutter
+set signcolumn=yes
+" highlight current line
+set cursorline
+" disable folding
+set nofoldenable
+" show statusline
+set laststatus=2
+" hide mode status
+set nomodeline
+" support advanced colors
+set t_Co=256 termguicolors
+" change cursor to block
+set guicursor=a:block-blinkoff0
 
-" diff
-set diffopt=filler diffopt+=iwhite
+" command line completion by <Tab>
+set wildmenu 
+" set command line compleltion mode
+set wildmode=longest:full,full
 
-" autocomplete
-" set completeopt=menu,menuone,noinsert,noselect
-set omnifunc=syntaxcomplete#Complete
+" set autocomplete engine and options
+set completeopt=menu,menuone,noinsert,noselect
+"set omnifunc=lsc#complete#complete
+
+" set editor message format
 set shortmess+=c
 
+" configure statusline
 set statusline=%#StatusLineNC#%m%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
-
-let mapleader="\\"
-
-
-" [StartUp]
 
 " disable netrw directory listing on startup
 let loaded_netrw = 0
-" Show file search after start on directory
+
+
+" Start Up commands
+" language specific tab
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
+autocmd FileType css setlocal shiftwidth=2 tabstop=2
+autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType markdown setlocal shiftwidth=2 tabstop=2
+" show file search after start on directory
 autocmd VimEnter * nested
             \ if argc() == 1 && isdirectory(argv()[0])
             \ | sleep 100m
@@ -68,39 +138,28 @@ autocmd VimEnter * nested
             \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
             \   {'options' : ['--preview', 'head -40 {}'], 'down': '100%'})"
             \ | endif 
-
 " FZF tweak
 autocmd! FileType fzf exe 'set laststatus=0 | IndentLinesToggle'
     \| autocmd BufLeave <buffer> exe 'set laststatus=2 | IndentLinesToggle'
 
-" language specific tab
-autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType css setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType html setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
-autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 showbreak=↳\ 
 
-
-" [Commands]
-" run fzf-file-search in a current directory
+" Commands
 command! -bang ProjectFiles
-    \ call fzf#vim#files(
-    \   (argv()[0] == getcwd()) 
-    \       ? getcwd() 
-    \       : (isdirectory(argv()[0])
-    \           ? getcwd() . '/' . argv()[0]
-    \           : fnamemodify(getcwd() . '/' . argv()[0], ':h')),
-    \   {'options' : ['--preview', 'head -10 {}']},
-    \   <bang>0
-    \ )
-
-command! -nargs=1 SetHotkey call altvim#set_hotkey(<f-args>)
-
-command! -nargs=0 OpenInBrowser !google-chrome %
+            \ call fzf#vim#files(
+            \   (argv()[0] == getcwd()) 
+            \       ? getcwd() 
+            \       : (isdirectory(argv()[0])
+            \           ? getcwd() . '/' . argv()[0]
+            \           : fnamemodify(getcwd() . '/' . argv()[0], ':h')),
+            \   {'options' : ['--preview', 'head -10 {}']},
+            \   <bang>0
+            \ )
 
 
-" [Configurations]
+" Plugins settings
+" altvim settings
 if exists("g:plugs")
-    let g:altvim_plugin_dir = g:plugs['altvim'].dir
+    let g:altvim_dir = g:plugs['altvim'].dir
     let g:altvim_defined_plugins = keys(g:plugs)
     let g:altvim_installed_plugins = filter(keys(g:plugs), 'isdirectory(g:plugs[v:val].dir)')
     function! altvim#install_plugins() abort
@@ -116,125 +175,179 @@ endif
 " indent-line
 let g:indentLine_fileTypeExclude = ['markdown']
 
-" setting up fzf
+" FZF settings
 let g:fzf_layout = {'down': '60%'}
 
-" setting up lsp
-let g:coc_data_home = g:altvim_plugin_dir . 'deps/lsp'
-let g:coc_config_home = g:altvim_plugin_dir . 'deps/lsp/config'
-
-if exists("g:altvim_node_path")
-    let g:coc_node_path = g:altvim_node_path
+" LSP
+let g:coc_data_home = g:altvim_dir . 'deps/lsp'
+let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
+if exists("g:altvim_lsp")
+    let g:coc_node_path = get(g:altvim_lsp, 'nodejs', 'node')
 endif
-
 let b:altvim_coc_user_config = {
-    \ "diagnostic.refreshOnInsertMode": v:true,
-    \ "diagnostic.refreshAfterSave": v:true,
-    \ "diagnostic.messageTarget": "echo",
-    \ "diagnostic.virtualText": v:true,
-    \ "diagnostic.enableMessage": "always",
-    \ "diagnostic.locationList": v:false,
-    \ "diagnostic.enableSign": v:true,
-    \ "diagnostic.errorSign": "●",
-    \ "diagnostic.warningSign": "●",
-    \ "diagnostic.infoSign": "●",
-    \ "diagnostic.hintSign": "●",
-    \ "suggest.noselect": v:false,
-    \ "suggest.minTriggerInputLength": 2,
-    \ "suggest.timeout": 3000,
-    \ "suggest.snippetIndicator": "►",
-    \ "suggest.maxCompleteItemCount": 12,
-    \ "suggest.enablePreview": v:false,
-    \ "suggest.floatEnable": v:false,
-    \ "snippets.userSnippetsDirectory": g:altvim_plugin_dir . 'snippets',
-    \ "snippets.extends": {
-    \   "javascriptreact": ["javascript"],
-    \ },
-    \ "signature.target": "echo",
-    \ "emmet.showExpandedAbbreviation": v:false,
-    \ "coc.preferences.hoverTarget": "echo",
-    \ "coc.preferences.extensionUpdateCheck": "never"
-\ }
+            \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : 'npm',
+            \ "diagnostic.refreshOnInsertMode": v:true,
+            \ "diagnostic.refreshAfterSave": v:true,
+            \ "diagnostic.messageTarget": "echo",
+            \ "diagnostic.virtualText": v:true,
+            \ "diagnostic.enableMessage": "always",
+            \ "diagnostic.locationList": v:false,
+            \ "diagnostic.enableSign": v:true,
+            \ "diagnostic.errorSign": "●",
+            \ "diagnostic.warningSign": "●",
+            \ "diagnostic.infoSign": "●",
+            \ "diagnostic.hintSign": "●",
+            \ "suggest.noselect": v:false,
+            \ "suggest.minTriggerInputLength": 2,
+            \ "suggest.timeout": 3000,
+            \ "suggest.snippetIndicator": "►",
+            \ "suggest.maxCompleteItemCount": 12,
+            \ "suggest.enablePreview": v:false,
+            \ "suggest.floatEnable": v:false,
+            \ "signature.target": "echo",
+            \ "emmet.showExpandedAbbreviation": v:false,
+            \ "coc.preferences.hoverTarget": "echo",
+            \ "coc.preferences.extensionUpdateCheck": "never"
+            \ }
 
-if exists("g:coc_user_config")
-    let g:coc_user_config = extend(
-        \ b:altvim_coc_user_config,
-        \ g:coc_user_config
-        \)
-endif
+" TODO:
+" - Select last pasted
+" - Go to a block
+" - Go to paired %
+" - Clone line
+" - Replace
+" - Remember cursor position
+" augroup vimrc-remember-cursor-position
+"   autocmd!
+"     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$")
+        "| exe "normal! g`\"" | endif
+" augroup END
 
-" [Editor]
-SetHotkey <M-`> = :
-SetHotkey <C-s> = call altvim#save()
-SetHotkey <C-q> = call altvim#quit()
-SetHotkey <C-w> = call altvim#close_file()
+" Editor
+" command prompt
+inoremap <A-`> <C-o>:
+vnoremap <A-`> :
+" save
+inoremap <C-s> <cmd>w<cr>
+vnoremap <C-s> <cmd>w<cr>
+" quit
+inoremap <C-q> <cmd>q!<cr>
+vnoremap <C-q> <cmd>q!<cr>
+inoremap <C-w> <cmd>bdelete<cr>
+vnoremap <C-w> <cmd>bdelete<cr>
+" copy
+inoremap <C-c> <cmd>call altvim#copy()<cr>
+vnoremap <C-c> <cmd>call altvim#copy()<cr>
+" paste
+inoremap <C-v> <cmd>call altvim#paste()<cr>
+vnoremap <C-v> <cmd>call altvim#paste()<cr>
+" cut
+inoremap <C-x> <cmd>norm! "0d<cr>
+vnoremap <C-x> "0d
+" undo
+inoremap <C-z> <cmd>undo<cr>
+vnoremap <C-z> <cmd>undo<cr>
+" redo
+inoremap <A-z> <cmd>redo<cr>
+vnoremap <A-z> <cmd>redo<cr>
+" go to last change
+inoremap <A-BS> <cmd>norm! g;<cr>
+" open a file/s
+inoremap <C-e> <C-o>:exe 'ProjectFiles'<cr>
+vnoremap <C-e> :<C-u>exe 'ProjectFiles'<cr>
+" switch opened files
+inoremap <C-r> <C-o>:exe 'Buffers'<cr>
+vnoremap <C-r> :<C-u>exe 'Buffers'<cr>
+" show history files
+inoremap <C-h> <C-o>:exe 'History'<cr>
+vnoremap <C-h> :<C-u>exe 'History'<cr>
+" find in file
+inoremap <C-f> <C-o>:exe 'BLines'<cr>
+vnoremap <C-f> :<C-u>exe 'BLines'<cr>
+" find in project files
+inoremap <C-g> <C-o>:exe 'Rg'<cr>
+vnoremap <C-g> :<C-u>exe 'Rg'<cr>
+" go to next error
+inoremap <A-1> <cmd>call CocActionAsync('diagnosticNext')<cr>
+vnoremap <A-1> <cmd>call CocActionAsync('diagnosticNext')<cr>
+" go to prev error
+inoremap <A-!> <cmd>call CocActionAsync('diagnosticPrevious')<cr>
+vnoremap <A-!> <cmd>call CocActionAsync('diagnosticPrevious')<cr>
 
-" [Navigation]
-SetHotkey <M-/> = call altvim#go_to_specific_place(),
-    \ call altvim#select_to_specific_place()
-SetHotkey <M-right> = call altvim#find_specific_place('next'),
-    \ call altvim#select_to_found_specific_place('next')
-SetHotkey <M-left> = call altvim#find_specific_place('prev'),
-    \ call altvim#select_to_found_specific_place('prev')
-SetHotkey <M-.> = call altvim#go_to_block('next'), call altvim#select_to_block('next')
-SetHotkey <M-,> = call altvim#go_to_block('prev'), call altvim#select_to_block('prev')
-SetHotkey <M-p> = call altvim#go_to_paired(), call altvim#select_to_paired()
-SetHotkey <M-w> = call altvim#go_to_occurrence('next')
-SetHotkey <M-e> = call altvim#go_to_occurrence('prev')
-SetHotkey <C-right> = call altvim#go_to_word('next')
-SetHotkey <C-left> = call altvim#go_to_word('prev')
-SetHotkey <M-BS> = call altvim#go_to_last_change()
-SetHotkey <C-up> = call altvim#go_to_line('begin')
-SetHotkey <C-down> = call altvim#go_to_line('end')
 
-" [Selection]
-SetHotkey <M-b> = call altvim#select_rectangular()
-SetHotkey <C-S-right> = call altvim#select_to_word('next')
-SetHotkey <C-S-left> = call altvim#select_to_word('prev')
-SetHotkey <M-s> = call altvim#select_last_selection()
-SetHotkey <C-a> = call altvim#select_all() 
-SetHotkey <M-C-right> = call altvim#select_till_char('next')
-SetHotkey <M-C-left> = call altvim#select_till_char('prev')
-SetHotkey <S-down> = call altvim#select_line('next')
-SetHotkey <S-up> = call altvim#select_line('prev')
-SetHotkey <S-right> = call altvim#select_char('next')
-SetHotkey <S-left> = call altvim#select_char('prev')
-SetHotkey <C-S-up> = call altvim#select_till_line('begin')
-SetHotkey <C-S-down> = call altvim#select_till_line('end')
-SetHotkey ) = _, call altvim#select_scope( 'parentheses')
-SetHotkey } = _, call altvim#select_scope('braces')
-SetHotkey ] = _, call altvim#select_scope('square_brackets')
-SetHotkey t = _, call altvim#select_scope('tag_content')
-SetHotkey > = _, call altvim#select_scope('tag')
-SetHotkey ' = _, call altvim#select_scope('single_quotes')
-SetHotkey " = _, call altvim#select_scope('double_quotes')
-SetHotkey ` = _, call altvim#select_scope('back_quotes')
-SetHotkey w = _, call altvim#select_scope('word')
+" Selection
+" select line
+inoremap <A-S> <C-o>:norm! V<cr>
+vnoremap <A-S> :<C-u>norm! V<cr>
+" select char
+inoremap <A-s> <C-o>:norm! v<cr>
+vnoremap <A-s> :<C-u>norm! v<cr>
+" select all
+inoremap <A-s><A-a> <C-o>:norm! ggVG<cr>
+vnoremap <A-s><A-a> :<C-u>norm! ggVG<cr>
+" select word
+inoremap <A-s><A-w> <C-o>:norm vbpOe<cr>
+vnoremap <A-s><A-w> n
+" select block
+inoremap <A-s><A-b> <C-o>:norm! \<C-v><cr>
+vnoremap <A-s><A-b> :<C-u>norm! \<C-v><cr>
+" select last selection
+inoremap <A-s><A-l> <C-o>:norm gv<cr>
+vnoremap <A-s><A-l> :<C-u>norm! gv<cr>
 
-" [Editing]
-SetHotkey <C-d> = call altvim#delete_line()
-SetHotkey <BS> = _, call altvim#delete()
-SetHotkey <Space> = _, call altvim#delete()
-SetHotkey <C-z> = call altvim#undo()
-SetHotkey <M-z> = call altvim#redo()
-SetHotkey <C-v> = call altvim#paste()
-SetHotkey <M-v> = call altvim#multiclipboard()
-SetHotkey <C-c> = call altvim#copy()
-SetHotkey <C-x> = call altvim#cut()
-SetHotkey <C-l> = call altvim#clone_line()
-SetHotkey <C-j> = call altvim#join_lines()
-SetHotkey <Tab> = _, call altvim#indent()
-SetHotkey <S-Tab> = _, call altvim#outdent()
+" ctrl+O only one command
+" ctrl+L command sequence
+" visual mode
+" - v<count>[<motions...>]<action>
 
-SetHotkey <C-h> = call altvim#replace()
-SetHotkey <M-h> = call altvim#replace_all()
+" Motions
+" to line begin
+inoremap <C-up> <cmd>norm! ^<cr>
+noremap <C-up> ^
+" to line start
+inoremap <C-S-up> <cmd>norm! 0<cr>
+noremap <C-S-up> 0
+" to line end
+inoremap <C-down> <cmd>norm! $<cr>
+noremap <C-down> $
+" to char/s
+inoremap <A-/> <C-o>/
+noremap / /
+" to next found
+inoremap <A-n> <cmd>norm! n<cr>
+noremap n n
+" to prev found
+inoremap <A-p> <cmd>norm! N<cr>
+noremap p N
+" word end
+inoremap <A-e> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
+noremap e /\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
+" word start
+inoremap <A-b> <C-o>/\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
+noremap b /\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
+" next word
+inoremap <C-right> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
+" prev word
+inoremap <C-left> <C-o>?\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
 
-" [Plugins]
-SetHotkey <C-b> = call altvim#format()
-SetHotkey <C-e> = call altvim#show_problems()
-SetHotkey <M-1> = call altvim#find_project_files()
-SetHotkey <M-2> = call altvim#show_open_files()
-SetHotkey <M-f> = call altvim#find_in_project_files()
-SetHotkey <M-r> = call altvim#show_recent_files()
-SetHotkey <C-f> = call altvim#find_in_file()
-SetHotkey <C-_> = call altvim#toggle_comment()
+" Operators
+" delete
+noremap d d
+" join
+noremap j J
+" uppercase
+noremap U gU
+" lowercase
+noremap u gu
+" format
+noremap f <cmd>call CocActionAsync('formatSelected', visualmode())<cr>
+
+" indent right
+inoremap <Tab> <cmd>norm! ><cr>
+vnoremap <Tab> >
+" indent left
+inoremap <S-Tab> <cmd>norm! <<cr>
+vnoremap <S-Tab> <
+" comment
+inoremap <C-_> <cmd>Commentary<cr>
+vnoremap <C-_> :<C-u>'<,'>Commentary<cr>
