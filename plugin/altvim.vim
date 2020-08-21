@@ -11,6 +11,8 @@ filetype plugin indent on
 syntax enable
 " disable syntax highlight for long lines
 set synmaxcol=300
+" faster linting
+set updatetime=1000
 " hide bakcground buffer
 set hidden
 " disable report on line changing
@@ -91,7 +93,7 @@ set cmdheight=1
 " show line numbers
 set number
 " show signs at editor gutter
-set signcolumn=yes
+set signcolumn=yes:2
 " highlight current line
 set cursorline
 " disable folding
@@ -111,8 +113,8 @@ set wildmenu
 set wildmode=longest:full,full
 
 " set autocomplete engine and options
-set completeopt=menu,menuone,noinsert,noselect
-"set omnifunc=lsc#complete#complete
+" set completeopt=menu,menuone,noinsert,noselect
+" set omnifunc=lsc#complete#complete
 
 " set editor message format
 set shortmess+=c
@@ -165,11 +167,11 @@ if exists("g:plugs")
     function! altvim#install_plugins() abort
         PlugInstall --sync
     endfunction
-endif
-
-" when vim startup auto install altvim plugins if its were not installed
-if len(g:altvim_defined_plugins) != len(g:altvim_installed_plugins)
-    nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
+    
+    " when vim startup auto install altvim plugins if its were not installed
+    if len(g:altvim_defined_plugins) != len(g:altvim_installed_plugins)
+        nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
+    endif
 endif
 
 " indent-line
@@ -179,54 +181,71 @@ let g:indentLine_fileTypeExclude = ['markdown']
 let g:fzf_layout = {'down': '60%'}
 
 " LSP
-let g:coc_data_home = g:altvim_dir . 'deps/lsp'
-let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
-if exists("g:altvim_lsp")
-    let g:coc_node_path = get(g:altvim_lsp, 'nodejs', 'node')
-endif
-let b:altvim_coc_user_config = {
-            \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : 'npm',
-            \ "diagnostic.refreshOnInsertMode": v:true,
-            \ "diagnostic.refreshAfterSave": v:true,
-            \ "diagnostic.messageTarget": "echo",
-            \ "diagnostic.virtualText": v:true,
-            \ "diagnostic.enableMessage": "always",
-            \ "diagnostic.locationList": v:false,
-            \ "diagnostic.enableSign": v:true,
-            \ "diagnostic.errorSign": "●",
-            \ "diagnostic.warningSign": "●",
-            \ "diagnostic.infoSign": "●",
-            \ "diagnostic.hintSign": "●",
-            \ "suggest.noselect": v:false,
-            \ "suggest.minTriggerInputLength": 2,
-            \ "suggest.timeout": 3000,
-            \ "suggest.snippetIndicator": "►",
-            \ "suggest.maxCompleteItemCount": 12,
-            \ "suggest.enablePreview": v:false,
-            \ "suggest.floatEnable": v:false,
-            \ "signature.target": "echo",
-            \ "emmet.showExpandedAbbreviation": v:false,
-            \ "coc.preferences.hoverTarget": "echo",
-            \ "coc.preferences.extensionUpdateCheck": "never"
-            \ }
+if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
+    let g:coc_data_home = g:altvim_dir . 'deps/lsp'
+    let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
+    
+    if exists("g:altvim_lsp")
+        let g:coc_node_path = get(g:altvim_lsp, 'nodejs', 'node')
+    endif
+    
+    let g:coc_user_config = {
+        \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : 'npm',
+        \ "coc.source.buffer.ignoreGitignore": v:false,
+        \ "suggest.autoTrigger": "always",
+        \ "suggest.floatEnable": v:false,
+        \ "suggest.maxCompleteItemCount": 7,
+        \ "suggest.preferCompleteThanJumpPlaceholder": v:true,
+        \ "suggest.minTriggerInputLength": 3,
+        \ "suggest.noselect": v:false,
+        \ "suggest.removeDuplicateItems": v:true,
+        \ "suggest.snippetIndicator": "",
+        \ "signature.target": "echo",
+        \ "signature.messageTarget": "echo",
+        \ "diagnostic.checkCurrentLine": v:true,
+        \ "diagnostic.enableMessage": "jump",
+        \ "diagnostic.messageTarget": "echo",
+        \ "diagnostic.refreshOnInsertMode": v:true,
+        \ "diagnostic.refreshAfterSave": v:true,
+        \ "diagnostic.signOffset": 9999999,
+        \ "diagnostic.warningSign": ">",
+        \ "diagnostic.errorSign": "*",
+        \ "diagnostic.infoSign": "?",
+        \ "diagnostic.hintSign": "#",
+        \ "coc.preferences.hoverTarget": "echo",
+        \ "coc.preferences.bracketEnterImprove": v:false,
+        \ "coc.preferences.snippets.enable": v:false,
+        \ "coc.preferences.extensionUpdateCheck": "never",
+        \ "emmet.showExpandedAbbreviation": v:false,
+        \ "emmet.includeLanguages": ["html", "javascript", "javascriptreact", "php"],
+        \ "emmet.excludeLanguages": [],
+        \ "codeLens.enable": v:false
+    \ }
 
-" TODO:
-" - Select last pasted
-" - Go to a block
-" - Go to paired %
-" - Clone line
-" - Replace
-" - Remember cursor position
-" augroup vimrc-remember-cursor-position
-"   autocmd!
-"     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$")
-        "| exe "normal! g`\"" | endif
-" augroup END
+    highlight CocErrorHighlight ctermfg=Red  guifg=#ff0000
+endif
+
+" function! StatusDiagnostic() abort
+"     let info = get(b:, 'coc_diagnostic_info', {})
+"     if empty(info) | return '' | endif
+"     let msgs = []
+"     if get(info, 'error', 0)
+"         call add(msgs, 'E' . info['error'])
+"     endif
+"     if get(info, 'warning', 0)
+"         call add(msgs, 'W' . info['warning'])
+"     endif
+"     return join(msgs, ' '). ' ' . get(g:, 'coc_status', '')
+" endfunction
+" " Then add %{StatusDiagnostic()} ` to your 'statusline' option.
+
 
 " Editor
 " command prompt
 inoremap <A-`> <C-o>:
 vnoremap <A-`> :
+" temp normal mode for one command
+inoremap <Esc> <C-o>
 " save
 inoremap <C-s> <cmd>w<cr>
 vnoremap <C-s> <cmd>w<cr>
@@ -250,7 +269,7 @@ vnoremap <C-z> <cmd>undo<cr>
 " redo
 inoremap <A-z> <cmd>redo<cr>
 vnoremap <A-z> <cmd>redo<cr>
-" go to last change
+" show last change
 inoremap <A-BS> <cmd>norm! g;<cr>
 " open a file/s
 inoremap <C-e> <C-o>:exe 'ProjectFiles'<cr>
@@ -267,48 +286,93 @@ vnoremap <C-f> :<C-u>exe 'BLines'<cr>
 " find in project files
 inoremap <C-g> <C-o>:exe 'Rg'<cr>
 vnoremap <C-g> :<C-u>exe 'Rg'<cr>
-" go to next error
-inoremap <A-1> <cmd>call CocActionAsync('diagnosticNext')<cr>
-vnoremap <A-1> <cmd>call CocActionAsync('diagnosticNext')<cr>
-" go to prev error
-inoremap <A-!> <cmd>call CocActionAsync('diagnosticPrevious')<cr>
-vnoremap <A-!> <cmd>call CocActionAsync('diagnosticPrevious')<cr>
-
+" show errors
+inoremap <A-1> <cmd>CocList diagnostics<cr>
+vnoremap <A-1> <cmd>CocList diagnostics<cr>
+" record action
+inoremap <A-.> <cmd>call altvim#record()<cr>
+noremap <A-.> <cmd>call altvim#record()<cr>
+" repeat last action
+inoremap <A-a> <C-o>@a
+noremap <A-a> @a
 
 " Selection
 " select line
-inoremap <A-S> <C-o>:norm! V<cr>
-vnoremap <A-S> :<C-u>norm! V<cr>
+inoremap <S-down> <C-o>:norm! V<cr>
+noremap <S-down> :<C-u>norm! V<cr>
 " select char
-inoremap <A-s> <C-o>:norm! v<cr>
-vnoremap <A-s> :<C-u>norm! v<cr>
+inoremap <S-right> <C-o>:norm! v<cr>
+inoremap <S-left> <C-o>:norm! v<cr>
+noremap <S-right> :<C-u>norm! v<cr>
+noremap <S-left> :<C-u>norm! v<cr>
 " select all
-inoremap <A-s><A-a> <C-o>:norm! ggVG<cr>
-vnoremap <A-s><A-a> :<C-u>norm! ggVG<cr>
+inoremap <C-a> <C-o>:norm! ggVG<cr>
+vnoremap <C-a> :<C-u>norm! ggVG<cr>
 " select word
-inoremap <A-s><A-w> <C-o>:norm vbpOe<cr>
-vnoremap <A-s><A-w> n
+inoremap <S-up>w <C-o>:norm vbpOe<cr>
+noremap <S-up>w :<C-u>norm vbpOe<cr>
 " select block
-inoremap <A-s><A-b> <C-o>:norm! \<C-v><cr>
-vnoremap <A-s><A-b> :<C-u>norm! \<C-v><cr>
+inoremap <S-up>b <C-o>:norm! <C-v><C-v><cr>
+noremap <S-up>b <C-v>
 " select last selection
-inoremap <A-s><A-l> <C-o>:norm gv<cr>
-vnoremap <A-s><A-l> :<C-u>norm! gv<cr>
+inoremap <S-up>l <C-o>:norm! gv<cr>
+vnoremap <S-up>l :<C-u>norm! gv<cr>
+" select pasted
+inoremap <S-up>p <C-o>:norm! `[v`]<cr>
+vnoremap <S-up>p :<C-u>norm! `[v`]<cr>
+" select inside square brackets
+inoremap <S-up>] <C-o>:norm! vi]<cr>
+vnoremap <S-up>] i]
+" select square brackets with content
+inoremap <S-up>[ <C-o>:norm! va]<cr>
+vnoremap <S-up>[ a]
+" select inside parentheses
+inoremap <S-up>} <C-o>:norm! vi}<cr>
+vnoremap <S-up>} i}
+" select parentheses with content
+inoremap <S-up>{ <C-o>:norm! va}<cr>
+vnoremap <S-up>{ a}
+" select inside brackets
+inoremap <S-up>) <C-o>:norm! vi)<cr>
+vnoremap <S-up>) i)
+" select brackets with content
+inoremap <S-up>( <C-o>:norm! va)<cr>
+vnoremap <S-up>( a)
 
-" ctrl+O only one command
-" ctrl+L command sequence
-" visual mode
-" - v<count>[<motions...>]<action>
+" select inside angle brackets
+inoremap <S-up>> <C-o>:norm! vi><cr>
+vnoremap <S-up>> i>
+" select angle brackets with content
+inoremap <S-up>< <C-o>:norm! va><cr>
+vnoremap <S-up>< a>
+" select inside tag
+inoremap <S-up>t <C-o>:norm! vit<cr>
+vnoremap <S-up>t it
+" select tag
+inoremap <S-up>T <C-o>:norm! vat<cr>
+vnoremap <S-up>T at
+" select quotes
+inoremap <S-up>" <C-o>:norm! vi"<cr>
+vnoremap " i"
+" select single quotes
+inoremap <S-up>' <C-o>:norm! vi'<cr>
+vnoremap ' i'
+" select backward quotes
+inoremap <S-up>` <C-o>:norm! vi`<cr>
+vnoremap ` i`
+
 
 " Motions
+" to N line
+noremap <A-g> G
 " to line begin
-inoremap <C-up> <cmd>norm! ^<cr>
+inoremap <C-up> <C-o>:norm! ^<cr>
 noremap <C-up> ^
 " to line start
-inoremap <C-S-up> <cmd>norm! 0<cr>
+inoremap <C-S-up> <C-o>:norm! 0<cr>
 noremap <C-S-up> 0
 " to line end
-inoremap <C-down> <cmd>norm! $<cr>
+inoremap <C-down> <C-o>:norm! $<cr>
 noremap <C-down> $
 " to char/s
 inoremap <A-/> <C-o>/
@@ -319,20 +383,25 @@ noremap n n
 " to prev found
 inoremap <A-p> <cmd>norm! N<cr>
 noremap p N
-" word end
+" to word end
 inoremap <A-e> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
 noremap e /\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
-" word start
+" to word start
 inoremap <A-b> <C-o>/\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
 noremap b /\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
-" next word
+" to next word
 inoremap <C-right> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
-" prev word
+" to prev word
 inoremap <C-left> <C-o>?\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
+" to matched pair
+inoremap <A-,> <cmd>norm! %<cr>
+noremap , %
 
 " Operators
 " delete
-noremap d d
+noremap d "_d
+" clear
+noremap <Space> "_c
 " join
 noremap j J
 " uppercase
@@ -340,14 +409,18 @@ noremap U gU
 " lowercase
 noremap u gu
 " format
-noremap f <cmd>call CocActionAsync('formatSelected', visualmode())<cr>
+noremap f <Plug>(coc-format-selected)
+" noremap f <cmd>call CocActionAsync('formatSelected', visualmode())<cr>
+" clone on new line
+noremap c "1y:let @1=join(split(@1, "\n"), "\n")<cr>o<C-o>:norm! "1P<cr>
 
 " indent right
-inoremap <Tab> <cmd>norm! ><cr>
 vnoremap <Tab> >
-" indent left
-inoremap <S-Tab> <cmd>norm! <<cr>
+" indent left 
+inoremap <S-Tab> <cmd>norm! <<<cr>
 vnoremap <S-Tab> <
 " comment
 inoremap <C-_> <cmd>Commentary<cr>
 vnoremap <C-_> :<C-u>'<,'>Commentary<cr>
+
+" nnoremap <silent> K <cmd>call <SID>show_documentation()<cr>

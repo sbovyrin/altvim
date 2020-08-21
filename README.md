@@ -27,13 +27,10 @@ Considering all my positive experience working in VIM I’m excited to give a lo
 
 ## Features
 
-- Coding like a pro
 - Zero configuration
+- Habitual text editing
+- Edit text like a pro ([details](#Advanced-text-editing)) 
 - Blazing fast
-- Low-resource consumption
-- No modes
-- Habitual hotkeys ([details](#Hotkeys))
-- Advanced code editing ([details](#Advanced-code-editing))
 - Language Server Protocol ([details](https://microsoft.github.io/language-server-protocol/))
 
 
@@ -52,7 +49,7 @@ Considering all my positive experience working in VIM I’m excited to give a lo
 ### Setting up `.vimrc`
 
 1. Create `.vimrc` file in your home user directory if you don't have it yet.
-2. Add below code in `.vimrc` between `call plug#begin(...)` and `call plug#end`:
+2. Add below code in `.vimrc` between `plug#begin` and `plug#end`:
 ```
 Plug 'sbovyrin/altvim', { 'do': './scripts/postinstall.sh' }
 if isdirectory(get(g:plugs, 'altvim', {'dir': ''}).dir)
@@ -70,66 +67,4 @@ endif
 
 ## Hotkeys
 
-> \* It means that a hotkey works only when some chars/lines are selected
-
-- Editor command prompt: `Alt + /`
-
-
-- Save file: `Ctrl + s`
-- Quit: `Ctrl + q`
-- Close current file: `Ctrl + w`
-
-
-- Copy: `Ctrl + c`
-- Cut: `Ctrl + x`
-- Paste: `Ctrl + v`
-- Paste from multiclipboard: `Alt + v`
-- Undo: `Ctrl + z`
-- Redo: `Alt + z`
-- Delete: `Backspace`
-- Clear: `Space` *
-- Clone: `Ctrl + l` *
-- Join: `Ctrl + j`
-
-
-- Indent: `Tab`
-- Outdent: `Shift + Tab` *
-
-
-- Format code: `Ctrl + b` *
-- Toggle comment: `Ctrl + /`
-
-
-- Go to last change: `Alt + Backspace`
-- Go to line begin: `Ctrl + Up`
-- Go to line end: `Ctrl + Down`
-- Go to next word: `Ctrl + Right`
-- Go to previous word: `Ctrl + Left`
-- Go to specific place in current file: `Ctrl + Space` ([detail](#go-to-specific-place-in-file))
-- Go to next specific place in current file: `Alt + Right` ([detail](#go-to-specific-place-in-file))
-- Go to previous specific place in current file: `Alt + Left` ([detail](#go-to-specific-place-in-file))
-- Go to next problem in current file: `Alt + e`
-
-
-- Select last selection: `Alt + s`
-- Select all: `Ctrl + a`
-- Select word: `Ctrl + Shift + Right`
-- Select previous word: `Ctrl + Shift + Left`
-- Select till specific place in current file: `Ctrl + Alt + Right` ([detail](#go-to-specific-place-in-file))
-- Select till previous specific place in current file: `Ctrl + Alt + Left` ([detail](#go-to-specific-place-in-file))
-- Select till line begin: `Ctrl + Shift + Up`
-- Select till line end: `Ctrl + Shift + Down`
-
-
-- Show errors/warnings: `Ctrl + e`
-- Find in current file: `Ctrl + f`
-- Find in project files: `Alt + f`
-- Open a file from current workspace: ``Alt + ` ``
-- Select opened file: ``Alt + Shift + ` ``
-- Open last opened file: ``Alt + Shift + ` ``
-
-
-## Advanced code editing
-
-### Go to specific place in file
-Comming soon...
+> action: <visual_mode><count>[<motions...>]<operator>
