@@ -180,44 +180,51 @@ let g:indentLine_defaultGroup = 'Conceal'
 " FZF settings
 let g:fzf_layout = {'down': '60%'}
 
-"diagnostic.refreshOnInsertMode": v:true,
-"diagnostic.refreshAfterSave": v:true,
-
 " LSP
 if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     let g:coc_data_home = g:altvim_dir . 'deps/lsp'
     let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
     
     if exists("g:altvim_lsp")
-        let g:coc_node_path = get(g:altvim_lsp, 'nodejs', 'node')
+        let g:coc_node_path = get(g:altvim_lsp, 'nodejs', '/usr/bin/node')
     endif
     
     let g:coc_user_config = {
-        \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : 'npm',
+        \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : '/usr/bin/npm',
         \ "suggest.autoTrigger": "always",
         \ "suggest.floatEnable": v:false,
+        \ "suggest.triggerCompletionWait": 200,
         \ "suggest.maxCompleteItemCount": 7,
         \ "suggest.minTriggerInputLength": 3,
         \ "suggest.noselect": v:false,
         \ "suggest.snippetIndicator": "",
+        \ "suggest.preferCompleteThanJumpPlaceholder": v:true,
         \ "signature.target": "echo",
         \ "signature.messageTarget": "echo",
+        \ "diagnostic.level": "error",
+        \ "diagnostic.refreshOnInsertMode": v:true,
+        \ "diagnostic.refreshAfterSave": v:true,
         \ "diagnostic.messageTarget": "echo",
-        \ "diagnostic.warningSign": ">",
+        \ "diagnostic.warningSign": "#",
         \ "diagnostic.errorSign": "*",
-        \ "diagnostic.infoSign": "?",
-        \ "diagnostic.hintSign": "#",
+        \ "diagnostic.infoSign": "",
+        \ "diagnostic.hintSign": "",
         \ "coc.preferences.hoverTarget": "echo",
         \ "coc.preferences.bracketEnterImprove": v:false,
         \ "coc.preferences.snippets.enable": v:false,
         \ "coc.preferences.extensionUpdateCheck": "never",
+        \ "coc.preferences.maxFileSize": "5MB",
+        \ "coc.preferences.enableFloatHighlight": v:false,
+        \ "coc.preferences.messageLevel": "error",
         \ "emmet.showExpandedAbbreviation": v:false,
         \ "emmet.includeLanguages": ["html", "javascript", "javascriptreact", "php"],
         \ "emmet.excludeLanguages": [],
         \ "codeLens.enable": v:false
     \ }
 
-    highlight CocErrorHighlight ctermfg=Red  guifg=#ff0000
+    hi! link CocErrorHighlight Error
+    hi! link CocWarningHighlight WarningMsg
+    hi! link CocUnderline Underlined
 endif
 
 " TODO:
