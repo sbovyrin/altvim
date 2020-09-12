@@ -1,74 +1,70 @@
+" TODO:
+" - Move lines up and down with ALT+J/K
+" execute "set <M-j>=\ej"
+" execute "set <M-k>=\ek"
+" nnoremap <M-j> :m .+0<CR>==
+" nnoremap <M-k> :m .-3<CR>==
+" inoremap <M-j> <Esc>:m .+0<CR>==gi
+" inoremap <M-k> <Esc>:m .-3<CR>==gi
+" vnoremap <M-j> :m '>+0<CR>gv=gv
+" vnoremap <M-k> :m '<-3<CR>gv=gv
+
+" - Completion by dictionary (https://i.stack.imgur.com/x8B6U.gif)
+" setlocal complete+=k
+" setlocal dictionary+=/path/to/fontawesome.txt
+" setlocal iskeyword+=-
+
 silent !stty -ixon
 
 " disable back-compatibility with Vi
 set nocompatible
-" watch file outside changing
-set autoread
 " enable auto filetype determination 
 " and autoloading appropriated plugins for the filetype
 filetype plugin indent on
 " syntax highlighting
 syntax enable
-" faster linting
-set updatetime=2000
 " hide background buffer
 set hidden
-" disable report on line changing
-set report=0
-" enable lazy editor redraw
-set lazyredraw
-" enable magic regex patterns
-set magic
+" fix backspace
+set backspace=indent,eol,start
+" disable swap file
+set noswapfile
+" disable backup files
+set nobackup
 " permanent insert mode by default
 set insertmode
 " default editor encoding
 set encoding=utf-8
 " copy, cut to '0' register
 set clipboard=unnamedplus
-" disable creating a backup files
-set nobackup
-" disable swap file
-set noswapfile
 " keep 50 commands in history
 set history=50
+" set editor message format
+set shortmess+=c
 
-" indent a new line as prev line
-set autoindent
-" indent after C-lang blocks
-set smartindent
-" visually break a long line to next line and keep indent
-set breakindent
-" add 2 indent to breakindented line
-set breakindentopt=shift:2,min:80
-" tab to space
-set expandtab
-" set tab length (4 spaces)
-set shiftwidth=4
-set tabstop=4
-" round indent to shiftwidth value
-set shiftround
-" text wrap
-set whichwrap+=<,>,[,]
+" boost performance
+set nocursorline
+set nocursorcolumn 
+set scrolljump=5
+set synmaxcol=200
+set nofoldenable
+set foldmethod=manual
+set foldlevel=0
+set lazyredraw
+set nowrap "?
+" set regexpengine=1 "?
 
-" disable break lines after one-letter word
-set formatoptions+=1
-" disable auto-wrap text
-set formatoptions-=t
-" remove comment leader when joining lines
-set formatoptions+=j
+" indentation
+set shiftwidth=4 tabstop=4 softtabstop=4 expandtab autoindent smartindent
 
-" add only one space with join command
-set nojoinspaces
+" text width
+" set colorcolumn=80
 
-" show found while typing in search
-set incsearch
-" ignore case sensitivity
-set ignorecase
-" if word has only lowercase, search lowercase, etc.
-set smartcase
-" search around the end of the file
-set wrapscan
-" highlight search only while typing
+" set whichwrap+=<,>,[,]
+
+" in-text search 
+set incsearch ignorecase smartcase wrapscan
+" highlight search only while in-search
 augroup vimrc-incsearch-highlight
         autocmd!
         autocmd CmdlineEnter /,\? :set hlsearch
@@ -76,85 +72,23 @@ augroup vimrc-incsearch-highlight
 augroup END
 
 " show matched pairs
-set showmatch
-" add < > to pairs highlighting
-set matchpairs+=<:>
+set showmatch matchpairs+=<:>
 
-" show incomplete command in the lower right corner
-set showcmd
-" hide mode info
-set noshowmode
-" hide cursor info
-set noruler
-" number of lines to use for the command-line
-set cmdheight=1
-" show line numbers
-set number
-" show signs at editor gutter
-set signcolumn=yes:2
-" highlight current line
-set cursorline
-" disable folding
-set nofoldenable
-" show statusline
-set laststatus=2
-" hide mode status
-set nomodeline
-" support advanced colors
-set termguicolors
-" change cursor to block
-set guicursor=a:block-blinkoff0
+" UI
+set termguicolors guicursor=a:block-blinkon0 number signcolumn=yes:1 showcmd cmdheight=1 noshowmode noruler laststatus=2 nomodeline
 
 " command line completion by <Tab>
-set wildmenu 
-" set command line compleltion mode
-set wildmode=longest:full,full
+set wildmenu wildmode=longest:full,full
 
 " set autocomplete engine and options
 " set completeopt=menu,menuone,noinsert,noselect
 " set omnifunc=lsc#complete#complete
-
-" set editor message format
-set shortmess+=c
 
 " configure statusline
 set statusline=%#StatusLineNC#%m%{altvim#lsp_status()}%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
 
 " disable netrw directory listing on startup
 let loaded_netrw = 0
-
-
-" Start Up commands
-" language specific tab
-autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
-autocmd FileType css setlocal shiftwidth=2 tabstop=2
-autocmd FileType html setlocal shiftwidth=2 tabstop=2
-autocmd FileType markdown setlocal shiftwidth=2 tabstop=2
-" show file search after start on directory
-autocmd VimEnter * nested
-            \ if argc() == 1 && isdirectory(argv()[0])
-            \ | sleep 100m
-            \ | exe "call fzf#vim#files(
-            \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
-            \   {'options' : ['--preview', 'head -40 {}'], 'down': '100%'})"
-            \ | endif 
-" FZF tweak
-autocmd! FileType fzf exe 'set laststatus=0 | IndentLinesToggle'
-            \| autocmd BufLeave <buffer> exe 'set laststatus=2 | IndentLinesToggle'
-
-
-" Commands
-command! -bang ProjectFiles
-            \ call fzf#vim#files(
-            \   (argv()[0] == getcwd()) 
-            \       ? getcwd() 
-            \       : (isdirectory(argv()[0])
-            \           ? getcwd() . '/' . argv()[0]
-            \           : fnamemodify(getcwd() . '/' . argv()[0], ':h')),
-            \   {'options' : ['--preview', 'head -10 {}']},
-            \   <bang>0
-            \ )
-
 
 " Plugins settings
 " altvim settings
@@ -177,18 +111,15 @@ endif
 let g:indentLine_fileTypeExclude = ['markdown']
 let g:indentLine_defaultGroup = 'Conceal'
 
-" FZF settings
-let g:fzf_layout = {'down': '60%'}
-
 " LSP
 if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     let g:coc_data_home = g:altvim_dir . 'deps/lsp'
     let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
-    
+
     if exists("g:altvim_lsp")
         let g:coc_node_path = get(g:altvim_lsp, 'nodejs', '/usr/bin/node')
     endif
-    
+
     let g:coc_user_config = {
         \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : '/usr/bin/npm',
         \ "suggest.autoTrigger": "always",
@@ -196,9 +127,9 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
         \ "suggest.triggerCompletionWait": 200,
         \ "suggest.maxCompleteItemCount": 7,
         \ "suggest.minTriggerInputLength": 3,
-        \ "suggest.noselect": v:false,
         \ "suggest.snippetIndicator": "",
         \ "suggest.preferCompleteThanJumpPlaceholder": v:true,
+        \ "suggest.keepCompleteopt": v:true,
         \ "signature.target": "echo",
         \ "signature.messageTarget": "echo",
         \ "diagnostic.level": "error",
@@ -227,16 +158,40 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     hi! link CocUnderline Underlined
 endif
 
-" TODO:
-" - move lines up and down with ALT+J/K
-" execute "set <M-j>=\ej"
-" execute "set <M-k>=\ek"
-" nnoremap <M-j> :m .+1<CR>==
-" nnoremap <M-k> :m .-2<CR>==
-" inoremap <M-j> <Esc>:m .+1<CR>==gi
-" inoremap <M-k> <Esc>:m .-2<CR>==gi
-" vnoremap <M-j> :m '>+1<CR>gv=gv
-" vnoremap <M-k> :m '<-2<CR>gv=gv
+" FZF settings
+let g:fzf_layout = {'window': 'enew'}
+
+" Start Up commands
+" language specific tab
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
+autocmd FileType css setlocal shiftwidth=2 tabstop=2
+autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType markdown setlocal shiftwidth=2 tabstop=2
+
+" FZF tweak
+autocmd! FileType fzf exe 'set laststatus=0'
+            \| autocmd BufLeave <buffer> exe 'set laststatus=2'
+
+" show file search after start on directory
+autocmd VimEnter * nested
+            \ if argc() == 1 && isdirectory(argv()[0])
+            \ | sleep 100m
+            \ | exe "call fzf#vim#files(
+            \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
+            \   {'options' : ['--preview', 'head -50 {}', '--preview-window', 'down:50%']})"
+            \ | endif 
+
+" Commands
+command! -bang ProjectFiles
+            \ call fzf#vim#files(
+            \   (argv()[0] == getcwd()) 
+            \       ? getcwd() 
+            \       : (isdirectory(argv()[0])
+            \           ? getcwd() . '/' . argv()[0]
+            \           : fnamemodify(getcwd() . '/' . argv()[0], ':h')),
+            \   {'options' : ['--preview', 'head -50 {}', '--preview-window', 'down:50%']},
+            \   <bang>0
+            \ )
 
 
 " Hotkeys
@@ -262,8 +217,8 @@ vnoremap <silent> <C-c> <cmd>call altvim#copy()<cr>
 inoremap <silent> <C-v> <cmd>call altvim#paste()<cr>
 vnoremap <silent> <C-v> <cmd>call altvim#paste()<cr>
 " cut
-inoremap <silent> <C-x> <cmd>norm! "0d<cr>
-vnoremap <silent> <C-x> "0d
+" inoremap <silent> <C-x> <cmd>norm! "0d<cr>
+" vnoremap <silent> <C-x> "0d
 " undo
 inoremap <silent> <C-z> <cmd>undo<cr>
 vnoremap <silent> <C-z> <cmd>undo<cr>

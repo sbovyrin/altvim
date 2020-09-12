@@ -8,7 +8,7 @@ endfun
 
 fun! altvim#paste()
     let @0=join(split(@0, "\n"), "\n")
-    norm! "0P
+    norm! "0P=']
 endfun
 
 fun! altvim#greplace() 
