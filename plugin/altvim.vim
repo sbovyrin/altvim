@@ -168,10 +168,6 @@ autocmd FileType css setlocal shiftwidth=2 tabstop=2
 autocmd FileType html setlocal shiftwidth=2 tabstop=2
 autocmd FileType markdown setlocal shiftwidth=2 tabstop=2
 
-" FZF tweak
-autocmd! FileType fzf exe 'set laststatus=0'
-            \| autocmd BufLeave <buffer> exe 'set laststatus=2'
-
 " show file search after start on directory
 autocmd VimEnter * nested
             \ if argc() == 1 && isdirectory(argv()[0])
@@ -180,6 +176,10 @@ autocmd VimEnter * nested
             \   (argv()[0] == getcwd()) ? getcwd() : getcwd() . '/' . argv()[0],
             \   {'options' : ['--preview', 'head -50 {}', '--preview-window', 'down:50%']})"
             \ | endif 
+
+" FZF tweak
+autocmd! FileType fzf exe 'set laststatus=0 | IndentLinesToggle'
+            \| autocmd BufLeave <buffer> exe 'set laststatus=2 | IndentLinesToggle'
 
 " Commands
 command! -bang ProjectFiles
@@ -193,6 +193,23 @@ command! -bang ProjectFiles
             \   <bang>0
             \ )
 
+command! -bang -nargs=* Rg
+    \ call fzf#vim#grep(
+    \   'rg -uu
+    \       --smart-case
+    \       --line-number
+    \       --no-heading
+    \       --color=always
+    \       --colors=line:none
+    \       --colors=path:none
+    \       --colors=match:none
+    \       --colors=column:none
+    \       -- ' . shellescape(<q-args>),
+    \   1,
+    \   fzf#vim#with_preview('down:50%'),
+    \   <bang>0
+    \ )
+
 
 " Hotkeys
 
@@ -200,51 +217,51 @@ command! -bang ProjectFiles
 " temp normal mode for one command
 inoremap <Esc> <C-o>
 " command prompt
-inoremap <C-Bslash> <C-o>:
-vnoremap <C-Bslash> : 
+inoremap <M-`> <C-o>:
+noremap <M-`> : 
 " save
 inoremap <C-s> <cmd>w<cr>
-vnoremap <C-s> <cmd>w<cr>
+noremap <C-s> <cmd>w<cr>
 " quit
 inoremap <C-q> <cmd>q!<cr>
-vnoremap <C-q> <cmd>q!<cr>
+noremap <C-q> <cmd>q!<cr>
 inoremap <C-w> <cmd>bdelete<cr>
-vnoremap <C-w> <cmd>bdelete<cr>
+noremap <C-w> <cmd>bdelete<cr>
 " copy
 inoremap <silent> <C-c> <cmd>call altvim#copy()<cr>
-vnoremap <silent> <C-c> <cmd>call altvim#copy()<cr>
+noremap <silent> <C-c> <cmd>call altvim#copy()<cr>
 " paste
 inoremap <silent> <C-v> <cmd>call altvim#paste()<cr>
-vnoremap <silent> <C-v> <cmd>call altvim#paste()<cr>
+noremap <silent> <C-v> <cmd>call altvim#paste()<cr>
 " cut
-" inoremap <silent> <C-x> <cmd>norm! "0d<cr>
-" vnoremap <silent> <C-x> "0d
+inoremap <silent> <C-x> <cmd>norm! "0d<cr>
+noremap <silent> <C-x> "0d
 " undo
 inoremap <silent> <C-z> <cmd>undo<cr>
-vnoremap <silent> <C-z> <cmd>undo<cr>
+noremap <silent> <C-z> <cmd>undo<cr>
 " redo
 inoremap <silent> <M-z> <cmd>redo<cr>
-vnoremap <silent> <M-z> <cmd>redo<cr>
+noremap <silent> <M-z> <cmd>redo<cr>
 " show last change
 inoremap <M-BS> <cmd>norm! g;<cr>
 " open a file/s
 inoremap <silent> <C-e> <C-o>:exe 'ProjectFiles'<cr>
-vnoremap <silent> <C-e> :<C-u>exe 'ProjectFiles'<cr>
+noremap <silent> <C-e> :<C-u>exe 'ProjectFiles'<cr>
 " switch opened files
 inoremap <silent> <C-r> <C-o>:exe 'Buffers'<cr>
-vnoremap <silent> <C-r> :<C-u>exe 'Buffers'<cr>
+noremap <silent> <C-r> :<C-u>exe 'Buffers'<cr>
 " show history files
 inoremap <silent> <C-h> <C-o>:exe 'History'<cr>
-vnoremap <silent> <C-h> :<C-u>exe 'History'<cr>
+noremap <silent> <C-h> :<C-u>exe 'History'<cr>
 " find in file
 inoremap <silent> <C-f> <C-o>:exe 'BLines'<cr>
-vnoremap <silent> <C-f> :<C-u>exe 'BLines'<cr>
+noremap <silent> <C-f> :<C-u>exe 'BLines'<cr>
 " find in project files
 inoremap <silent> <C-g> <C-o>:exe 'Rg'<cr>
-vnoremap <silent> <C-g> :<C-u>exe 'Rg'<cr>
+noremap <silent> <C-g> :<C-u>exe 'Rg'<cr>
 " show errors
 inoremap <silent> <M-1> <cmd>CocList diagnostics<cr>
-vnoremap <silent> <M-1> <cmd>CocList diagnostics<cr>
+noremap <silent> <M-1> <cmd>CocList diagnostics<cr>
 " record action
 inoremap <M-.> <cmd>call altvim#record()<cr>
 noremap <M-.> <cmd>call altvim#record()<cr>
@@ -255,71 +272,52 @@ noremap <silent> <M-a> @a
 " Selection
 " select line
 inoremap <silent> <S-down> <C-o>:norm! V<cr>
-noremap <silent> <S-down> :<C-u>norm! V<cr>
+vnoremap <silent> <S-down> :<C-u>norm! V<cr>
 " select char
 inoremap <silent> <S-right> <C-o>:norm! v<cr>
 inoremap <silent> <S-left> <C-o>:norm! v<cr>
-noremap <silent> <S-right> :<C-u>norm! v<cr>
-noremap <silent> <S-left> :<C-u>norm! v<cr>
+vnoremap <silent> <S-right> :<C-u>norm! v<cr>
+vnoremap <silent> <S-left> :<C-u>norm! v<cr>
 " select all
 inoremap <silent> <C-a> <C-o>:norm! ggVG<cr>
 vnoremap <silent> <C-a> :<C-u>norm! ggVG<cr>
 " select word
-inoremap <silent> <S-up>w <C-o>:norm vbpOe<cr>
-noremap <silent> <S-up>w :<C-u>norm vbpOe<cr>
+vnoremap <silent> w :<C-u>norm vbpOe<cr>
 " select block
-inoremap <silent> <S-up>b <C-o>:norm! <C-v><C-v><cr>
-noremap <silent> <S-up>b <C-v>
+vnoremap <silent> b <C-v>
 " select last selection
-inoremap <silent> <S-up>l <C-o>:norm! gv<cr>
-vnoremap <silent> <S-up>l :<C-u>norm! gv<cr>
+vnoremap <silent> l :<C-u>norm! gv<cr>
 " select pasted
-inoremap <silent> <S-up>p <C-o>:norm! `[v`]<cr>
-vnoremap <silent> <S-up>p :<C-u>norm! `[v`]<cr>
+vnoremap <silent> p :<C-u>norm! `[v`]<cr>
 " select inside square brackets
-inoremap <silent> <S-up>] <C-o>:norm! vi]<cr>
-vnoremap <silent> <S-up>] i]
+vnoremap <silent> ] i]
 " select square brackets with content
-inoremap <silent> <S-up>[ <C-o>:norm! va]<cr>
-vnoremap <silent> <S-up>[ a]
+vnoremap <silent> [ a]
 " select inside parentheses
-inoremap <silent> <S-up>} <C-o>:norm! vi}<cr>
-vnoremap <silent> <S-up>} i}
+vnoremap <silent> } i}
 " select parentheses with content
-inoremap <silent> <S-up>{ <C-o>:norm! va}<cr>
-vnoremap <silent> <S-up>{ a}
+vnoremap <silent> { a}
 " select inside brackets
-inoremap <silent> <S-up>) <C-o>:norm! vi)<cr>
-vnoremap <silent> <S-up>) i)
+vnoremap <silent> ) i)
 " select brackets with content
-inoremap <silent> <S-up>( <C-o>:norm! va)<cr>
-vnoremap <silent> <S-up>( a)
+vnoremap <silent> ( a)
 " select inside angle brackets
-inoremap <silent> <S-up>> <C-o>:norm! vi><cr>
-vnoremap <silent> <S-up>> i>
+vnoremap <silent> > i>
 " select angle brackets with content
-inoremap <silent> <S-up>< <C-o>:norm! va><cr>
-vnoremap <silent> <S-up>< a>
+vnoremap <silent> < a>
 " select inside tag
-inoremap <silent> <S-up>t <C-o>:norm! vit<cr>
-vnoremap <silent> <S-up>t it
+vnoremap <silent> t it
 " select tag
-inoremap <silent> <S-up>T <C-o>:norm! vat<cr>
-vnoremap <silent> <S-up>T at
+vnoremap <silent> T at
 " select quotes
-inoremap <silent> <S-up>" <C-o>:norm! vi"<cr>
 vnoremap <silent> " i"
 " select single quotes
-inoremap <silent> <S-up>' <C-o>:norm! vi'<cr>
 vnoremap <silent> ' i'
 " select backward quotes
-inoremap <silent> <S-up>` <C-o>:norm! vi`<cr>
 vnoremap <silent> ` i`
 
 
 " Motions
-" to N line
-noremap <M-g> G
 " to line begin
 inoremap <silent> <C-up> <C-o>:norm! ^<cr>
 noremap <C-up> ^
@@ -333,21 +331,17 @@ noremap <C-down> $
 inoremap <M-/> <C-o>/
 noremap / /
 " to next found
-inoremap <silent> <M-n> <cmd>norm! n<cr>
-noremap n n
+inoremap <silent> <M-right> <cmd>norm! n<cr>
+noremap <M-right> n
 " to prev found
-inoremap <silent> <M-p> <cmd>norm! N<cr>
-noremap p N
+inoremap <silent> <M-left> <cmd>norm! N<cr>
+noremap <M-left> N
 " to word end
 inoremap <silent> <M-e> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
 noremap <silent> e /\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
 " to word start
 inoremap <silent> <M-b> <C-o>/\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
 noremap <silent> b /\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
-" to next word
-inoremap <silent> <M-right> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
-" to prev word
-inoremap <silent> <M-left> <C-o>?\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
 " to matched pair
 inoremap <silent> <M-,> <cmd>norm! %<cr>
 noremap , %
@@ -369,10 +363,10 @@ noremap f :<C-u>call CocActionAsync('formatSelected', visualmode())<cr>
 noremap <silent> c "1y:let @1=join(split(@1, "\n"), "\n")<cr>o<C-o>:norm! "1P<cr>
 
 " indent right
-vnoremap <silent> <Tab> >
+noremap <silent> <Tab> >
 " indent left 
 inoremap <silent> <S-Tab> <cmd>norm! <<<cr>
-vnoremap <silent> <S-Tab> <
+noremap <silent> <S-Tab> <
 " comment
 inoremap <silent> <C-_> <cmd>Commentary<cr>
-vnoremap <silent> <C-_> :<C-u>'<,'>Commentary<cr>
+noremap <silent> <C-_> :<C-u>'<,'>Commentary<cr>
