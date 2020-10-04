@@ -193,6 +193,13 @@ command! -bang ProjectFiles
             \   <bang>0
             \ )
 
+command! -bang -nargs=? Buffers
+    \ call fzf#vim#buffers(
+    \   <q-args>,
+    \   fzf#vim#with_preview('down:50%'),
+    \   <bang>0
+    \ )
+
 command! -bang -nargs=* Rg
     \ call fzf#vim#grep(
     \   'rg -uu
