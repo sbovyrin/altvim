@@ -202,8 +202,7 @@ command! -bang -nargs=? Buffers
 
 command! -bang -nargs=* Rg
     \ call fzf#vim#grep(
-    \   'rg -uu
-    \       --smart-case
+    \   'rg --smart-case
     \       --line-number
     \       --no-heading
     \       --color=always
