@@ -1,13 +1,3 @@
-" TODO:
-" - Move lines up and down with ALT+J/K
-" execute "set <M-j>=\ej"
-" execute "set <M-k>=\ek"
-" nnoremap <M-j> :m .+0<CR>==
-" nnoremap <M-k> :m .-3<CR>==
-" inoremap <M-j> <Esc>:m .+0<CR>==gi
-" inoremap <M-k> <Esc>:m .-3<CR>==gi
-" vnoremap <M-j> :m '>+0<CR>gv=gv
-" vnoremap <M-k> :m '<-3<CR>gv=gv
 
 " - Completion by dictionary (https://i.stack.imgur.com/x8B6U.gif)
 " setlocal complete+=k
@@ -219,160 +209,188 @@ command! -bang -nargs=* Rg
 
 " Hotkeys
 
-" Editor
-" temp normal mode for one command
-inoremap <Esc> <C-o>
-" command prompt
-inoremap <M-`> <C-o>:
-noremap <M-`> : 
-" save
-inoremap <C-s> <cmd>w<cr>
-noremap <C-s> <cmd>w<cr>
-" quit
-inoremap <C-q> <cmd>q!<cr>
-noremap <C-q> <cmd>q!<cr>
-inoremap <C-w> <cmd>bdelete<cr>
-noremap <C-w> <cmd>bdelete<cr>
-" copy
-inoremap <silent> <C-c> <cmd>call altvim#copy()<cr>
-noremap <silent> <C-c> <cmd>call altvim#copy()<cr>
-" paste
-inoremap <silent> <C-v> <cmd>call altvim#paste()<cr>
-noremap <silent> <C-v> <cmd>call altvim#paste()<cr>
-" cut
-inoremap <silent> <C-x> <cmd>norm! "0d<cr>
-noremap <silent> <C-x> "0d
-" undo
-inoremap <silent> <C-z> <cmd>undo<cr>
-noremap <silent> <C-z> <cmd>undo<cr>
-" redo
-inoremap <silent> <M-z> <cmd>redo<cr>
-noremap <silent> <M-z> <cmd>redo<cr>
-" show last change
-inoremap <M-BS> <cmd>norm! g;<cr>
-" open a file/s
-inoremap <silent> <C-e> <C-o>:exe 'ProjectFiles'<cr>
-noremap <silent> <C-e> :<C-u>exe 'ProjectFiles'<cr>
-" switch opened files
-inoremap <silent> <C-r> <C-o>:exe 'Buffers'<cr>
-noremap <silent> <C-r> :<C-u>exe 'Buffers'<cr>
-" show history files
-inoremap <silent> <C-h> <C-o>:exe 'History'<cr>
-noremap <silent> <C-h> :<C-u>exe 'History'<cr>
-" find in file
-inoremap <silent> <C-f> <C-o>:exe 'BLines'<cr>
-noremap <silent> <C-f> :<C-u>exe 'BLines'<cr>
-" find in project files
-inoremap <silent> <C-g> <C-o>:exe 'Rg'<cr>
-noremap <silent> <C-g> :<C-u>exe 'Rg'<cr>
-" show errors
-inoremap <silent> <M-1> <cmd>CocList diagnostics<cr>
-noremap <silent> <M-1> <cmd>CocList diagnostics<cr>
-" record action
-inoremap <M-.> <cmd>call altvim#record()<cr>
-noremap <M-.> <cmd>call altvim#record()<cr>
-" repeat last action
-inoremap <silent> <M-a> <C-o>@a
-noremap <silent> <M-a> @a
+fun! GetPrefix()
+    return mode() == 'i' ? "\<C-\>\<C-o>" : ""
+endfun
 
-" Selection
-" select line
-inoremap <silent> <S-down> <C-o>:norm! V<cr>
-vnoremap <silent> <S-down> :<C-u>norm! V<cr>
-" select char
-inoremap <silent> <S-right> <C-o>:norm! v<cr>
-inoremap <silent> <S-left> <C-o>:norm! v<cr>
-vnoremap <silent> <S-right> :<C-u>norm! v<cr>
-vnoremap <silent> <S-left> :<C-u>norm! v<cr>
-" select all
-inoremap <silent> <C-a> <C-o>:norm! ggVG<cr>
-vnoremap <silent> <C-a> :<C-u>norm! ggVG<cr>
-" select word
-vnoremap <silent> w :<C-u>norm vbpOe<cr>
-" select block
-vnoremap <silent> b <C-v>
-" select last selection
-vnoremap <silent> l :<C-u>norm! gv<cr>
-" select pasted
-vnoremap <silent> p :<C-u>norm! `[v`]<cr>
-" select inside square brackets
-vnoremap <silent> ] i]
-" select square brackets with content
-vnoremap <silent> [ a]
-" select inside parentheses
-vnoremap <silent> } i}
-" select parentheses with content
-vnoremap <silent> { a}
-" select inside brackets
-vnoremap <silent> ) i)
-" select brackets with content
-vnoremap <silent> ( a)
-" select inside angle brackets
-vnoremap <silent> > i>
-" select angle brackets with content
-vnoremap <silent> < a>
-" select inside tag
-vnoremap <silent> t it
-" select tag
-vnoremap <silent> T at
-" select quotes
-vnoremap <silent> " i"
-" select single quotes
-vnoremap <silent> ' i'
-" select backward quotes
-vnoremap <silent> ` i`
+fun! XSave()
+    return GetPrefix() . ":w\<cr>"
+endfun
 
+fun! XClose()
+    return GetPrefix() . ":bdelete\<cr>"
+endfun
 
-" Motions
-" to line begin
-inoremap <silent> <C-up> <C-o>:norm! ^<cr>
-noremap <C-up> ^
-" to line start
-inoremap <silent> <C-S-up> <C-o>:norm! 0<cr>
-noremap <C-S-up> 0
-" to line end
-inoremap <silent> <C-down> <C-o>:norm! $<cr>
-noremap <C-down> $
-" to char/s
-inoremap <M-/> <C-o>/
-noremap / /
-" to next found
-inoremap <silent> <M-right> <cmd>norm! n<cr>
-noremap <M-right> n
-" to prev found
-inoremap <silent> <M-left> <cmd>norm! N<cr>
-noremap <M-left> N
-" to word end
-inoremap <silent> <M-e> <C-o>/\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
-noremap <silent> e /\(\a\\|\d\)\(\A\\|\n\)\\|\(\l\(\u\\|\d\)\)<cr>
-" to word start
-inoremap <silent> <M-b> <C-o>/\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
-noremap <silent> b /\(\(\A\\|\n\)\zs\(\a\\|\d\)\)\\|\(\l\zs\(\u\\|\d\)\)<cr>
-" to matched pair
-inoremap <silent> <M-,> <cmd>norm! %<cr>
-noremap , %
+fun! XQuit()
+    return GetPrefix() . ":q!\<cr>"
+endfun
 
-" Operators
-" delete
-noremap d "_d
-" clear
-noremap <Space> "_c
-" join
-noremap j J
-" uppercase
-noremap U gU
-" lowercase
-noremap u gu
-" format
-noremap f :<C-u>call CocActionAsync('formatSelected', visualmode())<cr>
-" clone on new line
-noremap <silent> c "1y:let @1=join(split(@1, "\n"), "\n")<cr>o<C-o>:norm! "1P<cr>
+fun! XUndo()
+    return GetPrefix() . "u"
+endfun
 
-" indent right
-noremap <silent> <Tab> >
-" indent left 
-inoremap <silent> <S-Tab> <cmd>norm! <<<cr>
-noremap <silent> <S-Tab> <
-" comment
-inoremap <silent> <C-_> <cmd>Commentary<cr>
-noremap <silent> <C-_> :<C-u>'<,'>Commentary<cr>
+fun! XRedo()
+    return GetPrefix() . "\<c-r>"
+endfun
+
+fun! XDelete()
+    return GetPrefix() . '"_d'
+endfun
+
+fun! XClear()
+    return 'h"_d'
+endfun
+
+fun! XCopy()
+    return GetPrefix() . '"0y'
+endfun
+
+fun! XCut()
+    return GetPrefix() . '"0d'
+endfun
+
+fun! XPaste()
+    let l:lines = split(@0, "\n")
+    let l:first_line = substitute(l:lines[0], '^\s\+', '', '')
+    let l:first_line = substitute(l:first_line, '\s\+$', '', '')
+    let l:first_line = substitute(l:first_line, '^I', '', '')
+    let @0 = join([l:first_line] + l:lines[1:], "\n")
+
+    let l:mode = col('.') == 1  ? "P" : "p"
+    return GetPrefix() . '"0' . l:mode
+endfun
+
+fun! XSelect()
+    return GetPrefix() . "v"
+endfun
+
+fun! XSelectLine()
+    return GetPrefix() . 'V'
+endfun
+
+fun! XSearchInText()
+    return GetPrefix() . "/"
+endfun
+
+fun! XNextFound()
+    return GetPrefix() . "n"
+endfun
+
+fun! XPrevFound()
+    return GetPrefix() . "N"
+endfun
+
+fun! XLineEnd()
+    return GetPrefix() . "$"
+endfun
+
+fun! XLineBegin()
+    return GetPrefix() . "^"
+endfun
+
+fun! XWordBegin()
+    return GetPrefix() . '/\(\(\A\|\n\)\zs\(\a\|\d\)\)\|\(\l\zs\u\)' . "\<cr>"
+endfun
+
+fun! XWordEnd()
+    return GetPrefix() . '/\(\a\|\d\)\(\A\|\n\)\|\(\l\(\u\|\d\)\)' . "\<cr>"
+endfun
+
+fun! XRepeat()
+    return GetPrefix() . "."
+endfun
+
+fun! XCmd()
+    return GetPrefix() . ":"
+endfun
+
+fun! XOpenFile()
+    return GetPrefix() . ":ProjectFiles\<cr>"
+endfun
+
+fun! XSwitchFile()
+    return GetPrefix() . ":Buffers\<cr>"
+endfun
+
+fun! XRecentFile()
+    return GetPrefix() . ":History\<cr>"
+endfun
+
+fun! XSearchInFile()
+    return GetPrefix() . ":BLines\<cr>"
+endfun
+
+fun! XSearchInFiles()
+    return GetPrefix() . ":Rg\<cr>"
+endfun
+
+fun! XShowErrors()
+    return GetPrefix() . ":CocList diagnostic\<cr>"
+endfun
+
+fun! XFormat()
+    return GetPrefix() . ":call CocActionAsync('formatSelected', visualmode())\<cr>"
+endfun
+
+fun! XComment()
+    return GetPrefix() . ":Commentary\<cr>"
+endfun
+
+fun! XIndent()
+    return GetPrefix() . ">"
+endfun
+
+fun! XOutdent()
+    return GetPrefix() . "<"
+endfun
+
+fun! Shortcut(key, act, ...)
+    let l:key = split(a:key, " ")
+    if l:key[0] != '_' || (l:key[0] == '_' && len(l:key) > 1)
+        exe 'noremap <silent> <expr> ' . get(l:key, 1, l:key[0]) . ' ' . a:act
+    endif
+
+    if l:key[0] != '_'
+        exe 'inoremap <silent> <expr> ' . l:key[0] . ' ' . a:act
+    endif
+endfun
+
+" Base
+call Shortcut("<M-`>", "XCmd()", "Command prompt")
+call Shortcut("<C-s>", "XSave()", "Save")
+call Shortcut("<C-w>", "XClose()", "Close file")
+call Shortcut("<C-q>", "XQuit()", "Quit VIM")
+call Shortcut("<C-z>", "XUndo()", "Undo")
+call Shortcut("<M-z>", "XRedo()", "Redo")
+call Shortcut("<C-e>", "XOpenFile()", "Open file")
+call Shortcut("<C-r>", "XSwitchFile()", "Switch file")
+call Shortcut("<C-h>", "XRecentFile()", "Recent file")
+call Shortcut("<C-f>", "XSearchInFile()", "Search in file")
+call Shortcut("<C-g>", "XSearchInFiles()", "Search in files")
+call Shortcut("<M-1>", "XShowErrors()", "Show errors")
+call Shortcut("<C-b>", "XFormat()", "Format")
+call Shortcut("<C-_>", "XComment()", "Comment")
+
+" Actions
+call Shortcut("<M-a>", "XRepeat()", "Repeat last action")
+call Shortcut("<C-c>", "XCopy()", "Copy")
+call Shortcut("<C-x>", "XCut()", "Cut")
+call Shortcut("<C-v>", "XPaste()", "Paste")
+call Shortcut("<C-d>", "XDelete()", "Delete")
+call Shortcut("_ <Space>", "XClear()", "Clear")
+call Shortcut("<S-down>", "XSelectLine()", "Select line")
+call Shortcut("<S-up>", "XSelectLine()", "Select line")
+call Shortcut("<S-right>", "XSelect()", "Select")
+call Shortcut("<S-left>", "XSelect()", "Select")
+call Shortcut("<Tab>", "XIndent()", "Indent line")
+call Shortcut("<S-Tab>", "XOutdent()", "Outdent line")
+
+" Movements
+call Shortcut("<M-f>", "XSearchInText()", "Search in text")
+call Shortcut("<M-right>", "XNextFound()", "To next found")
+call Shortcut("<M-left>", "XPrevFound()", "To previous found")
+call Shortcut("<C-down>", "XLineEnd()", "To end of current line")
+call Shortcut("<C-up>", "XLineBegin()", "To begin  of current line")
+call Shortcut("<M-w>", "XWordBegin()", "To begin of word")
+call Shortcut("<M-e>", "XWordEnd()", "To end of word")
+
