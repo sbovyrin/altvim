@@ -337,8 +337,8 @@ fun! XComment()
 endfun
 
 fun! XIndent()
-    let l:cmd = mode() == 'v' ? ">gv" : ">>"    
-    return GetPrefix() . l:cmd
+    let l:cmd = mode() == 'v' ? (GetPrefix() . ">gv") : "\<Tab>"
+    return l:cmd
 endfun
 
 fun! XOutdent()
