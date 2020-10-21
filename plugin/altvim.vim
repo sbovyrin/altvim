@@ -337,11 +337,13 @@ fun! XComment()
 endfun
 
 fun! XIndent()
-    return GetPrefix() . ">"
+    let l:cmd = mode() == 'v' ? ">gv" : ">>"    
+    return GetPrefix() . l:cmd
 endfun
 
 fun! XOutdent()
-    return GetPrefix() . "<"
+    let l:cmd = mode() == 'v' ? "<gv" : "<<"
+    return GetPrefix() . l:cmd
 endfun
 
 fun! Shortcut(key, act, ...)
