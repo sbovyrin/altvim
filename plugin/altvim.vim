@@ -238,7 +238,7 @@ fun! XDelete()
 endfun
 
 fun! XClear()
-    return 'h"_d'
+    return GetPrefix() . '"_c'
 endfun
 
 fun! XCopy()
@@ -325,7 +325,7 @@ fun! XSearchInFiles()
 endfun
 
 fun! XShowErrors()
-    return GetPrefix() . ":CocList diagnostic\<cr>"
+    return GetPrefix() . ":CocList diagnostics\<cr>"
 endfun
 
 fun! XFormat()
