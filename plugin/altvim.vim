@@ -1,4 +1,3 @@
-
 " - Completion by dictionary (https://i.stack.imgur.com/x8B6U.gif)
 " setlocal complete+=k
 " setlocal dictionary+=/path/to/fontawesome.txt
@@ -8,6 +7,10 @@ silent !stty -ixon
 
 " disable back-compatibility with Vi
 set nocompatible
+
+" set document indent
+let b:altvim_indent = 4
+
 " enable auto filetype determination 
 " and autoloading appropriated plugins for the filetype
 filetype plugin indent on
@@ -36,24 +39,25 @@ set shortmess+=c
 set nocursorline
 set nocursorcolumn 
 set scrolljump=5
-set synmaxcol=200
+" set synmaxcol=200
 set nofoldenable
 set foldmethod=manual
 set foldlevel=0
 set lazyredraw
-set nowrap "?
 " set regexpengine=1 "?
 
 " indentation
-set shiftwidth=4 tabstop=4 softtabstop=4 expandtab autoindent smartindent
+set expandtab autoindent smartindent
+let &shiftwidth = b:altvim_indent
+let &tabstop = b:altvim_indent
+let &softtabstop = b:altvim_indent
 
-" text width
-" set colorcolumn=80
-
-" set whichwrap+=<,>,[,]
+" soft wrap
+set wrap linebreak breakindent
+let &breakindentopt = 'shift:' . b:altvim_indent
 
 " in-text search 
-set incsearch ignorecase smartcase wrapscan
+set incsearch nohlsearch ignorecase smartcase wrapscan
 " highlight search only while in-search
 augroup vimrc-incsearch-highlight
         autocmd!
@@ -70,9 +74,7 @@ set termguicolors guicursor=a:block-blinkon0 number signcolumn=yes:1 showcmd cmd
 " command line completion by <Tab>
 set wildmenu wildmode=longest:full,full
 
-" set autocomplete engine and options
-" set completeopt=menu,menuone,noinsert,noselect
-" set omnifunc=lsc#complete#complete
+set completeopt=menu
 
 " configure statusline
 set statusline=%#StatusLineNC#%m%{altvim#lsp_status()}%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
@@ -109,16 +111,17 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     if exists("g:altvim_lsp")
         let g:coc_node_path = get(g:altvim_lsp, 'nodejs', '/usr/bin/node')
     endif
-
+    
     let g:coc_user_config = {
         \ "npm.binPath": exists("g:altvim_lsp") ? get(g:altvim_lsp, 'npm', 'npm') : '/usr/bin/npm',
-        \ "suggest.autoTrigger": "always",
+        \ "suggest.autoTrigger": "none",
         \ "suggest.floatEnable": v:false,
         \ "suggest.triggerCompletionWait": 200,
-        \ "suggest.maxCompleteItemCount": 7,
-        \ "suggest.minTriggerInputLength": 3,
+        \ "suggest.maxCompleteItemCount": 10,
+        \ "suggest.minTriggerInputLength": 10,
         \ "suggest.snippetIndicator": "",
         \ "suggest.preferCompleteThanJumpPlaceholder": v:true,
+        \ "suggest.noselect": v:false,
         \ "suggest.keepCompleteopt": v:true,
         \ "signature.target": "echo",
         \ "signature.messageTarget": "echo",
@@ -146,17 +149,17 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     hi! link CocErrorHighlight Error
     hi! link CocWarningHighlight WarningMsg
     hi! link CocUnderline Underlined
-endif
+endif   
 
 " FZF settings
 let g:fzf_layout = {'window': 'enew'}
 
 " Start Up commands
 " language specific tab
-autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
-autocmd FileType css setlocal shiftwidth=2 tabstop=2
-autocmd FileType html setlocal shiftwidth=2 tabstop=2
-autocmd FileType markdown setlocal shiftwidth=2 tabstop=2
+autocmd FileType javascript let b:altvim_indent = 2
+autocmd FileType css let b:altvim_indent = 2
+autocmd FileType html let b:altvim_indent = 2
+autocmd FileType markdown let b:altvim_indent = 2
 
 " show file search after start on directory
 autocmd VimEnter * nested
@@ -234,15 +237,26 @@ fun! XRedo()
 endfun
 
 fun! XDelete()
-    return GetPrefix() . '"_d'
+    let l:cmd = mode() == 'i' ? 'V' : ''
+    
+    return GetPrefix() . l:cmd . '"_d'
 endfun
 
-fun! XClear()
-    return GetPrefix() . '"_c'
+fun! X_Copy()
+    let l:lines = split(@0, "\n")
+    let l:first_line = substitute(l:lines[0], '^\s\+', '', '')
+    let l:first_line = substitute(l:first_line, '\s\+$', '', '')
+    let l:first_line = substitute(l:first_line, '\^I', '', 'i')
+    let @0 = join([l:first_line] + l:lines[1:], "\n")
+
+    " windows wsl tweak
+    if system('uname -r') =~ 'microsoft'
+        call system('clip.exe', @0)
+    endif
 endfun
 
 fun! XCopy()
-    return GetPrefix() . '"0y'
+    return GetPrefix() . '"0y' . GetPrefix() . ":call X_Copy()\<cr>"
 endfun
 
 fun! XCut()
@@ -250,26 +264,67 @@ fun! XCut()
 endfun
 
 fun! XPaste()
-    let l:lines = split(@0, "\n")
-    let l:first_line = substitute(l:lines[0], '^\s\+', '', '')
-    let l:first_line = substitute(l:first_line, '\s\+$', '', '')
-    let l:first_line = substitute(l:first_line, '^I', '', '')
-    let @0 = join([l:first_line] + l:lines[1:], "\n")
-
-    let l:mode = col('.') == 1  ? "P" : "p"
-    return GetPrefix() . '"0' . l:mode
+    return GetPrefix() . '"0P'
 endfun
 
-fun! XSelect()
-    return GetPrefix() . "v"
+fun! XSelect(dir)
+    let l:cmd = mode() == 'v' ? "" : "v"
+    
+    if (l:cmd == '' && a:dir == 'right')
+        let l:cmd = l:cmd . "l"
+    elseif (a:dir == 'left')
+        let l:cmd = l:cmd . "h"
+    elseif (a:dir == 'up')
+        let l:cmd = l:cmd . 'k'
+    elseif (a:dir == 'down')
+        let l:cmd = l:cmd . 'j'
+    endif
+
+    return GetPrefix() . l:cmd
 endfun
 
-fun! XSelectLine()
-    return GetPrefix() . 'V'
+fun! XSelectLine(type)
+    let l:mode = mode() == 'v' ? '' : 'v'
+    let l:cmd = '$h'
+    
+    if (a:type == 'begin')
+        let l:cmd = '^'
+    endif
+    
+    return GetPrefix() . l:mode . l:cmd
+endfun
+
+fun! XSelectBlock()
+    return GetPrefix() . "\<C-v>"
+endfun
+
+fun! XSelectAll()
+    return GetPrefix() . 'gg' . GetPrefix() . 'vG$'
+endfun
+
+fun! XReselect()
+    return GetPrefix() . 'gv'
+endfun
+
+fun! XSelectPasted()
+    return GetPrefix() . '`[' . GetPrefix() . 'v`]'
+endfun
+
+fun! XSmartSelect()
+    let l:obj = nr2char(getchar())
+    let l:objs = ['"', "'", '`', ')', ']', '}', '>', 't']
+    
+    if (index(l:objs, l:obj) == -1) | return '' | endif
+
+    let l:cmd = mode() == 'v' ? '' : 'v'
+    return GetPrefix() . l:cmd . "i" . l:obj
 endfun
 
 fun! XSearchInText()
-    return GetPrefix() . "/"
+    let l:char = nr2char(getchar())
+    if (l:char == "\<ESC>") | return '' | endif
+    
+    return GetPrefix() . "/" . l:char . "\<cr>"
 endfun
 
 fun! XNextFound()
@@ -289,11 +344,21 @@ fun! XLineBegin()
 endfun
 
 fun! XWordBegin()
-    return GetPrefix() . '/\(\(\A\|\n\)\zs\(\a\|\d\)\)\|\(\l\zs\u\)' . "\<cr>"
+    let l:cmd = mode() == 'v' ? 'h' : ''
+    return GetPrefix() . '/\(\(\A\|\n\)\zs\(\a\|\d\)\)\|\(\l\zs\u\)' . "\<cr>" . GetPrefix() . l:cmd
 endfun
 
 fun! XWordEnd()
-    return GetPrefix() . '/\(\a\|\d\)\(\A\|\n\)\|\(\l\(\u\|\d\)\)' . "\<cr>"
+    let l:cmd = mode() == 'v' ? '' : 'l'
+    return GetPrefix() . '/\(\a\|\d\)\(\A\|\n\)\|\(\l\(\u\|\d\)\)' . "\<cr>" . GetPrefix() . l:cmd
+endfun
+
+fun! XNextWord()
+    return XWordEnd()
+endfun
+
+fun! XPrevWord()
+    return XWordEnd() . "\<ESC>" . XPrevFound()
 endfun
 
 fun! XRepeat()
@@ -328,8 +393,22 @@ fun! XShowErrors()
     return GetPrefix() . ":CocList diagnostics\<cr>"
 endfun
 
+fun! XNextError()
+    return GetPrefix() . ":call CocAction('diagnosticNext', 'error')\<cr>"
+endfun
+
+fun! XPrevError()
+    return GetPrefix() . ":call CocAction('diagnosticPrevious', 'error')\<cr>"
+endfun
+
 fun! XFormat()
-    return GetPrefix() . ":call CocActionAsync('formatSelected', visualmode())\<cr>"
+    let l:cmd = (mode() == 'v' ? '' : 'V')
+    
+    if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
+        let l:cmd = l:cmd . ":call CocAction('formatSelected', visualmode())\<cr>"
+    endif
+        
+    return GetPrefix() . l:cmd . GetPrefix() . "gv="
 endfun
 
 fun! XComment()
@@ -346,6 +425,15 @@ fun! XOutdent()
     return GetPrefix() . l:cmd
 endfun
 
+fun! XJoin()
+    return GetPrefix() . "J"
+endfun
+
+fun! XClone()
+    let l:cmd = mode() == 'v' ? '' : 'V'
+    return GetPrefix() . l:cmd . '"cy' . GetPrefix() . '"cP'
+endfun
+
 fun! Shortcut(key, act, ...)
     let l:key = split(a:key, " ")
     if l:key[0] != '_' || (l:key[0] == '_' && len(l:key) > 1)
@@ -357,6 +445,32 @@ fun! Shortcut(key, act, ...)
     endif
 endfun
 
+fun! XClearDefaultKeys()
+    let l:keyboard_keys = ['<space>', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '_', '-', '=', '`', '/', '?', ')', '(', '[', ']', '{', '}', '"', '"']
+    let l:keyboard_modif = ['C', 'M', 'S']
+
+    for l:keyboard_key in l:keyboard_keys
+        exe 'noremap ' . l:keyboard_key . " <Nop>"
+    endfor
+
+    for l:keyboard_modif in l:keyboard_modif
+        for l:keyboard_key in l:keyboard_keys
+            if (l:keyboard_modif == 'C' && l:keyboard_key == 'M')
+                continue
+            endif
+            if (l:keyboard_modif == 'C' && l:keyboard_key == '[')
+                continue
+            endif
+            if (l:keyboard_modif != 'S')
+                exe 'inoremap <' . l:keyboard_modif . '-' . l:keyboard_key . "> <Nop>"
+            endif
+            exe 'noremap <' . l:keyboard_modif . '-' . l:keyboard_key . "> <Nop>"
+        endfor
+    endfor
+endfun
+
+" Clear
+call XClearDefaultKeys()
 " Base
 call Shortcut("<M-`>", "XCmd()", "Command prompt")
 call Shortcut("<C-s>", "XSave()", "Save")
@@ -372,20 +486,28 @@ call Shortcut("<C-g>", "XSearchInFiles()", "Search in files")
 call Shortcut("<M-1>", "XShowErrors()", "Show errors")
 call Shortcut("<C-b>", "XFormat()", "Format")
 call Shortcut("<C-_>", "XComment()", "Comment")
-
 " Actions
 call Shortcut("<M-a>", "XRepeat()", "Repeat last action")
 call Shortcut("<C-c>", "XCopy()", "Copy")
 call Shortcut("<C-x>", "XCut()", "Cut")
 call Shortcut("<C-v>", "XPaste()", "Paste")
 call Shortcut("<C-d>", "XDelete()", "Delete")
-call Shortcut("_ <Space>", "XClear()", "Clear")
-call Shortcut("<S-down>", "XSelectLine()", "Select line")
-call Shortcut("<S-up>", "XSelectLine()", "Select line")
-call Shortcut("<S-right>", "XSelect()", "Select")
-call Shortcut("<S-left>", "XSelect()", "Select")
+call Shortcut("<C-j>", "XJoin()", "Join")
+call Shortcut("<C-l>", "XClone()", "Clone")
 call Shortcut("<Tab>", "XIndent()", "Indent line")
 call Shortcut("<S-Tab>", "XOutdent()", "Outdent line")
+" Selection
+call Shortcut("<M-s>", "XSmartSelect()", "Smart select")
+call Shortcut("<C-S-down>", "XSelectLine('end')", "Select to line end")
+call Shortcut("<C-S-up>", "XSelectLine('begin')", "Select to line begin")
+call Shortcut("<C-space>", "XSelectBlock()", "Select block")
+call Shortcut("<C-a>", "XSelectAll()", "Select all")
+call Shortcut("<S-down>", "XSelect('down')", "Select line down")
+call Shortcut("<S-up>", "XSelect('up')", "Select line up")
+call Shortcut("<S-right>", "XSelect('right')", "Select")
+call Shortcut("<S-left>", "XSelect('left')", "Select")
+call Shortcut("<M-p>", "XSelectPasted()", "Select pasted")
+call Shortcut("<M-l>", "XReselect()", "Reselect")
 
 " Movements
 call Shortcut("<M-f>", "XSearchInText()", "Search in text")
@@ -393,6 +515,43 @@ call Shortcut("<M-right>", "XNextFound()", "To next found")
 call Shortcut("<M-left>", "XPrevFound()", "To previous found")
 call Shortcut("<C-down>", "XLineEnd()", "To end of current line")
 call Shortcut("<C-up>", "XLineBegin()", "To begin  of current line")
+call Shortcut("<C-right>", "XNextWord()", "To next word")
+call Shortcut("<C-left>", "XPrevWord()", "To prev word")
 call Shortcut("<M-w>", "XWordBegin()", "To begin of word")
 call Shortcut("<M-e>", "XWordEnd()", "To end of word")
+call Shortcut("<M-2>", "XNextError()", "Go to next error")
+call Shortcut("<M-3>", "XPrevError()", "Go to prev error")
+
+fun! XSmartTab()
+    let l:line = getline('.')
+    let l:prevChar = strpart(l:line, col('.') - 2, 1)
+    
+    if (pumvisible())
+        return "\<C-n>"
+    endif
+    
+    if (l:prevChar == " " || col('.') == 1)
+        return XIndent()
+    endif
+    
+    return coc#refresh()
+endfun
+
+fun! XSmartSTab()
+    let l:line = getline('.')
+    let l:prevChar = strpart(l:line, col('.') - 2, 1)
+    
+    if (pumvisible())
+        return "\<C-p>"
+    endif
+
+    if (l:prevChar == " " || col('.') == 1)
+        return XOutdent()
+    endif
+
+    return coc#refresh()
+endfun
+
+inoremap <silent> <expr> <Tab> XSmartTab()
+inoremap <silent> <expr> <S-Tab> XSmartSTab()
 
