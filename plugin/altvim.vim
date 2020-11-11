@@ -1,8 +1,3 @@
-" - Completion by dictionary (https://i.stack.imgur.com/x8B6U.gif)
-" setlocal complete+=k
-" setlocal dictionary+=/path/to/fontawesome.txt
-" setlocal iskeyword+=-
-
 silent !stty -ixon
 
 " disable back-compatibility with Vi
@@ -48,13 +43,20 @@ set lazyredraw
 
 " indentation
 set expandtab autoindent smartindent
-let &shiftwidth = b:altvim_indent
-let &tabstop = b:altvim_indent
-let &softtabstop = b:altvim_indent
+let &l:shiftwidth = b:altvim_indent
+let &l:tabstop = b:altvim_indent
+let &l:softtabstop = b:altvim_indent
+
+" formatting
+set formatoptions=tcqjwn
+" completion
+set complete=.,b,u,t,i
+" set completeopt=menu,menuone,noinsert
+" set omnifunc=syntaxcomplete#Complete
 
 " soft wrap
 set wrap linebreak breakindent
-let &breakindentopt = 'shift:' . b:altvim_indent
+let &l:breakindentopt = 'shift:' . b:altvim_indent
 
 " in-text search 
 set incsearch nohlsearch ignorecase smartcase wrapscan
@@ -73,8 +75,6 @@ set termguicolors guicursor=a:block-blinkon0 number signcolumn=yes:1 showcmd cmd
 
 " command line completion by <Tab>
 set wildmenu wildmode=longest:full,full
-
-set completeopt=menu
 
 " configure statusline
 set statusline=%#StatusLineNC#%m%{altvim#lsp_status()}%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
@@ -98,10 +98,6 @@ if exists("g:plugs")
         nohl | call altvim#install_plugins() | bdelete | source $MYVIMRC
     endif
 endif
-
-" indent-line
-let g:indentLine_fileTypeExclude = ['markdown']
-let g:indentLine_defaultGroup = 'Conceal'
 
 " LSP
 if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
@@ -149,7 +145,11 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     hi! link CocErrorHighlight Error
     hi! link CocWarningHighlight WarningMsg
     hi! link CocUnderline Underlined
-endif   
+endif
+
+" indent-line
+let g:indentLine_fileTypeExclude = ['markdown']
+let g:indentLine_defaultGroup = 'Conceal'
 
 " FZF settings
 let g:fzf_layout = {'window': 'enew'}
@@ -403,12 +403,12 @@ endfun
 
 fun! XFormat()
     let l:cmd = (mode() == 'v' ? '' : 'V')
-    
+    let l:fmt = ""
     if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
-        let l:cmd = l:cmd . ":call CocAction('formatSelected', visualmode())\<cr>"
+        let l:fmt = ":call CocAction('formatSelected', visualmode())\<cr>"
     endif
         
-    return GetPrefix() . l:cmd . GetPrefix() . "gv="
+    return GetPrefix() . l:cmd . "=" . GetPrefix() . "gvgq" . GetPrefix() . "gv" . l:fmt
 endfun
 
 fun! XComment()
