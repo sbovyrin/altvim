@@ -51,7 +51,7 @@ let &l:softtabstop = b:altvim_indent
 set formatoptions=tcqjwn
 " completion
 set complete=.,b,u,t,i
-" set completeopt=menu,menuone,noinsert
+set completeopt=menu
 " set omnifunc=syntaxcomplete#Complete
 
 " soft wrap
