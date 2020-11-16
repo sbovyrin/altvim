@@ -320,19 +320,23 @@ fun! XSmartSelect()
     return GetPrefix() . l:cmd . "i" . l:obj
 endfun
 
-fun! XSearchInText()
+fun! XSearchInText(dir)
     let l:char = nr2char(getchar())
     if (l:char == "\<ESC>") | return '' | endif
     
-    return GetPrefix() . "/" . l:char . "\<cr>"
+    let l:dir = a:dir == 'next' ? '/' : '?'
+
+    return GetPrefix() . l:dir . l:char . "\<cr>"
 endfun
 
 fun! XNextFound()
-    return GetPrefix() . "n"
+    let l:cmd = v:searchforward ? 'n' : 'N'
+    return GetPrefix() . l:cmd
 endfun
 
 fun! XPrevFound()
-    return GetPrefix() . "N"
+    let l:cmd = v:searchforward ? 'N' : 'n'
+    return GetPrefix() . l:cmd
 endfun
 
 fun! XLineEnd()
@@ -343,22 +347,16 @@ fun! XLineBegin()
     return GetPrefix() . "^"
 endfun
 
-fun! XWordBegin()
+fun! XWordBegin(dir)
     let l:cmd = mode() == 'v' ? 'h' : ''
-    return GetPrefix() . '/\(\(\A\|\n\)\zs\(\a\|\d\)\)\|\(\l\zs\u\)' . "\<cr>" . GetPrefix() . l:cmd
+    let l:dir = a:dir == 'next' ? '/' : '?'
+    return GetPrefix() . l:dir . '\(\(\A\|\n\)\zs\(\a\|\d\)\)\|\(\l\zs\u\)' . "\<cr>" . l:cmd
 endfun
 
-fun! XWordEnd()
+fun! XWordEnd(dir)
     let l:cmd = mode() == 'v' ? '' : 'l'
-    return GetPrefix() . '/\(\a\|\d\)\(\A\|\n\)\|\(\l\(\u\|\d\)\)' . "\<cr>" . GetPrefix() . l:cmd
-endfun
-
-fun! XNextWord()
-    return XWordEnd()
-endfun
-
-fun! XPrevWord()
-    return XWordEnd() . "\<ESC>" . XPrevFound()
+    let l:dir = a:dir == 'next' ? '/' : '?'
+    return GetPrefix() . l:dir . '\(\a\|\d\)\(\A\|\n\)\|\(\l\(\u\|\d\)\)' . "\<cr>" . GetPrefix() . l:cmd
 endfun
 
 fun! XRepeat()
@@ -447,7 +445,7 @@ endfun
 
 fun! XClearDefaultKeys()
     let l:keyboard_keys = ['<space>', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '_', '-', '=', '`', '/', '?', ')', '(', '[', ']', '{', '}', '"', '"']
-    let l:keyboard_modif = ['C', 'M', 'S']
+    let l:keyboard_modif = ['C', 'M', 'S', 'M-S']
 
     for l:keyboard_key in l:keyboard_keys
         exe 'noremap ' . l:keyboard_key . " <Nop>"
@@ -510,15 +508,14 @@ call Shortcut("<M-p>", "XSelectPasted()", "Select pasted")
 call Shortcut("<M-l>", "XReselect()", "Reselect")
 
 " Movements
-call Shortcut("<M-f>", "XSearchInText()", "Search in text")
+call Shortcut("<M-f>", "XSearchInText('next')", "Search in text")
+call Shortcut("<M-S-f>", "XSearchInText('prev')", "Backward search in text")
 call Shortcut("<M-right>", "XNextFound()", "To next found")
 call Shortcut("<M-left>", "XPrevFound()", "To previous found")
 call Shortcut("<C-down>", "XLineEnd()", "To end of current line")
 call Shortcut("<C-up>", "XLineBegin()", "To begin  of current line")
-call Shortcut("<C-right>", "XNextWord()", "To next word")
-call Shortcut("<C-left>", "XPrevWord()", "To prev word")
-call Shortcut("<M-w>", "XWordBegin()", "To begin of word")
-call Shortcut("<M-e>", "XWordEnd()", "To end of word")
+call Shortcut("<C-right>", "XWordEnd('next')", "To next word")
+call Shortcut("<C-left>", "XWordBegin('prev')", "To prev word")
 call Shortcut("<M-2>", "XNextError()", "Go to next error")
 call Shortcut("<M-3>", "XPrevError()", "Go to prev error")
 
