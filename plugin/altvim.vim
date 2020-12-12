@@ -39,20 +39,21 @@ set nofoldenable
 set foldmethod=manual
 set foldlevel=0
 set lazyredraw
+set redrawtime=5000
 " set regexpengine=1 "?
 
 " indentation
 set expandtab autoindent smartindent
-let &l:shiftwidth = b:altvim_indent
 let &l:tabstop = b:altvim_indent
 let &l:softtabstop = b:altvim_indent
+let &l:shiftwidth = b:altvim_indent
 
 " formatting
-set formatoptions=tcqjwn
+set formatoptions=2ql
 " completion
 set complete=.,b,u,t,i
 set completeopt=menu
-" set omnifunc=syntaxcomplete#Complete
+set omnifunc=syntaxcomplete#Complete
 
 " soft wrap
 set wrap linebreak breakindent
@@ -77,7 +78,7 @@ set termguicolors guicursor=a:block-blinkon0 number signcolumn=yes:1 showcmd cmd
 set wildmenu wildmode=longest:full,full
 
 " configure statusline
-set statusline=%#StatusLineNC#%m%{altvim#lsp_status()}%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
+set statusline=%#Error#%{altvim#lsp_status()}%#StatusLineNC#%r\ %.60F\ %y\ %{&fenc}%=Col:\ %c\ \|\ Line:\ %l/%L
 
 " disable netrw directory listing on startup
 let loaded_netrw = 0
@@ -100,6 +101,23 @@ if exists("g:plugs")
 endif
 
 " LSP
+if exists("g:plugs") && has_key(g:plugs, "vim-lsp")
+
+    if g:lsp_loaded
+        setlocal omnifunc=lsp#complete
+    endif
+
+    let g:lsp_signs_error = {'text': '✗'}
+    let g:lsp_signs_error = {'text': '!!'}
+    let g:lsp_diagnostics_enabled = 1
+    let g:lsp_diagnostics_echo_delay = 1000
+    let g:lsp_diagnostics_float_cursor = 0
+    let g:lsp_virtual_text_enabled = 0
+    let g:lsp_diagnostic_echo_cursor = 1
+    let g:lsp_fold_enabled = 0
+    let g:lsp_signs_priority = 11
+endif
+
 if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     let g:coc_data_home = g:altvim_dir . 'deps/lsp'
     let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
@@ -320,6 +338,11 @@ fun! XSmartSelect()
     return GetPrefix() . l:cmd . "i" . l:obj
 endfun
 
+fun! XToChanges(dir)
+    let l:cmd = a:dir == 'next' ? "g," : "g;"
+    return GetPrefix() . l:cmd
+endfun
+
 fun! XSearchInText(dir)
     let l:char = nr2char(getchar())
     if (l:char == "\<ESC>") | return '' | endif
@@ -340,7 +363,8 @@ fun! XPrevFound()
 endfun
 
 fun! XLineEnd()
-    return GetPrefix() . "$"
+    let l:cmd = mode() == 'v' ? (GetPrefix() . 'h') : ''
+    return GetPrefix() . "$" . l:cmd
 endfun
 
 fun! XLineBegin()
@@ -380,7 +404,7 @@ fun! XRecentFile()
 endfun
 
 fun! XSearchInFile()
-    return GetPrefix() . ":BLines\<cr>"
+    return GetPrefix() . "/"
 endfun
 
 fun! XSearchInFiles()
@@ -388,25 +412,26 @@ fun! XSearchInFiles()
 endfun
 
 fun! XShowErrors()
-    return GetPrefix() . ":CocList diagnostics\<cr>"
+    return GetPrefix() . ":LspDocumentDiagnostic\<cr>"
 endfun
 
 fun! XNextError()
-    return GetPrefix() . ":call CocAction('diagnosticNext', 'error')\<cr>"
+    return GetPrefix() . ":LspNextError\<cr>"
 endfun
 
 fun! XPrevError()
-    return GetPrefix() . ":call CocAction('diagnosticPrevious', 'error')\<cr>"
+    return GetPrefix() . ":LspPreviousError\<cr>"
 endfun
 
 fun! XFormat()
     let l:cmd = (mode() == 'v' ? '' : 'V')
-    let l:fmt = ""
+    let l:fmt = l:cmd . 'gw'
+    
     if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
-        let l:fmt = ":call CocAction('formatSelected', visualmode())\<cr>"
+        let l:fmt = l:cmd . ":call CocAction('formatSelected', visualmode())\<cr>"
     endif
-        
-    return GetPrefix() . l:cmd . "=" . GetPrefix() . "gvgq" . GetPrefix() . "gv" . l:fmt
+    
+    return GetPrefix() . l:fmt . GetPrefix() . 'gv='
 endfun
 
 fun! XComment()
@@ -430,6 +455,14 @@ endfun
 fun! XClone()
     let l:cmd = mode() == 'v' ? '' : 'V'
     return GetPrefix() . l:cmd . '"cy' . GetPrefix() . '"cP'
+endfun
+
+fun! XClosePanel()
+    if (get(getloclist(0, {'winid':0}), 'winid', 0))
+        return GetPrefix() . ":lclose\<cr>"
+    endif
+
+    return "\<ESC>"
 endfun
 
 fun! Shortcut(key, act, ...)
@@ -470,6 +503,7 @@ endfun
 " Clear
 call XClearDefaultKeys()
 " Base
+call Shortcut("<ESC>", "XClosePanel()", "Close popup panel")
 call Shortcut("<M-`>", "XCmd()", "Command prompt")
 call Shortcut("<C-s>", "XSave()", "Save")
 call Shortcut("<C-w>", "XClose()", "Close file")
@@ -508,6 +542,8 @@ call Shortcut("<M-p>", "XSelectPasted()", "Select pasted")
 call Shortcut("<M-l>", "XReselect()", "Reselect")
 
 " Movements
+call Shortcut("<M-[>", "XToChanges('prev')", "To prev changes")
+call Shortcut("<M-]>", "XToChanges('next')", "To next changes")
 call Shortcut("<M-f>", "XSearchInText('next')", "Search in text")
 call Shortcut("<M-S-f>", "XSearchInText('prev')", "Backward search in text")
 call Shortcut("<M-right>", "XNextFound()", "To next found")
@@ -530,8 +566,9 @@ fun! XSmartTab()
     if (l:prevChar == " " || col('.') == 1)
         return XIndent()
     endif
-    
-    return coc#refresh()
+
+    return "\<C-x>\<C-o>"
+    " return coc#refresh()
 endfun
 
 fun! XSmartSTab()
@@ -546,7 +583,7 @@ fun! XSmartSTab()
         return XOutdent()
     endif
 
-    return coc#refresh()
+    return "\<C-x>\<C-o>"
 endfun
 
 inoremap <silent> <expr> <Tab> XSmartTab()
