@@ -103,9 +103,10 @@ endif
 " LSP
 if exists("g:plugs") && has_key(g:plugs, "vim-lsp")
 
-    if g:lsp_loaded
-        setlocal omnifunc=lsp#complete
-    endif
+    augroup lsp_install
+        au!
+        autocmd User lsp_buffer_enabled :setlocal omnifunc=lsp#complete
+    augroup END
 
     let g:lsp_signs_error = {'text': '✗'}
     let g:lsp_signs_error = {'text': '!!'}
