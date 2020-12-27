@@ -1,5 +1,5 @@
 fun! altvim#lsp_status() abort
-    let l:info = lsp#get_buffer_diagnostics_counts()
+    let info = get(b:, 'coc_diagnostic_info', {})
     if empty(l:info) | return '' | endif
     
     let l:msgs = []

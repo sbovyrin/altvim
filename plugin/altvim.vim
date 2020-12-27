@@ -3,9 +3,6 @@ silent !stty -ixon
 " disable back-compatibility with Vi
 set nocompatible
 
-" set document indent
-let b:altvim_indent = 4
-
 " enable auto filetype determination 
 " and autoloading appropriated plugins for the filetype
 filetype plugin indent on
@@ -43,21 +40,16 @@ set redrawtime=5000
 " set regexpengine=1 "?
 
 " indentation
-set expandtab autoindent smartindent
-let &l:tabstop = b:altvim_indent
-let &l:softtabstop = b:altvim_indent
-let &l:shiftwidth = b:altvim_indent
+set expandtab autoindent smartindent tabstop=4 softtabstop=4 shiftwidth=4
+" soft wrap
+set wrap linebreak breakindent breakindentopt=shift:4
 
 " formatting
 set formatoptions=2ql
 " completion
 set complete=.,b,u,t,i
 set completeopt=menu
-set omnifunc=syntaxcomplete#Complete
-
-" soft wrap
-set wrap linebreak breakindent
-let &l:breakindentopt = 'shift:' . b:altvim_indent
+" set omnifunc=syntaxcomplete#Complete
 
 " in-text search 
 set incsearch nohlsearch ignorecase smartcase wrapscan
@@ -100,25 +92,8 @@ if exists("g:plugs")
     endif
 endif
 
+
 " LSP
-if exists("g:plugs") && has_key(g:plugs, "vim-lsp")
-
-    augroup lsp_install
-        au!
-        autocmd User lsp_buffer_enabled :setlocal omnifunc=lsp#complete
-    augroup END
-
-    let g:lsp_signs_error = {'text': '✗'}
-    let g:lsp_signs_error = {'text': '!!'}
-    let g:lsp_diagnostics_enabled = 1
-    let g:lsp_diagnostics_echo_delay = 1000
-    let g:lsp_diagnostics_float_cursor = 0
-    let g:lsp_virtual_text_enabled = 0
-    let g:lsp_diagnostic_echo_cursor = 1
-    let g:lsp_fold_enabled = 0
-    let g:lsp_signs_priority = 11
-endif
-
 if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
     let g:coc_data_home = g:altvim_dir . 'deps/lsp'
     let g:coc_config_home = g:altvim_dir . 'deps/lsp/config'
@@ -156,9 +131,10 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
         \ "coc.preferences.enableFloatHighlight": v:false,
         \ "coc.preferences.messageLevel": "error",
         \ "emmet.showExpandedAbbreviation": v:false,
-        \ "emmet.includeLanguages": ["html", "javascript", "javascriptreact", "php"],
+        \ "emmet.includeLanguages": ["html", "javascript", "javascriptreact", "php", "css", "svelte"],
         \ "emmet.excludeLanguages": [],
-        \ "codeLens.enable": v:false
+        \ "codeLens.enable": v:false,
+        \ "svelte.plugin.svelte.format.enable": v:false
     \ }
 
     hi! link CocErrorHighlight Error
@@ -175,10 +151,11 @@ let g:fzf_layout = {'window': 'enew'}
 
 " Start Up commands
 " language specific tab
-autocmd FileType javascript let b:altvim_indent = 2
-autocmd FileType css let b:altvim_indent = 2
-autocmd FileType html let b:altvim_indent = 2
-autocmd FileType markdown let b:altvim_indent = 2
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2 breakindentopt=shift:2
+autocmd FileType svelte setlocal shiftwidth=2 tabstop=2 softtabstop=2 breakindentopt=shift:2
+autocmd FileType css setlocal shiftwidth=2 tabstop=2 softtabstop=2 breakindentopt=shift:2
+autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2 breakindentopt=shift:2
+autocmd FileType markdown setlocal shiftwidth=2 tabstop=2 softtabstop=2 breakindentopt=shift:2
 
 " show file search after start on directory
 autocmd VimEnter * nested
@@ -413,26 +390,26 @@ fun! XSearchInFiles()
 endfun
 
 fun! XShowErrors()
-    return GetPrefix() . ":LspDocumentDiagnostic\<cr>"
+    return GetPrefix() . ":CocList diagnostics\<cr>"
 endfun
 
 fun! XNextError()
-    return GetPrefix() . ":LspNextError\<cr>"
+    return GetPrefix() . ":call CocAction('diagnosticNext', 'error')\<cr>"
 endfun
 
 fun! XPrevError()
-    return GetPrefix() . ":LspPreviousError\<cr>"
+    return GetPrefix() . ":call CocAction('diagnosticPrevious', 'error')\<cr>"
 endfun
 
 fun! XFormat()
     let l:cmd = (mode() == 'v' ? '' : 'V')
-    let l:fmt = l:cmd . 'gw'
+    let l:fmt = l:cmd . '='
     
     if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
-        let l:fmt = l:cmd . ":call CocAction('formatSelected', visualmode())\<cr>"
+        let l:fmt = l:fmt . GetPrefix() . "gv" . ":call CocAction('formatSelected', visualmode())\<cr>"
     endif
     
-    return GetPrefix() . l:fmt . GetPrefix() . 'gv='
+    return GetPrefix() . l:fmt
 endfun
 
 fun! XComment()
@@ -568,8 +545,7 @@ fun! XSmartTab()
         return XIndent()
     endif
 
-    return "\<C-x>\<C-o>"
-    " return coc#refresh()
+    return coc#refresh()
 endfun
 
 fun! XSmartSTab()
@@ -584,7 +560,7 @@ fun! XSmartSTab()
         return XOutdent()
     endif
 
-    return "\<C-x>\<C-o>"
+    return coc#refresh()
 endfun
 
 inoremap <silent> <expr> <Tab> XSmartTab()
