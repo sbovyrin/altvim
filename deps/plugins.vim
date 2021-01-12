@@ -6,9 +6,7 @@ Plug 'yggdroot/indentline'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " language server protocol  
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'prabirshrestha/vim-lsp'
-Plug 'mattn/vim-lsp-settings'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " language syntax  
 Plug 'sheerun/vim-polyglot'
 " show on the left panel code line status (added | modified | removed)

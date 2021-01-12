@@ -133,8 +133,7 @@ if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
         \ "emmet.showExpandedAbbreviation": v:false,
         \ "emmet.includeLanguages": ["html", "javascript", "javascriptreact", "php", "css", "svelte"],
         \ "emmet.excludeLanguages": [],
-        \ "codeLens.enable": v:false,
-        \ "svelte.plugin.svelte.format.enable": v:false
+        \ "codeLens.enable": v:false
     \ }
 
     hi! link CocErrorHighlight Error
@@ -406,7 +405,7 @@ fun! XFormat()
     let l:fmt = l:cmd . '='
     
     if exists("g:plugs") && has_key(g:plugs, "coc.nvim")
-        let l:fmt = l:fmt . GetPrefix() . "gv" . ":call CocAction('formatSelected', visualmode())\<cr>"
+     let l:fmt = ":call CocAction('formatSelected', visualmode())\<cr>"
     endif
     
     return GetPrefix() . l:fmt
